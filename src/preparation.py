@@ -193,9 +193,12 @@ class SubjectPreparation():
 
     Arguments:
         host    --  Name of the host to start the test run on
+        subject  -- Specific test subject to be chosen (optional)
+        bitness  -- Bitness of the specific test subject
+                    (only required if test subject is specified)
     """
 
-    def __init__(self, host):
+    def __init__(self, host, subject=False, bitness=False):
         self.build = None
         self.builddir = None
         self.guestconfigs = {}
@@ -205,7 +208,8 @@ class SubjectPreparation():
                     'This command is meant to be run on %s by Artemis.\n'
                     'Please update the config module if the Artemis '
                     'host has changed.' % (nfshost, ))
-        self.testrun = generator.TestRunGenerator(self.host, auto=True)
+        self.testrun = generator.TestRunGenerator(
+                self.host, True, subject, bitness)
 
     def get_latest_build(self):
         """Find latest build of a test subject

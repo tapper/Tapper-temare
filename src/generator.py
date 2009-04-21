@@ -14,8 +14,11 @@ class TestRunGenerator():
 
     Arguments:
         hostname -- Name of the host system
-        auto     -- Perform test subject rotation
+        auto     -- Perform test subject rotation or choose a specific one
                     (optional, anything else than False enables it)
+        subject  -- Specific test subject to be chosen (optional)
+        bitness  -- Bitness of the specific test subject
+                    (only required if test subject is specified)
 
     Provided information:
         TestRunGenerator.host
@@ -51,7 +54,7 @@ class TestRunGenerator():
                 Mark all tests used in the testrun as done
     """
 
-    def __init__(self, hostname, auto=False):
+    def __init__(self, hostname, auto=False, subject=False, bitness=False):
         self.host = {'id': None, 'name': None}
         self.subject = {'id': None, 'name': None, 'bitness': None}
         self.resources = \
@@ -64,7 +67,7 @@ class TestRunGenerator():
             self.schedule = 'host'
         else:
             self.schedule = 'subject'
-            self.get_subject_info()
+            self.get_subject_info(subject, bitness)
         self.gen_tests()
 
     def get_host_info(self, hostname):
@@ -92,33 +95,48 @@ class TestRunGenerator():
         if state != 1:
             raise ValueError('The chosen host is currently disabled.')
 
-    def get_subject_info(self):
+    def get_subject_info(self, subject, bitness):
         """Find the next test subject to run on a host and fetch values for
         its ID, bitness and state, and the vendor ID of the last guest
         running on the test subject
         """
-        self.cursor.execute('''
-                SELECT subject_schedule.subject_id, subject_name,
-                    last_vendor_id, is_64bit
-                FROM subject_schedule
-                LEFT JOIN subject ON
-                    subject_schedule.subject_id=subject.subject_id
-                WHERE subject_schedule.subject_id>? AND is_enabled=1
-                ORDER BY subject_schedule.subject_id LIMIT 1''',
-                (self.resources['lastsubject'], ))
-        result = self.cursor.fetchone()
-        if result == None:
+        if subject == False and bitness == False:
             self.cursor.execute('''
                     SELECT subject_schedule.subject_id, subject_name,
                         last_vendor_id, is_64bit
                     FROM subject_schedule
                     LEFT JOIN subject ON
                         subject_schedule.subject_id=subject.subject_id
-                    WHERE is_enabled=1
-                    ORDER BY subject_schedule.subject_id LIMIT 1''')
+                    WHERE subject_schedule.subject_id>? AND is_enabled=1
+                    ORDER BY subject_schedule.subject_id LIMIT 1''',
+                    (self.resources['lastsubject'], ))
             result = self.cursor.fetchone()
             if result == None:
-                raise ValueError('Nothing to do.')
+                self.cursor.execute('''
+                        SELECT subject_schedule.subject_id, subject_name,
+                            last_vendor_id, is_64bit
+                        FROM subject_schedule
+                        LEFT JOIN subject ON
+                            subject_schedule.subject_id=subject.subject_id
+                        WHERE is_enabled=1
+                        ORDER BY subject_schedule.subject_id LIMIT 1''')
+                result = self.cursor.fetchone()
+                if result == None:
+                    raise ValueError('Nothing to do.')
+        elif subject != False and bitness in (0,1):
+            self.cursor.execute('''
+                    SELECT subject_schedule.subject_id, subject_name,
+                        last_vendor_id, is_64bit
+                    FROM subject_schedule
+                    LEFT JOIN subject ON
+                        subject_schedule.subject_id=subject.subject_id
+                    WHERE is_enabled=1 AND subject_name=? AND is_64bit=?''',
+                    (subject, bitness))
+            result = self.cursor.fetchone()
+            if result == None:
+                raise ValueError('No such test subject.')
+        else:
+            raise ValueError('Test subject or bitness not specified.')
         self.subject['id'],                     \
                 self.subject['name'],           \
                 self.resources['lastvendor'],   \

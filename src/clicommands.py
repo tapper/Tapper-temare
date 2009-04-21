@@ -7,7 +7,7 @@
 import sys
 import dbops
 import preparation
-from checks import chk_arg_count, chk_hostname
+from checks import chk_arg_count, chk_bitness, chk_hostname, chk_subject
 
 
 def do_list(listing, ordering):
@@ -528,18 +528,31 @@ class TestSubjectPrepCommand(TemareCommand):
     def __init__(self, base):
         TemareCommand.__init__(self, base)
         self.names = ['subjectprep']
-        self.usage = 'HOSTNAME'
+        self.usage = 'HOSTNAME [SUBJECT BITNESS]'
         self.summary = 'Create guest configs and output YAML precondition'
         self.description = \
-            '    HOSTNAME  Name of the host'
+            '    HOSTNAME  Name of the host\n' \
+            '    SUBJECT   Name of a specific test subject (optional)\n' \
+            '    BITNESS   Bitness of the test subject\n' \
+            '              (required if a subject is specified)'
 
     def do_command(self, args):
         """Validate the number of given arguments, write guest configurations,
         and ouput a YAML precondition string
         """
-        chk_arg_count(args, 1)
-        subjectops = preparation.SubjectPreparation(args[0])
-        subjectops.gen_precondition()
+        if len(args) == 1:
+            hostname = chk_hostname(args[0])
+            subjectops = preparation.SubjectPreparation(hostname)
+            subjectops.gen_precondition()
+        elif len(args) == 3:
+            hostname = chk_hostname(args[0])
+            subject = chk_subject(args[1])
+            bitness = chk_bitness(args[2])
+            subjectops = preparation.SubjectPreparation(
+                    hostname, subject, bitness)
+            subjectops.gen_precondition()
+        else:
+            raise ValueError('Wrong number of arguments.')
 
 
 class TestSubjectAddCommand(TemareCommand):
