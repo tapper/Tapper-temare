@@ -9,8 +9,11 @@ from socket import gethostname
 # Please set debug to False on live installs
 debug = False
 
+# Artemis data directory
+artemisdir = '/data/bancroft/artemis/live'
+
 # Path to the sqlite database
-dbpath = './test-schedule.db'
+dbpath = '%s/configs/temare/test-schedule.db' % (artemisdir, )
 
 # Amount of memory available on a host
 minmem = 1024
@@ -124,7 +127,7 @@ kvmkernelrepo = '%s/kvm.git' % (kvmrepopath, )
 kvmuserspacerepo = '%s/kvm-userspace.git' % (kvmrepopath, )
 
 # Artemis repository path
-artemisrepo = '/data/bancroft/artemis/live/repository'
+artemisrepo = '%s/repository' % (artemisdir, )
 
 # Directory to put the generated svm files into
 svmpath = '%s/configs/xen' % (artemisrepo, )
