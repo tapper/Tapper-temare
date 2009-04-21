@@ -1,0 +1,28 @@
+First thoughts about a test matrix replacement
+
+Why?
+  Current approach is to manually pick some tests out of a matrix. This is
+  done more or less random with human interaction and may lead to ignoring
+  tests which failed in the past or running some images more often than
+  others. Also, the configuration variance of the matrix is limited for a
+  single image.
+
+How?
+  There are two approaches needed:
+    For manual testing it's better to do the scheduling per host, as each
+    tester does have his `own' boxes. This will be done first.
+    For automatic testing through Artemis the scheduling should be done per
+    testee (xen-unstable, xen-stable-testing, kvm). This should require
+    minor additions only.
+
+  Scheduling:
+    - OS vendors round robin
+    - Image / test combinations for each vendor somewhat round robin,
+      but depending on system configuration, resources, and finally
+      randomness. Goal is to run every possible combination once per
+      cycle.
+    - Guest memory and VCPU configuration depending on image type,
+      optimal usage of system resources, and some randomness too
+
+  Finally spit out the guest configuration files or dump configuration
+  parameters somewhere else.
