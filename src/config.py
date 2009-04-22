@@ -55,7 +55,7 @@ kvm =                                                                         \
         '-smp %(cores)d '                                                     \
         '-hda %(datadir)s/images/%(imgbasename)s '                            \
         '-hdb %(datadir)s/images/%(mntfile)s '                                \
-        '-serial file:%(datadir)s/images/guest%(runid)d.fifo '                \
+        '-serial file:/tmp/guest%(runid)d.fifo '                              \
         '-net nic,model=e1000 '                                               \
         '-net tap,ifname=tap%(vnc)d\n'
 
@@ -74,7 +74,7 @@ svm =                                                                    \
         'vnc = 1\n'                                                      \
         'vnclisten = "0.0.0.0"\n'                                        \
         'vncpasswd = ""\n'                                               \
-        'serial = "file:/xen/images/guest%(runid)s.fifo"\n'              \
+        'serial = "file:/tmp/guest%(runid)d.fifo"\n'                     \
         'monitor = 1\n'                                                  \
         'usb = 1\n'                                                      \
         'usbdevice = "tablet"\n'                                         \
