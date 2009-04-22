@@ -1,9 +1,11 @@
+
 #!/usr/bin/env perl
 
 use strict;
 use warnings;
 use File::Stat qw(:all);
 use File::Basename;
+use YAML::Syck;
 
 my $kernel_path = "/data/bancroft/artemis/live/repository/packages/kernel/";
 
@@ -24,17 +26,24 @@ sub gen_xen
 {
         my ($host) = @_;
         my $yaml   = qx($temarepath/temare subjectprep $host);
+        return if $?;
+        my $config = Load($yaml);
+        
         open (FH,">",$filename) or die "Can't open $filename:$!";
         print FH $yaml;
         close FH or die "Can't write $filename:$!";
-        if ($? eq 0 ) {
-                open(FH, "$execpath/artemis-testrun newprecondition --condition_file=$filename|") or die "Can't open pipe:$!";
-                my $precond_id = <FH>;
-                chomp $precond_id;
-                my $testrun    = qx($execpath/artemis-testrun new --topic=Xen --precondition=$grub_precondition --precondition=$precond_id --host=$host);
+        open(FH, "$execpath/artemis-testrun newprecondition --condition_file=$filename|") or die "Can't open pipe:$!";
+        my $precond_id = <FH>;
+        chomp $precond_id;
+
+        my $testrun;
+        if ($config->{name} eq "automatically generated KVM test") {
+                $testrun    = qx($execpath/artemis-testrun new --topic=KVM --precondition=$precond_id --host=$host);
+                print "KVM on $host with precondition $precond_id: $testrun";
+        } else {
+                $testrun    = qx($execpath/artemis-testrun new --topic=Xen --precondition=$grub_precondition --precondition=$precond_id --host=$host);
                 print "Xen on $host with preconditions $grub_precondition, $precond_id: $testrun";
         }
-
 }
 
 
