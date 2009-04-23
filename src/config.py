@@ -29,6 +29,7 @@ maxcores = 64
 # KVM guest start script template
 kvm =                                                                         \
         '#!/bin/bash\n'                                                       \
+        'export PATH=/usr/local/bin:/usr/bin:$PATH\n'                         \
         'kvmexec=$((which qemu-system-x86_64||which qemu-kvm) 2>/dev/null)\n' \
         'if [ -z "$kvmexec" ]; then\n'                                        \
         '   echo "No KVM executable found. Exiting." >/dev/stderr\n'          \
