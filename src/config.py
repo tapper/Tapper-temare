@@ -125,7 +125,7 @@ kvmrepopath = 'git://git.kernel.org/pub/scm/virt/kvm'
 kvmkernelrepo = '%s/kvm.git' % (kvmrepopath, )
 
 # KVM userpace repository
-kvmuserspacerepo = '%s/kvm-userspace.git' % (kvmrepopath, )
+kvmuserspacerepo = '%s/qemu-kvm.git' % (kvmrepopath, )
 
 # Artemis repository path
 artemisrepo = '%s/repository' % (artemisdir, )
