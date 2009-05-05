@@ -7,6 +7,7 @@
 import sys
 import dbops
 import preparation
+from subprocess import Popen, PIPE
 from checks import chk_arg_count, chk_bitness, chk_hostname, chk_subject
 
 

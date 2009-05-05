@@ -21,7 +21,7 @@ from socket import gethostname
 from os.path import basename
 from stat import S_IMODE, S_IXUSR, S_IXGRP, S_IXOTH
 from checks import chk_hostname, chk_subject
-from config import kvm, svm, formats, svmscript, copyscript,        \
+from config import kvm, svm, formats, cfgscript, copyscript,        \
                    osimage, svmpath, nfshost, suiteimage,           \
                    builddir, buildarchs, buildpattern, imagepath,   \
                    tstimeout, kvmexecpath, kvmimage, kvmconfig,     \
