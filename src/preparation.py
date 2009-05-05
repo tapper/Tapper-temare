@@ -62,7 +62,7 @@ class BasePreparation(threading.Thread):
             self.error_handler(output)
 
 
-class HostPreparation(BasePreparation):
+class XenHostPreparation(BasePreparation):
     """Class to prepare a Xen host for manual testing
 
     This class has to be run as a thread to allow the loading of
@@ -97,15 +97,16 @@ class HostPreparation(BasePreparation):
             test['mntfile'] = '%03d.img' % (test['runid'], )
             test['format'] = formats[test['format']]
             test['imgbasename'] = basename(test['image'])
+            test['cfgext'] = 'svm'
         self.stage = 'Check xend status'
         self.do_command('/usr/sbin/xend status')
         self.stage = 'Check for running guests'
         self.do_command('test `/usr/sbin/xm list |wc -l` -eq 2')
-        self.stage = 'Cleanup old guest configs and images'
-        self.do_command('/bin/rm -f /xen/images/*.svm /xen/images/*.img')
+        self.stage = 'Cleanup old guest configs, images, and logs'
+        self.do_command('/bin/rm -f /xen/images/*.{svm,img} /tmp/*.fifo')
         self.stage = 'Generate guest configuration files'
         for test in self.testrun.tests:
-            self.do_command((svmscript % test) % ((svm % test), ))
+            self.do_command((cfgscript % test) % ((svm % test), ))
         self.stage = 'Copying testsuite image files'
         for test in self.testrun.tests:
             self.do_command(copyscript % ((suiteimage, test['mntfile']) * 2))
@@ -156,14 +157,20 @@ class KvmHostPreparation(BasePreparation):
         for test in self.testrun.tests:
             test['mntfile'] = '%03d.img' % (test['runid'], )
             test['imgbasename'] = basename(test['image'])
+            test['cfgext'] = 'sh'
         self.stage = 'Check for kernel modules'
         self.do_command('/sbin/modprobe kvm kvm-amd kvm-intel && '
                 '/sbin/lsmod | /bin/grep -q "^kvm "')
         self.stage = 'Check for running guests'
         self.do_command(
                 'test `ps -C qemu-kvm -C qemu-system-x86_64 | wc -l` -eq 1')
-        self.stage = 'Cleanup old guest configs and images'
-        self.do_command('/bin/rm -f /xen/images/*.svm /xen/images/*.img')
+        self.stage = 'Cleanup old guest configs, images, and logs'
+        self.do_command('/bin/rm -f /xen/images/*.{svm,img} /tmp/*.fifo')
+        self.stage = 'Generate guest start scripts'
+        for test in self.testrun.tests:
+            test['startscript'] = '/xen/images/%(runid)03d.%(cfgext)s' % test
+            self.do_command((cfgscript % test) % ((kvm % test), ))
+            self.do_command('chmod 755 %s' % (test['startscript'], ))
         self.stage = 'Copying testsuite image files'
         for test in self.testrun.tests:
             self.do_command(copyscript % ((suiteimage, test['mntfile']) * 2))
@@ -172,11 +179,7 @@ class KvmHostPreparation(BasePreparation):
             self.do_command(copyscript % tuple([test['image']] * 4))
         self.stage = 'Starting guests'
         for test in self.testrun.tests:
-            test.update(executable='/usr/local/bin/qemu-system-x86_64')
-            command = kvm % test
-            test.update(executable='/usr/bin/qemu-kvm')
-            command += ' || %s' % (kvm % test, )
-            self.do_command(command)
+            self.do_command(test['startscript'])
         numguests = len(self.testrun.tests)
         self.testrun.do_finalize()
         sys.stdout.write(

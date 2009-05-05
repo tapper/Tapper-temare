@@ -196,6 +196,11 @@ class HostPrepCommand(TemareCommand):
         """
         hostlist = []
         threads = []
+        environment = ''
+        getenv = '(grep -q "^kvm " /proc/modules && ps -C qemu-kvm '         \
+                 '-C qemu-system-x86_64 >/dev/null 2>&1 && echo "kvm") || '  \
+                 '(/usr/sbin/xend status >/dev/null 2>&1 && echo "xen") || ' \
+                 'echo "bare"'
         if len(args) == 0:
             raise ValueError('No arguments given.')
         sys.stdout.write(
@@ -205,7 +210,25 @@ class HostPrepCommand(TemareCommand):
             host = chk_hostname(host)
             if host not in hostlist:
                 hostlist.append(host)
-                threads.append(preparation.HostPreparation(self, host))
+                process = Popen(['/usr/bin/ssh',
+                        '-o PasswordAuthentication=no', 'root@%s' % (host, ),
+                        getenv], stderr=None, stdout=PIPE)
+                retval = process.wait()
+                if retval == 0:
+                    output = process.communicate()[0].strip().split('\n')
+                    if len(output) == 1 and output[0] in ('xen', 'kvm'):
+                        environment = output[0]
+                if environment == 'xen':
+                    threads.append(preparation.XenHostPreparation(self, host))
+                elif environment == 'kvm':
+                    threads.append(preparation.KvmHostPreparation(self, host))
+                else:
+                    self.failed = 1
+                    sys.stderr.write(
+                            'Preparation of host %s failed\n'
+                            'Reason:\n'
+                            'Could not determine the test environment.\n'
+                            % (host, ))
         for thread in threads:
             thread.start()
         for thread in threads:

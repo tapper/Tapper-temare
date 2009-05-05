@@ -86,6 +86,8 @@ svm =                                                                    \
         'acpi = 1\n'                                                     \
         'apic = 1\n'                                                     \
         'pae = 1\n'                                                      \
+        'timer_mode = 2\n'                                               \
+        'hpet = 0\n'                                                     \
         'shadow_memory = %(shadowmem)d\n'                                \
         'memory = %(memory)d\n'                                          \
         'vcpus = %(cores)d\n'                                            \
@@ -95,9 +97,9 @@ svm =                                                                    \
 formats = {'raw': 'tap:aio', 'qcow': 'tap:qcow', 'qcow2': 'tap:qcow2'}
 
 # Command to generate svm files on hosts for manual testing
-svmscript =                                             \
-        '/bin/cat >/xen/images/%(runid)03d.svm <<EOF\n' \
-        '%%s\n'                                         \
+cfgscript =                                                    \
+        '/bin/cat >/xen/images/%(runid)03d.%(cfgext)s <<EOF\n' \
+        '%%s\n'                                                \
         'EOF'
 
 # Command to copy guest image files onto hosts for manual testing
