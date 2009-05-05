@@ -198,8 +198,7 @@ class HostPrepCommand(TemareCommand):
         hostlist = []
         threads = []
         environment = ''
-        getenv = '(grep -q "^kvm " /proc/modules && ps -C qemu-kvm '         \
-                 '-C qemu-system-x86_64 >/dev/null 2>&1 && echo "kvm") || '  \
+        getenv = '(grep -q "^kvm " /proc/modules && echo "kvm") || '         \
                  '(/usr/sbin/xend status >/dev/null 2>&1 && echo "xen") || ' \
                  'echo "bare"'
         if len(args) == 0:

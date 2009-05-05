@@ -157,6 +157,7 @@ class KvmHostPreparation(BasePreparation):
         for test in self.testrun.tests:
             test['mntfile'] = '%03d.img' % (test['runid'], )
             test['imgbasename'] = basename(test['image'])
+            test['datadir'] = '/xen'
             test['cfgext'] = 'sh'
         self.stage = 'Check for kernel modules'
         self.do_command('/sbin/modprobe kvm kvm-amd kvm-intel && '

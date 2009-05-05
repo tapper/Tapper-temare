@@ -35,10 +35,10 @@ kvm =                                                                         \
         '   echo "No KVM executable found. Exiting." >/dev/stderr\n'          \
         '   exit 2\n'                                                         \
         'fi\n'                                                                \
-        'if [ $(egrep -c \'^flags.* svm .*$\' /proc/cpuinfo) -ne 0 ]; '       \
+        'if [ $(egrep -c "^flags.* svm .*$" /proc/cpuinfo) -ne 0 ]; '         \
         'then\n'                                                              \
         '   modprobe kvm-amd >/dev/null 2>&1\n'                               \
-        'elif [ $(egrep -c \'^flags.* vmx .*$\' /proc/cpuinfo) -ne 0 ]; '     \
+        'elif [ $(egrep -c "^flags.* vmx .*$" /proc/cpuinfo) -ne 0 ]; '       \
         'then\n'                                                              \
         '   modprobe kvm-intel >/dev/null 2>&1\n'                             \
         'else\n'                                                              \
@@ -97,10 +97,7 @@ svm =                                                                    \
 formats = {'raw': 'tap:aio', 'qcow': 'tap:qcow', 'qcow2': 'tap:qcow2'}
 
 # Command to generate svm files on hosts for manual testing
-cfgscript =                                                    \
-        '/bin/cat >/xen/images/%(runid)03d.%(cfgext)s <<EOF\n' \
-        '%%s\n'                                                \
-        'EOF'
+cfgscript = 'echo \'%%s\' >/xen/images/%(runid)03d.%(cfgext)s'
 
 # Command to copy guest image files onto hosts for manual testing
 copyscript =                                                                \
