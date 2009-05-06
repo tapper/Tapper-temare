@@ -30,7 +30,7 @@ maxcores = 64
 kvm =                                                                         \
         '#!/bin/bash\n'                                                       \
         'export PATH=/usr/local/bin:/usr/bin:$PATH\n'                         \
-        'kvmexec=$((which qemu-system-x86_64||which qemu-kvm) 2>/dev/null)\n' \
+        'kvmexec=$((which qemu-kvm||which qemu-system-x86_64) 2>/dev/null)\n' \
         'if [ -z "$kvmexec" ]; then\n'                                        \
         '   echo "No KVM executable found. Exiting." >/dev/stderr\n'          \
         '   exit 2\n'                                                         \
