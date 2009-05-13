@@ -57,7 +57,7 @@ kvm =                                                                         \
         '-hda %(datadir)s/images/%(imgbasename)s '                            \
         '-hdb %(datadir)s/images/%(mntfile)s '                                \
         '-serial file:/tmp/guest%(runid)d.fifo '                              \
-        '-net nic,model=e1000 '                                               \
+        '-net nic '                                                           \
         '-net tap,ifname=tap%(vnc)d\n'
 
 # Xen SVM file template
@@ -70,7 +70,7 @@ svm =                                                                    \
         '    arch_libdir = "lib"\n'                                      \
         'kernel = "/usr/lib/xen/boot/hvmloader"\n'                       \
         'builder = "hvm"\n'                                              \
-        'vif = [ "bridge=xenbr0, model=e1000" ]\n'                       \
+        'vif = [ "bridge=xenbr0" ]\n'                                    \
         'device_model = "/usr/%%s/xen/bin/qemu-dm" %% (arch_libdir, )\n' \
         'vnc = 1\n'                                                      \
         'vnclisten = "0.0.0.0"\n'                                        \
