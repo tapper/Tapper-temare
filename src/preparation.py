@@ -94,7 +94,7 @@ class XenHostPreparation(BasePreparation):
         except ValueError, err:
             self.error_handler(err[0])
         for test in self.testrun.tests:
-            test['mntfile'] = '%03d.img' % (test['runid'], )
+            test['mntfile'] = '%(runid)03d-%(test)s.img' % test
             test['format'] = formats[test['format']]
             test['imgbasename'] = basename(test['image'])
             test['cfgext'] = 'svm'
@@ -155,7 +155,7 @@ class KvmHostPreparation(BasePreparation):
         except ValueError, err:
             self.error_handler(err[0])
         for test in self.testrun.tests:
-            test['mntfile'] = '%03d.img' % (test['runid'], )
+            test['mntfile'] = '%(runid)03d-%(test)s.img' % test
             test['imgbasename'] = basename(test['image'])
             test['datadir'] = '/xen'
             test['cfgext'] = 'sh'
