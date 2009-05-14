@@ -312,7 +312,7 @@ class SubjectPreparation():
         self.get_latest_build()
         self.gen_guest_configs()
         osimagefile = osimage[self.testrun.subject['bitness']]
-        testprogram = '/opt/artemis/bin/artemis_testsuite_dom0_meta.sh'
+        testprogram = '/opt/artemis/bin/metainfo'
         installpkg = 'artemisutils/sles10/xen_installer_suse.tar.gz'
         precondition = {
             'precondition_type':   'virt',
@@ -376,7 +376,7 @@ class SubjectPreparation():
         and finally mark the guest tests as done in the database.
         """
         self.gen_guest_configs()
-        testprogram = '/opt/artemis/bin/artemis_testsuite_dom0_meta.sh'
+        testprogram = '/opt/artemis/bin/metainfo'
         buildexec = '/bin/%s' % (basename(kvmbuildscript), )
         precondition = {
             'precondition_type':   'virt',
