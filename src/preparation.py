@@ -166,7 +166,7 @@ class KvmHostPreparation(BasePreparation):
         self.do_command(
                 'test `ps -C qemu-kvm -C qemu-system-x86_64 | wc -l` -eq 1')
         self.stage = 'Cleanup old guest configs, images, and logs'
-        self.do_command('/bin/rm -f /xen/images/*.{svm,img} /tmp/*.fifo')
+        self.do_command('/bin/rm -f /xen/images/*.{sh,img} /tmp/*.fifo')
         self.stage = 'Generate guest start scripts'
         for test in self.testrun.tests:
             test['startscript'] = '/xen/images/%(runid)03d.%(cfgext)s' % test
