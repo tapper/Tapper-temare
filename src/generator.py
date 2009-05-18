@@ -5,6 +5,7 @@
 import sqlite3
 import checks
 import random
+from socket import gethostbyname
 from config import dbpath
 
 
@@ -25,6 +26,7 @@ class TestRunGenerator():
                 Dictionary with the following items:
         'id'            -- Database ID of the host           (integer)
         'name'          -- Hostname                          (string)
+        'ip'            -- IP address of the host            (string)
 
         TestRunGenerator.subject
                 Dictionary with the following items:
@@ -37,6 +39,7 @@ class TestRunGenerator():
         'id'            -- Database ID of the schedule entry (integer)
         'runid'         -- Consecutive numbering of the test (integer)
         'vnc'           -- VNC and network iface numbering   (integer)
+        'macaddr'       -- MAC address of the guest NIC      (string)
         'image'         -- Guest image name                  (string)
         'format'        -- Guest image format                (raw|qcow|qcow2)
         'test'          -- Name of the test program          (string)
@@ -55,7 +58,7 @@ class TestRunGenerator():
     """
 
     def __init__(self, hostname, auto=False, subject=False, bitness=False):
-        self.host = {'id': None, 'name': None}
+        self.host = {'id': None, 'name': None, 'ip': None}
         self.subject = {'id': None, 'name': None, 'bitness': None}
         self.resources = \
                 {'memory': 0, 'cores': 0, 'bitness': 0, 'lastvendor': 0}
@@ -87,6 +90,7 @@ class TestRunGenerator():
         if result == None:
             raise ValueError('No such host.')
         self.host['name'] = hostname
+        self.host['ip'] = gethostbyname(hostname)
         self.host['id'], self.resources['memory'], self.resources['cores'], \
                 self.resources['lastvendor'], self.resources['lastsubject'], \
                 self.resources['bitness'], state = result
@@ -346,6 +350,20 @@ class TestRunGenerator():
         return {'cores': cores, 'memory': memory,
                 'shadowmem': shadowmem, 'hap': hap }
 
+    def gen_macaddr(self, guestid):
+        """Generate MAC address for guest NIC
+
+        Generate a MAC address for a guests NIC which is unique
+        enough for our environment. Takes the last two digits of the
+        virtualization hosts IP and the consecutive number of the guest to
+        create the MAC address:
+            52:54:00:{host_ip_digit}:{host_ip_digit}:{guest_id}
+        """
+        digits = self.host['ip'].split('.')[2:4]
+        digits.append(guestid)
+        digits = tuple([int(digit) for digit in digits])
+        return '52:54:00:%02X:%02X:%02X' % digits
+
     def gen_tests(self):
         """Generate a single test and its configuration
         """
@@ -359,6 +377,7 @@ class TestRunGenerator():
             test.update(self.get_test_config(test))
             test['vnc'] = count
             test['runid'] = count + 1
+            test['macaddr'] = self.gen_macaddr(count + 1)
             test['format'] = checks.chk_imageformat(test['format'])
             test['image'] = checks.chk_imagename(test['image'])
             test['test'] = checks.chk_testname(test['test'])
