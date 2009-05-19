@@ -115,7 +115,7 @@ osimage = {0: 'suse/suse_sles10_32b_pae_raw.tar.gz',
            1: 'suse/suse_sles10_64b_smp_raw.tar.gz'}
 
 # Full filename of the image to be used as KVM host
-kvmimage = 'fedora/fedora-10-x86_64-20090508.tar.bz2'
+kvmimage = 'fedora/fedora-10-x86_64-20090513.tar.bz2'
 
 # KVM repository base path
 kvmrepopath = 'git://wotan.amd.com'
