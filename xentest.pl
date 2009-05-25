@@ -27,13 +27,21 @@ sub gen_xen
         my $yaml   = qx($temarepath/temare subjectprep $host);
         return if $?;
         my $config = Load($yaml);
-        
-        open (FH,">",$filename) or die "Can't open $filename:$!";
-        print FH $yaml;
-        close FH or die "Can't write $filename:$!";
-        open(FH, "$execpath/artemis-testrun newprecondition --condition_file=$filename|") or die "Can't open pipe:$!";
-        my $precond_id = <FH>;
-        chomp $precond_id;
+        my $precond_id;
+    
+        if ($config) {
+                open (FH,">",$filename) or die "Can't open $filename:$!";
+                print FH $yaml;
+                close FH or die "Can't write $filename:$!";
+                open(FH, "$execpath/artemis-testrun newprecondition --condition_file=$filename|") or die "Can't open pipe:$!";
+                $precond_id = <FH>;
+                chomp $precond_id;
+        }
+
+        if (not $precond_id) {
+                system("cp $filename $filename.backup");
+                return;
+        }
 
         my $testrun;
         if ($config->{name} eq "automatically generated KVM test") {
