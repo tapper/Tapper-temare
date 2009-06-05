@@ -94,7 +94,7 @@ svm =                                                                      \
         'vcpus = %(cores)d\n'                                              \
         'hap = %(hap)d\n'                                                  \
         'xminfo = Popen(["xm", "info"], stdout=PIPE).communicate()[0]\n'   \
-        'for line in xminfo.split("\n"):\n'                                \
+        'for line in xminfo.split("\\n"):\n'                               \
         '    if line.startswith("xen_major"):\n'                           \
         '        xen_major = int(line.split(":", 1)[1].strip())\n'         \
         '    elif line.startswith("xen_minor"):\n'                         \
