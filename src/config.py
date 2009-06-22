@@ -121,8 +121,8 @@ copyscript =                                                                \
 suiteimage = 'testsuites_raw.img'
 
 # Full filename of the image to use for Dom0
-osimage = {0: 'suse/suse_sles10_32b_pae_raw.tar.gz',
-           1: 'suse/suse_sles10_64b_smp_raw.tar.gz'}
+osimage = {0: 'suse/suse_sles10_sp2_32b_smp_raw.tar.gz',
+           1: 'suse/suse_sles10_sp2_64b_smp_raw.tar.gz'}
 
 # Full filename of the image to be used as KVM host
 kvmimage = 'fedora/fedora-10-x86_64-20090513.tar.bz2'
