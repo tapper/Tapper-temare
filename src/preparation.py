@@ -311,6 +311,7 @@ class SubjectPreparation():
         """
         self.get_latest_build()
         self.gen_guest_configs()
+        arch = ('linux32', 'linux64')[self.testrun.subject['bitness']]
         osimagefile = osimage[self.testrun.subject['bitness']]
         testprogram = '/opt/artemis/bin/metainfo'
         installpkg = 'artemisutils/sles10/xen_installer_suse.tar.gz'
@@ -322,7 +323,7 @@ class SubjectPreparation():
                     'precondition_type':    'image',
                     'mount':                '/',
                     'partition':            'testing',
-                    'arch':                 'linux64',
+                    'arch':                 arch,
                     'image':                osimagefile},
                 'testprogram': {
                     'execname':             testprogram,
