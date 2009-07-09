@@ -44,7 +44,7 @@ sub gen_xen
         }
 
         my $testrun;
-        if ($config->{name} eq "automatically generated KVM test") {
+        if ($config->{name} =~ /automatically generated KVM test/) {
                 $testrun    = qx($execpath/artemis-testrun new --topic=KVM --precondition=$precond_id --host=$host);
                 print "KVM on $host with precondition $precond_id: $testrun";
         } else {
