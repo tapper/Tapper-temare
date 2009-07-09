@@ -317,7 +317,7 @@ class SubjectPreparation():
         installpkg = 'artemisutils/sles10/xen_installer_suse.tar.gz'
         precondition = {
             'precondition_type':   'virt',
-            'name':                'automatically generated Xen test'}
+            'name':                'automatically generated Xen test: ' + self.testrun.subject['name']}
         precondition['host'] = {
                 'root': {
                     'precondition_type':    'image',
@@ -367,7 +367,7 @@ class SubjectPreparation():
                     'timeout_testprogram':  tstimeout}
                 }
             precondition['guests'].append(guest)
-        sys.stdout.write(yaml.dump(precondition, default_flow_style=False))
+        sys.stdout.write(yaml.safe_dump(precondition, default_flow_style=False))
         self.testrun.do_finalize()
 
     def gen_precondition_kvm(self):
