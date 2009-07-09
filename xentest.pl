@@ -44,11 +44,13 @@ sub gen_xen
         }
 
         my $testrun;
+        my ($shortname) = $config->{name} =~ /: (.*)/g;
+        $shortname ||= '';
         if ($config->{name} =~ /automatically generated KVM test/) {
-                $testrun    = qx($execpath/artemis-testrun new --topic=KVM --precondition=$precond_id --host=$host);
+                $testrun    = qx($execpath/artemis-testrun new --topic=KVM --precondition=$precond_id --shortname=$shortname --host=$host);
                 print "KVM on $host with precondition $precond_id: $testrun";
         } else {
-                $testrun    = qx($execpath/artemis-testrun new --topic=Xen --precondition=$grub_precondition --precondition=$precond_id --host=$host);
+                $testrun    = qx($execpath/artemis-testrun new --topic=Xen --precondition=$grub_precondition --precondition=$precond_id --shortname=$shortname --host=$host);
                 print "Xen on $host with preconditions $grub_precondition, $precond_id: $testrun";
         }
 }
