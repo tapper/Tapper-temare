@@ -65,8 +65,10 @@ svm =                                                                        \
         'import os, os.path, re\n'                                           \
         'from subprocess import Popen, PIPE\n'                               \
         'arch = os.uname()[4]\n'                                             \
-        'qemu32 = os.path.exists("/usr/lib/xen/bin/qemu-dm")\n'              \
-        'qemu64 = os.path.exists("/usr/lib64/xen/bin/qemu-dm")\n'            \
+        'qemu32 = (os.path.isfile("lib/xen/bin/qemu-dm")\n'                  \
+        '          and not os.path.islink("lib/xen/bin/qemu-dm"))\n'         \
+        'qemu64 = (os.path.isfile("lib64/xen/bin/qemu-dm")\n'                \
+        '          and not os.path.islink("lib64/xen/bin/qemu-dm"))\n'       \
         'if qemu32 and qemu64:\n'                                            \
         '    raise Exception, "qemu-dm exists in both, lib and lib64"\n'     \
         'elif not qemu32 and not qemu64:\n'                                  \
