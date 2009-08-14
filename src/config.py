@@ -61,47 +61,54 @@ kvm =                                                                         \
         '-net tap,ifname=tap%(vnc)d\n'
 
 # Xen SVM file template
-svm =                                                                      \
-        'import os, re\n'                                                  \
-        'from subprocess import Popen, PIPE\n'                             \
-        'arch = os.uname()[4]\n'                                           \
-        'if re.search("64", arch):\n'                                      \
-        '    arch_libdir = "lib64"\n'                                      \
-        'else:\n'                                                          \
-        '    arch_libdir = "lib"\n'                                        \
-        'kernel = "/usr/lib/xen/boot/hvmloader"\n'                         \
-        'builder = "hvm"\n'                                                \
-        'vif = [ "mac=%(macaddr)s,bridge=xenbr0" ]\n'                      \
-        'device_model = "/usr/%%s/xen/bin/qemu-dm" %% (arch_libdir, )\n'   \
-        'vnc = 1\n'                                                        \
-        'vnclisten = "0.0.0.0"\n'                                          \
-        'vncpasswd = ""\n'                                                 \
-        'serial = "file:/tmp/guest%(runid)d.fifo"\n'                       \
-        'monitor = 1\n'                                                    \
-        'usb = 1\n'                                                        \
-        'usbdevice = "tablet"\n'                                           \
-        'name = "%(runid)03d-%(test)s"\n'                                  \
-        'disk = [ "%(format)s:/xen/images/%(imgbasename)s,hda,w",\n'       \
-        '         "file:/xen/images/%(mntfile)s,hdb,w" ]\n'                \
-        'boot = "c"\n'                                                     \
-        'acpi = 1\n'                                                       \
-        'apic = 1\n'                                                       \
-        'pae = 1\n'                                                        \
-        'timer_mode = 2\n'                                                 \
-        'hpet = 0\n'                                                       \
-        'shadow_memory = %(shadowmem)d\n'                                  \
-        'memory = %(memory)d\n'                                            \
-        'vcpus = %(cores)d\n'                                              \
-        'hap = %(hap)d\n'                                                  \
-        'xminfo = Popen(["xm", "info"], stdout=PIPE).communicate()[0]\n'   \
-        'for line in xminfo.split("\\n"):\n'                               \
-        '    if line.startswith("xen_major"):\n'                           \
-        '        xen_major = int(line.split(":", 1)[1].strip())\n'         \
-        '    elif line.startswith("xen_minor"):\n'                         \
-        '        xen_minor = int(line.split(":", 1)[1].strip())\n'         \
-        'if (xen_major == 3 and xen_minor > 4) or xen_major > 3:\n'        \
-        '    for idx in range(0, len(disk)):\n'                            \
-        '        disk[idx] = re.sub("^tap:", "tap:tapdisk:", disk[idx])\n' \
+svm =                                                                        \
+        'import os, os.path, re\n'                                           \
+        'from subprocess import Popen, PIPE\n'                               \
+        'arch = os.uname()[4]\n'                                             \
+        'qemu32 = os.path.exists("/usr/lib/xen/bin/qemu-dm")\n'              \
+        'qemu64 = os.path.exists("/usr/lib64/xen/bin/qemu-dm")\n'            \
+        'if qemu32 and qemu64:\n'                                            \
+        '    raise Exception, "qemu-dm exists in both, lib and lib64"\n'     \
+        'elif not qemu32 and not qemu64:\n'                                  \
+        '    raise Exception, "qemu-dm not found in lib or lib64"\n'         \
+        'elif qemu64 and not re.search("64", arch):\n'                       \
+        '    raise Exception, "qemu-dm found in lib64, but we\'re on 32b"\n' \
+        'elif qemu64:\n'                                                     \
+        '    device_model = "/usr/lib64/xen/bin/qemu-dm"\n'                  \
+        'else:\n'                                                            \
+        '    device_model = "/usr/lib/xen/bin/qemu-dm"\n'                    \
+        'kernel = "/usr/lib/xen/boot/hvmloader"\n'                           \
+        'builder = "hvm"\n'                                                  \
+        'vif = [ "mac=%(macaddr)s,bridge=xenbr0" ]\n'                        \
+        'vnc = 1\n'                                                          \
+        'vnclisten = "0.0.0.0"\n'                                            \
+        'vncpasswd = ""\n'                                                   \
+        'serial = "file:/tmp/guest%(runid)d.fifo"\n'                         \
+        'monitor = 1\n'                                                      \
+        'usb = 1\n'                                                          \
+        'usbdevice = "tablet"\n'                                             \
+        'name = "%(runid)03d-%(test)s"\n'                                    \
+        'disk = [ "%(format)s:/xen/images/%(imgbasename)s,hda,w",\n'         \
+        '         "file:/xen/images/%(mntfile)s,hdb,w" ]\n'                  \
+        'boot = "c"\n'                                                       \
+        'acpi = 1\n'                                                         \
+        'apic = 1\n'                                                         \
+        'pae = 1\n'                                                          \
+        'timer_mode = 2\n'                                                   \
+        'hpet = 0\n'                                                         \
+        'shadow_memory = %(shadowmem)d\n'                                    \
+        'memory = %(memory)d\n'                                              \
+        'vcpus = %(cores)d\n'                                                \
+        'hap = %(hap)d\n'                                                    \
+        'xminfo = Popen(["xm", "info"], stdout=PIPE).communicate()[0]\n'     \
+        'for line in xminfo.split("\\n"):\n'                                 \
+        '    if line.startswith("xen_major"):\n'                             \
+        '        xen_major = int(line.split(":", 1)[1].strip())\n'           \
+        '    elif line.startswith("xen_minor"):\n'                           \
+        '        xen_minor = int(line.split(":", 1)[1].strip())\n'           \
+        'if (xen_major == 3 and xen_minor > 4) or xen_major > 3:\n'          \
+        '    for idx in range(0, len(disk)):\n'                              \
+        '        disk[idx] = re.sub("^tap:", "tap:tapdisk:", disk[idx])\n'   \
 
 # Designation of the guest image formats as used in the guest configuration
 formats = {'raw': 'tap:aio', 'qcow': 'tap:qcow', 'qcow2': 'tap:qcow2'}
