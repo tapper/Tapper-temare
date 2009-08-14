@@ -72,7 +72,7 @@ svm =                                                                        \
         'elif not qemu32 and not qemu64:\n'                                  \
         '    raise Exception, "qemu-dm not found in lib or lib64"\n'         \
         'elif qemu64 and not re.search("64", arch):\n'                       \
-        '    raise Exception, "qemu-dm found in lib64, but we\'re on 32b"\n' \
+        '    raise Exception, "qemu-dm found in lib64, but we are on 32b"\n' \
         'elif qemu64:\n'                                                     \
         '    device_model = "/usr/lib64/xen/bin/qemu-dm"\n'                  \
         'else:\n'                                                            \
