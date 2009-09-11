@@ -289,6 +289,17 @@ class SubjectPreparation():
             else:
                 raise ValueError('Invalid test subject.')
 
+    @staticmethod
+    def __write_precondition(filename, precondition):
+        try:
+            cfgfile = open(filename, 'w')
+            cfgfile.write(yaml.dump(precondition, default_flow_style=False))
+        except:
+            raise ValueError('Can not write precondition file.')
+        finally:
+            cfgfile.close()
+
+
     def gen_precondition(self):
         """Prepare a test run and generate a precondition YAML string
 
@@ -367,8 +378,13 @@ class SubjectPreparation():
                     'timeout_testprogram':  tstimeout}
                 }
             precondition['guests'].append(guest)
-        sys.stdout.write(yaml.safe_dump(precondition, default_flow_style=False))
+        if os.environ.has_key('ARTEMIS_TEMARE'):
+            sys.stdout.write((self.testrun.subject['name']))
+            self.__write_precondition(os.environ['ARTEMIS_TEMARE'], precondition)
+        else:
+            sys.stdout.write(yaml.dump(precondition, default_flow_style=False))
         self.testrun.do_finalize()
+
 
     def gen_precondition_kvm(self):
         """Prepare a KVM test run and generate a precondition YAML string
@@ -441,8 +457,12 @@ class SubjectPreparation():
                     'timeout_testprogram':  tstimeout}
                 }
             precondition['guests'].append(guest)
-        sys.stdout.write(yaml.dump(precondition, default_flow_style=False))
-        self.testrun.do_finalize()
+            if os.environ.has_key('ARTEMIS_TEMARE'):
+                sys.stdout.write((self.testrun.subject['name']))
+                self.__write_precondition(os.environ['ARTEMIS_TEMARE'], precondition)
+            else:
+                sys.stdout.write(yaml.dump(precondition, default_flow_style=False))
+            self.testrun.do_finalize()
 
 
 if __name__ == '__main__':
