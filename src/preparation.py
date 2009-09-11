@@ -289,11 +289,11 @@ class SubjectPreparation():
             else:
                 raise ValueError('Invalid test subject.')
 
-    @staticmethod
-    def __write_precondition(filename, precondition):
+    def __write_metainfo(self, filename):
+        output = {'subject':self.testrun.subject['name']}
         try:
             cfgfile = open(filename, 'w')
-            cfgfile.write(yaml.dump(precondition, default_flow_style=False))
+            cfgfile.write(yaml.safe_dump(output, default_flow_style=False))
         except:
             raise ValueError('Can not write precondition file.')
         finally:
@@ -328,7 +328,7 @@ class SubjectPreparation():
         installpkg = 'artemisutils/sles10/xen_installer_suse.tar.gz'
         precondition = {
             'precondition_type':   'virt',
-            'name':                'automatically generated Xen test: ' + self.testrun.subject['name']}
+            'name':                'automatically generated Xen test'}
         precondition['host'] = {
                 'root': {
                     'precondition_type':    'image',
@@ -379,10 +379,10 @@ class SubjectPreparation():
                 }
             precondition['guests'].append(guest)
         if os.environ.has_key('ARTEMIS_TEMARE'):
-            sys.stdout.write((self.testrun.subject['name']))
-            self.__write_precondition(os.environ['ARTEMIS_TEMARE'], precondition)
+            sys.stdout.write(yaml.safe_dump(precondition, default_flow_style=False))
+            self.__write_metainfo(os.environ['ARTEMIS_TEMARE'])
         else:
-            sys.stdout.write(yaml.dump(precondition, default_flow_style=False))
+            sys.stdout.write(yaml.safe_dump(precondition, default_flow_style=False))
         self.testrun.do_finalize()
 
 
@@ -458,10 +458,10 @@ class SubjectPreparation():
                 }
             precondition['guests'].append(guest)
             if os.environ.has_key('ARTEMIS_TEMARE'):
-                sys.stdout.write((self.testrun.subject['name']))
-                self.__write_precondition(os.environ['ARTEMIS_TEMARE'], precondition)
+                sys.stdout.write(yaml.safe_dump(precondition, default_flow_style=False))
+                self.__write_metainfo(os.environ['ARTEMIS_TEMARE'])
             else:
-                sys.stdout.write(yaml.dump(precondition, default_flow_style=False))
+                sys.stdout.write(yaml.safe_dump(precondition, default_flow_style=False))
             self.testrun.do_finalize()
 
 
