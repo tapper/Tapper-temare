@@ -10,7 +10,7 @@ my $kernel_path = "/data/bancroft/artemis/live/repository/packages/kernel/";
 
 
 our $temarepath="/home/artemis/temare";
-$ENV{PYTHONPATH}=$ENV{PYTHONPATH}.":$temarepath/src";
+$ENV{PYTHONPATH}=$ENV{PYTHONPATH} ? $ENV{PYTHONPATH}.":$temarepath/src" : "$temarepath/src";
 our $artemispath="/home/artemis/perl510/";
 our $execpath="$artemispath/bin";
 our $grub_precondition=14;
@@ -18,39 +18,37 @@ our %hostliste = ("athene" => 1,
                   "kobold" => 1,
                   "satyr"  => 1,
                   "lemure" => 1);
-our $filename="/tmp/temare.yml";
+my $filename          = "/tmp/temare_metainfo.yml";
+my $precondition_file = "/tmp/temare_precondition.yml";
 
 
 sub gen_xen
 {
-        my ($host) = @_;
-        my $yaml   = qx($temarepath/temare subjectprep $host);
+        my ($host)           = @_;
+        $ENV{ARTEMIS_TEMARE} = $filename;
+        my $precondition     = qx($temarepath/temare subjectprep $host);
         return if $?;
-        my $config = Load($yaml);
+        my $config           = LoadFile($filename);
         my $precond_id;
-    
+
         if ($config) {
-                open (FH,">",$filename) or die "Can't open $filename:$!";
-                print FH $yaml;
+                open (FH,">","$precondition_file") or die "Can't open $precondition_file:$!";
+                print FH $precondition;
                 close FH or die "Can't write $filename:$!";
-                open(FH, "$execpath/artemis-testrun newprecondition --condition_file=$filename|") or die "Can't open pipe:$!";
+                open(FH, "$execpath/artemis-testrun newprecondition --condition_file=$precondition_file|") or die "Can't open pipe:$!";
                 $precond_id = <FH>;
                 chomp $precond_id;
         }
 
-        if (not $precond_id) {
-                system("cp $filename $filename.backup");
-                return;
-        }
-
+        my $subject = $config->{subject};
         my $testrun;
-        my ($shortname) = $config->{name} =~ /: (.*)/g;
-        $shortname ||= '';
-        if ($config->{name} =~ /automatically generated KVM test/) {
-                $testrun    = qx($execpath/artemis-testrun new --topic=KVM --precondition=$precond_id --shortname=$shortname --host=$host);
+        if ($config->{subject} =~ /kvm/i) {
+                $testrun    = qx($execpath/artemis-testrun new --topic=$subject --precondition=$precond_id --host=$host);
+                die "Can't create kvm test" if $?;
                 print "KVM on $host with precondition $precond_id: $testrun";
         } else {
-                $testrun    = qx($execpath/artemis-testrun new --topic=Xen --precondition=$grub_precondition --precondition=$precond_id --shortname=$shortname --host=$host);
+                $testrun    = qx($execpath/artemis-testrun new --topic=$subject --precondition=$grub_precondition --precondition=$precond_id --host=$host);
+                die "Can't create xen test" if $?;
                 print "Xen on $host with preconditions $grub_precondition, $precond_id: $testrun";
         }
 }
@@ -68,7 +66,7 @@ sub gen_kernel
         my ($host)          =  @_;
         my @kernelfiles     =  sort younger <$kernel_path/x86_64/*>;
         my $kernelbuild     =  pop @kernelfiles;
-        
+
         my $kernel_version;
         open FH,"tar -tzf $kernelbuild|" or die "Can't look into kernelbuild:$!";
  TARFILES:
@@ -92,7 +90,7 @@ HOST:
 foreach my $host (keys %hostliste) {
         next HOST if not $hostliste{$host};
         if ($count == $random) {
-                gen_kernel($host);
+                gen_kvm($host);
         } else {
                 gen_xen($host);
         }
