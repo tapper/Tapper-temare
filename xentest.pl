@@ -90,7 +90,7 @@ HOST:
 foreach my $host (keys %hostliste) {
         next HOST if not $hostliste{$host};
         if ($count == $random) {
-                gen_kvm($host);
+                gen_kernel($host);
         } else {
                 gen_xen($host);
         }
