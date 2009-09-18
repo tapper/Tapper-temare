@@ -207,11 +207,11 @@ class SubjectPreparation():
         self.builddir = None
         self.guestconfigs = {}
         self.host = chk_hostname(host)
-        if gethostname() != nfshost:
-            raise ValueError(
-                    'This command is meant to be run on %s by Artemis.\n'
-                    'Please update the config module if the Artemis '
-                    'host has changed.' % (nfshost, ))
+#         if gethostname() != nfshost:
+#             raise ValueError(
+#                     'This command is meant to be run on %s by Artemis.\n'
+#                     'Please update the config module if the Artemis '
+#                     'host has changed.' % (nfshost, ))
         self.testrun = generator.TestRunGenerator(
                 self.host, True, subject, bitness)
 
