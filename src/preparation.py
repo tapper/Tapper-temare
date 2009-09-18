@@ -255,6 +255,8 @@ class SubjectPreparation():
             cfgfile.write(template % test)
         except:
             raise ValueError('Failed to write guest config files.')
+        finally:
+            cfgfile.close()
         if filepath.endswith('.sh'):
             oldmode = S_IMODE(os.stat(filepath).st_mode)
             newmode = oldmode | S_IXUSR | S_IXGRP | S_IXOTH
