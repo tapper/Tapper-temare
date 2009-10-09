@@ -36,21 +36,23 @@ class TestRunGenerator():
 
         TestRunGenerator.tests
                 List of dictionaries with the following items:
-        'id'            -- Database ID of the schedule entry (integer)
-        'runid'         -- Consecutive numbering of the test (integer)
-        'vnc'           -- VNC and network iface numbering   (integer)
-        'macaddr'       -- MAC address of the guest NIC      (string)
-        'image'         -- Guest image name                  (string)
-        'format'        -- Guest image format                (raw|qcow|qcow2)
-        'test'          -- Name of the test program          (string)
-        'testcommand'   -- Test program command              (string)
-        'bitness'       -- Bitness of the guest              (0|1)
-        'bigmem'        -- Capability to address > 4GB       (0|1)
-        'smp'           -- SMP capability of the guest       (0|1)
-        'cores'         -- Number of VCPUs                   (integer)
-        'memory'        -- Memory                            (integer)
-        'shadowmem'     -- Shadow memory                     (integer)
-        'hap'           -- Nested paging enabled             (0|1)
+        'id'            -- Database ID of the schedule entry            (integer)
+        'runid'         -- Consecutive numbering of the test            (integer)
+        'vnc'           -- VNC and network iface numbering              (integer)
+        'macaddr'       -- MAC address of the guest NIC                 (string)
+        'image'         -- Guest image name                             (string)
+        'format'        -- Guest image format                           (raw|qcow|qcow2)
+        'test'          -- Name of the test program                     (string)
+        'testcommand'   -- Test program command                         (string)
+        'runtime'       -- Time the test is upposed to run              (integer)
+        'timeout'       -- Time after that the test hash to be finished (integer)
+        'bitness'       -- Bitness of the guest                         (0|1)
+        'bigmem'        -- Capability to address > 4GB                  (0|1)
+        'smp'           -- SMP capability of the guest                  (0|1)
+        'cores'         -- Number of VCPUs                              (integer)
+        'memory'        -- Memory                                       (integer)
+        'shadowmem'     -- Shadow memory                                (integer)
+        'hap'           -- Nested paging enabled                        (0|1)
 
     Methods:
         TestRunGenerator.do_finalize()
@@ -293,7 +295,7 @@ class TestRunGenerator():
             imagecond = 'AND image_name NOT IN (%s)' % (wildcards, )
         query = '''
                 SELECT schedule_id, image_name, image_format, test_name,
-                    test_command, is_bigmem, is_smp, image.is_64bit
+                    test_command, runtime, timeout, is_bigmem, is_smp, image.is_64bit
                 FROM %s_schedule
                 LEFT JOIN image ON %s_schedule.image_id=image.image_id
                 LEFT JOIN test ON %s_schedule.test_id=test.test_id
@@ -310,18 +312,19 @@ class TestRunGenerator():
                 (idvalue + (vendor, ) + imagevalue))
         row = self.cursor.fetchone()
         while row != None:
-            if row[5] == 0 and row[6] == 0:
+            if row[7] == 0 and row[8] == 0:
                 smallup.append(row)
-            elif row[5] == 0 and row[6] == 1:
+            elif row[7] == 0 and row[8] == 1:
                 smallsmp.append(row)
-            elif row[5] == 1 and row[6] == 0:
+            elif row[7] == 1 and row[8] == 0:
                 bigup.append(row)
-            elif row[5] == 1 and row[6] == 1:
+            elif row[7] == 1 and row[8] == 1:
                 bigsmp.append(row)
             row = self.cursor.fetchone()
         return dict(zip(
                 ('id', 'image', 'format', 'test',
-                        'testcommand', 'bigmem', 'smp', 'bitness'),
+                 'testcommand', 'runtime','timeout',
+                 'bigmem', 'smp', 'bitness'),
                 self.do_weighing(smallup, smallsmp, bigup, bigsmp)))
 
     def get_test_config(self, test):
@@ -388,7 +391,7 @@ class TestRunGenerator():
     def do_finalize(self):
         """Set is_done flags for all tests used in the testrun
 
-        This method must be called when all preparation steps succeeded.
+        This method must be called when all pepraration steps succeeded.
         It also resets the TestRunGenerator.tests attribute.
         """
         testids = tuple([test['id'] for test in self.tests])
