@@ -428,9 +428,11 @@ class Tests(DatabaseEntity):
             testname    -- Name of the test program
             ostype      -- Name of the OS the test program is meant to run on
             testcommand -- Command to start the test program
+            runtime     -- Runtime for testsuite (seconds)
+            timeout     -- Timeout for testsuite (seconds)
         """
-        checks.chk_arg_count(args, 3)
-        testname, ostype, testcommand = args
+        checks.chk_arg_count(args, 5)
+        testname, ostype, testcommand, runtime, timeout = args
         testname = checks.chk_testname(testname)
         ostype = checks.chk_ostype(ostype)
         testcommand = checks.chk_testcommand(testcommand)
@@ -447,8 +449,8 @@ class Tests(DatabaseEntity):
         if self.cursor.fetchone() != None:
             raise ValueError('Test already exists.')
         self.cursor.execute('''
-                INSERT INTO test (test_name, os_type_id, test_command)
-                VALUES (?,?,?)''', (testname, ostypeid, testcommand))
+                INSERT INTO test (test_name, os_type_id, test_command, runtime, timeout)
+                VALUES (?,?,?,?,?)''', (testname, ostypeid, testcommand, runtime, timeout))
         self.cursor.execute('''
                 INSERT INTO host_schedule (host_id, test_id, image_id)
                 SELECT host_id, test_id, image_id
@@ -500,7 +502,7 @@ class Tests(DatabaseEntity):
             A tuple of dictionaries containing pairs of column name and value
         """
         self.cursor.execute('''
-                SELECT test_name, os_type_name, test_command FROM test
+                SELECT test_name, os_type_name, test_command, runtime, timeout FROM test
                 LEFT JOIN os_type ON os_type.os_type_id=test.os_type_id
                 ORDER BY test_name''')
         return fetchassoc(self.cursor)
