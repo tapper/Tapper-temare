@@ -31,6 +31,8 @@ def do_list(listing, ordering):
             'subject_name': 'Test Subject',
             'test_name'   : 'Test Program',
             'test_command': 'Command',
+            'timeout'     : 'Timeout',
+            'runtime'     : 'Requested runtime',
             'vendor_name' : 'Vendor',
             'is_64bit'    : 'Bitness',
             'is_bigmem'   : 'BigMem',
@@ -489,12 +491,14 @@ class TestAddCommand(TemareCommand):
     def __init__(self, base):
         TemareCommand.__init__(self, base)
         self.names = ['testadd']
-        self.usage = 'TESTNAME OSTYPE TESTCOMMAND'
+        self.usage = 'TESTNAME OSTYPE TESTCOMMAND RUNTIME TIMEOUT'
         self.summary = 'Add a new test to the schedule'
         self.description = \
             '    TESTNAME     Name of the test program\n' \
             '    OSTYPE       Name of the operating system type\n' \
-            '    TESTCOMMAND  Command to start the test program'
+            '    TESTCOMMAND  Command to start the test program' \
+            '    RUNTIME      Runtime for testsuite (seconds)' \
+            '    TIMEOUT      Timeout for testsuite (seconds)' 
 
     def do_command(self, args):
         """Add a test program to the database
@@ -539,7 +543,7 @@ class TestListCommand(TemareCommand):
         chk_arg_count(args, 0)
         testops = dbops.Tests()
         listing = testops.list()
-        ordering = ['test_name', 'os_type_name', 'test_command']
+        ordering = ['test_name', 'os_type_name', 'test_command', 'runtime', 'timeout']
         do_list(listing, ordering)
 
 
