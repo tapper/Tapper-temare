@@ -326,6 +326,7 @@ class SubjectPreparation():
         osimagefile = osimage[self.testrun.subject['bitness']]
         testprogram = '/opt/artemis/bin/metainfo'
         installpkg = 'artemisutils/sles10/xen_installer_suse.tar.gz'
+            
         precondition = {
             'precondition_type':   'virt',
             'name':                'automatically generated Xen test'}
@@ -338,7 +339,8 @@ class SubjectPreparation():
                     'image':                osimagefile},
                 'testprogram': {
                     'execname':             testprogram,
-                    'timeout_testprogram':  tstimeout},
+                    'timeout_testprogram':  300,
+                    'runtime':              50},
                 'preconditions': [
                     {'precondition_type':   'package',
                      'filename':            self.builddir + '/' + self.build},
@@ -353,6 +355,13 @@ class SubjectPreparation():
             mountfile = '/xen/images/%s' % (test['mntfile'], )
             svmsource = '%s:%s/%s' % (nfshost, svmpath, test['svmfile'])
             svmdest   = '%s/%s' % ('/xen/images/', test['svmfile'])
+            used_timeout   = tstimeout
+            used_runtime   = tstimeout / 3
+            if test['timeout']:
+                used_timeout = test['timeout']
+            if test['runtime']:
+                used_runtime = test['runtime']
+            
             if test['bitness'] == 1:
                 arch = 'linux64'
             else:
@@ -375,7 +384,9 @@ class SubjectPreparation():
                     'svm':                  svmdest},
                 'testprogram': {
                     'execname':             test['testcommand'],
-                    'timeout_testprogram':  tstimeout}
+                    'timeout_testprogram':  used_timeout,
+                    'runtime':              used_runtime,
+                    }
                 }
             precondition['guests'].append(guest)
         if os.environ.has_key('ARTEMIS_TEMARE'):
@@ -395,6 +406,7 @@ class SubjectPreparation():
         self.gen_guest_configs()
         testprogram = '/opt/artemis/bin/metainfo'
         buildexec = '/bin/%s' % (basename(kvmbuildscript), )
+            
         precondition = {
             'precondition_type':   'virt',
             'name':                'automatically generated KVM test'}
@@ -407,7 +419,9 @@ class SubjectPreparation():
                     'image':                kvmimage},
                 'testprogram': {
                     'execname':             testprogram,
-                    'timeout_testprogram':  tstimeout},
+                    'timeout_testprogram':  300,
+                    'runtime':              50,
+                    },
                 'preconditions': [
                     {'precondition_type':   'repository',
                      'type':                'git',
@@ -432,6 +446,14 @@ class SubjectPreparation():
             mountfile = '/kvm/images/%s' % (test['mntfile'], )
             execsource = '%s:%s/%s' % (nfshost, kvmexecpath, test['kvmexec'])
             execdest   = '/kvm/images/%s' % (test['kvmexec'], )
+
+            used_timeout   = tstimeout
+            used_runtime   = tstimeout / 3
+            if test['timeout']:
+                used_timeout = test['timeout']
+            if test['runtime']:
+                used_runtime = test['runtime']
+
             if test['bitness'] == 1:
                 arch = 'linux64'
             else:
@@ -454,7 +476,9 @@ class SubjectPreparation():
                     'exec':                 execdest},
                 'testprogram': {
                     'execname':             test['testcommand'],
-                    'timeout_testprogram':  tstimeout}
+                    'timeout_testprogram':  used_timeout,
+                    'runtime':              used_runtime,
+                    }
                 }
             precondition['guests'].append(guest)
             if os.environ.has_key('ARTEMIS_TEMARE'):
