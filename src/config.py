@@ -17,7 +17,7 @@ dbpath = '/data/bancroft/artemis/development/tools/temare/test-schedule.db'
 
 # Amount of memory available on a host
 minmem = 1024
-maxmem = 32768
+maxmem = 65536
 
 # timeout for test suites in second - means the are killed after this time
 tstimeout = 10800
