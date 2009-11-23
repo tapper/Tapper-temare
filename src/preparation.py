@@ -334,7 +334,7 @@ class SubjectPreparation():
                 'root': {
                     'precondition_type':    'image',
                     'mount':                '/',
-                    'partition':            'testing',
+                    'partition':            '/dev/sda2',
                     'arch':                 arch,
                     'image':                osimagefile},
                 'testprogram': {
