@@ -20,7 +20,7 @@ minmem = 1024
 maxmem = 65536
 
 # timeout for test suites in second - means the are killed after this time
-tstimeout = 10800
+tstimeout = 86400
 
 # Number of CPU cores available on a host
 mincores = 1
