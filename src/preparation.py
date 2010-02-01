@@ -250,13 +250,15 @@ class SubjectPreparation():
             template - Template of the files content
         """
         filepath = '%s/%s' % (path, filename)
+        cfgfile = None
         try:
             cfgfile = open(filepath, 'w')
             cfgfile.write(template % test)
         except:
             raise ValueError('Failed to write guest config files.')
         finally:
-            cfgfile.close()
+            if type(cfgfile) == file:
+                cfgfile.close()
         if filepath.endswith('.sh'):
             oldmode = S_IMODE(os.stat(filepath).st_mode)
             newmode = oldmode | S_IXUSR | S_IXGRP | S_IXOTH
@@ -291,13 +293,15 @@ class SubjectPreparation():
 
     def __write_metainfo(self, filename):
         output = {'subject':self.testrun.subject['name']}
+        cfgfile = None
         try:
             cfgfile = open(filename, 'w')
             cfgfile.write(yaml.safe_dump(output, default_flow_style=False))
         except:
             raise ValueError('Can not write precondition file.')
         finally:
-            cfgfile.close()
+            if type(cfgfile) == file:
+                cfgfile.close()
 
 
     def gen_precondition(self):
