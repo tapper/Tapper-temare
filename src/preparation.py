@@ -416,7 +416,12 @@ class SubjectPreparation():
             'name':                'automatically generated KVM test'}
         precondition['host'] = {
                 'root': {
-                    'grub_text': r"timeout 2\ntitle Fedora 11 with KVM\nkernel /tftpboot/stable/fedora/11/x86_64/vmlinuz  console=ttyS0,115200 ks=http://bancroft/autoinstall/stable/fedora/11/x86_64/artemis-kvm.ks ksdevice=eth0 noapic $ARTEMIS_OPTIONS\ninitrd /tftpboot/stable/fedora/11/x86_64/initrd.img\n",
+                    'grub_text': '''timeout 2
+
+title Fedora 11 with KVM
+kernel /tftpboot/stable/fedora/11/x86_64/vmlinuz  console=ttyS0,115200 ks=http://bancroft/autoinstall/stable/fedora/11/x86_64/artemis-kvm.ks ksdevice=eth0 noapic $ARTEMIS_OPTIONS
+initrd /tftpboot/stable/fedora/11/x86_64/initrd.img
+''',
                     'name': 'Fedora_11',
                     'precondition_type': 'autoinstall',
                     'timeout': '10000',
