@@ -416,33 +416,16 @@ class SubjectPreparation():
             'name':                'automatically generated KVM test'}
         precondition['host'] = {
                 'root': {
-                    'precondition_type':    'image',
-                    'mount':                '/',
-                    'partition':            'testing',
-                    'arch':                 'linux64',
-                    'image':                kvmimage},
+                    'grub_text': r"timeout 2\ntitle Fedora 11 with KVM\nkernel /tftpboot/stable/fedora/11/x86_64/vmlinuz  console=ttyS0,115200 ks=http://bancroft/autoinstall/stable/fedora/11/x86_64/artemis-kvm.ks ksdevice=eth0 noapic $ARTEMIS_OPTIONS\ninitrd /tftpboot/stable/fedora/11/x86_64/initrd.img\n",
+                    'name': 'Fedora_11',
+                    'precondition_type': 'autoinstall',
+                    'timeout': '10000',
+                    },
                 'testprogram': {
                     'execname':             testprogram,
                     'timeout_testprogram':  300,
                     'runtime':              50,
                     },
-                'preconditions': [
-                    {'precondition_type':   'repository',
-                     'type':                'git',
-                     'url':                 kvmkernelrepo},
-                    {'precondition_type':   'repository',
-                     'type':                'git',
-                     'url':                 kvmuserspacerepo},
-                    {'precondition_type':   'copyfile',
-                     'protocol':            'local',
-                     'name':                kvmconfig,
-                     'dest':                '/kvm/'},
-                    {'precondition_type':   'copyfile',
-                     'protocol':            'local',
-                     'name':                kvmbuildscript,
-                     'dest':                '/bin/'},
-                    {'precondition_type':   'exec',
-                     'filename':            buildexec}]
                 }
         precondition['guests'] = []
         for test in self.testrun.tests:
