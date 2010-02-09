@@ -393,11 +393,9 @@ class SubjectPreparation():
                     }
                 }
             precondition['guests'].append(guest)
+        sys.stdout.write(yaml.safe_dump(precondition, default_flow_style=False))
         if os.environ.has_key('ARTEMIS_TEMARE'):
-            sys.stdout.write(yaml.safe_dump(precondition, default_flow_style=False))
             self.__write_metainfo(os.environ['ARTEMIS_TEMARE'])
-        else:
-            sys.stdout.write(yaml.safe_dump(precondition, default_flow_style=False))
         self.testrun.do_finalize()
 
 
@@ -473,11 +471,11 @@ initrd /tftpboot/stable/fedora/11/x86_64/initrd.img
                     }
                 }
             precondition['guests'].append(guest)
+            output = yaml.safe_dump(precondition,
+                    default_flow_style=False, width=500)
+            sys.stdout.write(re.sub('\n\n', '\n', output))
             if os.environ.has_key('ARTEMIS_TEMARE'):
-                sys.stdout.write(yaml.safe_dump(precondition, default_flow_style=False))
                 self.__write_metainfo(os.environ['ARTEMIS_TEMARE'])
-            else:
-                sys.stdout.write(yaml.safe_dump(precondition, default_flow_style=False))
             self.testrun.do_finalize()
 
 
