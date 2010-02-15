@@ -471,9 +471,8 @@ initrd /tftpboot/stable/fedora/11/x86_64/initrd.img
                     }
                 }
             precondition['guests'].append(guest)
-            output = yaml.safe_dump(precondition,
-                    default_flow_style=False, width=500)
-            sys.stdout.write(re.sub('\n\n', '\n', output))
+            sys.stdout.write(yaml.safe_dump(precondition,
+                    default_flow_style=False, width=500))
             if os.environ.has_key('ARTEMIS_TEMARE'):
                 self.__write_metainfo(os.environ['ARTEMIS_TEMARE'])
             self.testrun.do_finalize()
