@@ -178,6 +178,12 @@ class KvmHostPreparation(BasePreparation):
         self.stage = 'Copying guest image files'
         for test in self.testrun.tests:
             self.do_command(copyscript % tuple([test['image']] * 4))
+            self.do_command(
+                    'qemu-img convert -O raw /xen/images/%s /xen/images/%s.tmp'
+                    % tuple([test['image']] * 2))
+            self.do_command(
+                    'mv -f /xen/images/%s.tmp /xen/images/%s'
+                    % tuple([test['image']] * 2))
         self.stage = 'Starting guests'
         for test in self.testrun.tests:
             self.do_command(test['startscript'])
