@@ -17,6 +17,7 @@ class TemareCli:
         self.add_command(clicommands.InitDbCommand(self))
         self.add_command(clicommands.HostAddCommand(self))
         self.add_command(clicommands.HostDelCommand(self))
+        self.add_command(clicommands.HostModCommand(self))
         self.add_command(clicommands.HostStateCommand(self))
         self.add_command(clicommands.HostListCommand(self))
         self.add_command(clicommands.HostPrepCommand(self))

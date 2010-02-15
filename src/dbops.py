@@ -139,6 +139,23 @@ class Hosts(DatabaseEntity):
     """Class for database operations on host entries
     """
 
+    def __get_host_id(self, hostname):
+        """Get the database ID of a given hostname.
+
+        Arguments:
+            hostname -- Name of the host system
+
+        Returns:
+            The database ID of the host system
+        """
+        hostname = checks.chk_hostname(hostname)
+        self.cursor.execute('''
+                SELECT host_id FROM host WHERE host_name=?''', (hostname, ))
+        hostid = self.cursor.fetchone()
+        if hostid == None:
+            raise ValueError('No such host.')
+        return hostid[0]
+
     def add(self, args):
         """Add a new host to the database.
 
@@ -179,15 +196,10 @@ class Hosts(DatabaseEntity):
         """
         checks.chk_arg_count(args, 1)
         hostname, = args
-        hostname = checks.chk_hostname(hostname)
+        hostid = self.__get_host_id(hostname)
         self.cursor.execute('''
-                SELECT host_id FROM host WHERE host_name=?''', (hostname, ))
-        hostid = self.cursor.fetchone()
-        if hostid == None:
-            raise ValueError('No such host.')
-        self.cursor.execute('''
-                DELETE FROM host_schedule WHERE host_id=?''', hostid)
-        self.cursor.execute('DELETE FROM host WHERE host_id=?', hostid)
+                DELETE FROM host_schedule WHERE host_id=?''', (hostid, ))
+        self.cursor.execute('DELETE FROM host WHERE host_id=?', (hostid, ))
         self.connection.commit()
 
     def state(self, args):
@@ -199,14 +211,55 @@ class Hosts(DatabaseEntity):
         """
         checks.chk_arg_count(args, 2)
         hostname, state = args
-        hostname = checks.chk_hostname(hostname)
         state = checks.chk_state(state)
-        self.cursor.execute('''
-                SELECT * FROM host WHERE host_name=?''', (hostname, ))
-        if self.cursor.fetchone() == None:
-            raise ValueError('No such host.')
+        hostid = self.__get_host_id(hostname)
         self.cursor.execute('''UPDATE host SET is_enabled=?
-                WHERE host_name=?''', (state, hostname))
+                WHERE host_id=?''', (state, hostid))
+        self.connection.commit()
+
+    def memory(self, args):
+        """Set the amount of memory installed in a system
+
+        Arguments:
+            hostname -- Name of the host system
+            memory   -- Amount of memory available on the host system
+        """
+        checks.chk_arg_count(args, 2)
+        hostname, memory = args
+        hostid = self.__get_host_id(hostname)
+        memory = checks.chk_memory(memory)
+        self.cursor.execute('''UPDATE host SET host_memory=?
+                WHERE host_id=?''', (memory, hostid))
+        self.connection.commit()
+
+    def cores(self, args):
+        """Set the amount of CPU cores of a system
+
+        Arguments:
+            hostname -- Name of the host system
+            cores    -- Amount of CPU cores available on the host system
+        """
+        checks.chk_arg_count(args, 2)
+        hostname, cores = args
+        hostid = self.__get_host_id(hostname)
+        cores = checks.chk_cores(cores)
+        self.cursor.execute('''UPDATE host SET host_cores=?
+                WHERE host_id=?''', (cores, hostid))
+        self.connection.commit()
+
+    def bitness(self, args):
+        """Set the bitness of the operating system installed on a system
+
+        Arguments:
+            hostname -- Name of the host system
+            bitness  -- Bitness of the host OS (0 = 32-bit, 1 = 64-bit)
+        """
+        checks.chk_arg_count(args, 2)
+        hostname, bitness = args
+        hostid = self.__get_host_id(hostname)
+        bitness = checks.chk_bitness(bitness)
+        self.cursor.execute('''UPDATE host SET is_64bit=?
+                WHERE host_id=?''', (bitness, hostid))
         self.connection.commit()
 
     def list(self):

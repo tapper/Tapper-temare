@@ -287,7 +287,7 @@ class HostModCommand(TemareCommand):
     def __init__(self, base):
         TemareCommand.__init__(self, base)
         self.names = ['hostmod']
-        self.usage = 'HOSTNAME mem|cpus|bits ARGUMENT'
+        self.usage = 'HOSTNAME mem|cores|bits ARGUMENT'
         self.summary = 'Modify a hosts configuration'
         self.description = \
             '    HOSTNAME  Name of the host\n' \
@@ -298,7 +298,17 @@ class HostModCommand(TemareCommand):
             update the host configuration
         """
         chk_arg_count(args, 3)
-        raise NotImplementedError
+        hostname, command, value = args
+        args = (hostname, value)
+        hostops = dbops.Hosts()
+        if command == 'mem':
+            hostops.memory(args)
+        elif command == 'cores':
+            hostops.cores(args)
+        elif command == 'bits':
+            hostops.bitness(args)
+        else:
+            raise ValueError('Unknown host configuration.')
 
 
 class HostStateCommand(TemareCommand):
