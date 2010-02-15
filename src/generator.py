@@ -36,23 +36,23 @@ class TestRunGenerator():
 
         TestRunGenerator.tests
                 List of dictionaries with the following items:
-        'id'            -- Database ID of the schedule entry            (integer)
-        'runid'         -- Consecutive numbering of the test            (integer)
-        'vnc'           -- VNC and network iface numbering              (integer)
-        'macaddr'       -- MAC address of the guest NIC                 (string)
-        'image'         -- Guest image name                             (string)
-        'format'        -- Guest image format                           (raw|qcow|qcow2)
-        'test'          -- Name of the test program                     (string)
-        'testcommand'   -- Test program command                         (string)
-        'runtime'       -- Time the test is upposed to run              (integer)
-        'timeout'       -- Time after that the test hash to be finished (integer)
-        'bitness'       -- Bitness of the guest                         (0|1)
-        'bigmem'        -- Capability to address > 4GB                  (0|1)
-        'smp'           -- SMP capability of the guest                  (0|1)
-        'cores'         -- Number of VCPUs                              (integer)
-        'memory'        -- Memory                                       (integer)
-        'shadowmem'     -- Shadow memory                                (integer)
-        'hap'           -- Nested paging enabled                        (0|1)
+        'id'            -- Database ID of the schedule entry (integer)
+        'runid'         -- Consecutive numbering of the test (integer)
+        'vnc'           -- VNC and network iface numbering   (integer)
+        'macaddr'       -- MAC address of the guest NIC      (string)
+        'image'         -- Guest image name                  (string)
+        'format'        -- Guest image format                (raw|qcow|qcow2)
+        'test'          -- Name of the test program          (string)
+        'testcommand'   -- Test program command              (string)
+        'runtime'       -- Scheduled runtime of the test     (integer)
+        'timeout'       -- Timeout for the whole test        (integer)
+        'bitness'       -- Bitness of the guest              (0|1)
+        'bigmem'        -- Capability to address > 4GB       (0|1)
+        'smp'           -- SMP capability of the guest       (0|1)
+        'cores'         -- Number of VCPUs                   (integer)
+        'memory'        -- Memory                            (integer)
+        'shadowmem'     -- Shadow memory                     (integer)
+        'hap'           -- Nested paging enabled             (0|1)
 
     Methods:
         TestRunGenerator.do_finalize()
@@ -129,7 +129,7 @@ class TestRunGenerator():
                 result = self.cursor.fetchone()
                 if result == None:
                     raise ValueError('Nothing to do.')
-        elif subject != False and bitness in (0,1):
+        elif subject != False and bitness in (0, 1):
             self.cursor.execute('''
                     SELECT subject_schedule.subject_id, subject_name,
                         last_vendor_id, is_64bit
@@ -294,8 +294,9 @@ class TestRunGenerator():
             wildcards = ','.join(['?'] * len(imagevalue))
             imagecond = 'AND image_name NOT IN (%s)' % (wildcards, )
         query = '''
-                SELECT schedule_id, image_name, image_format, test_name,
-                    test_command, runtime, timeout, is_bigmem, is_smp, image.is_64bit
+                SELECT schedule_id, image_name, image_format,
+                        test_name, test_command, runtime, timeout,
+                        is_bigmem, is_smp, image.is_64bit
                 FROM %s_schedule
                 LEFT JOIN image ON %s_schedule.image_id=image.image_id
                 LEFT JOIN test ON %s_schedule.test_id=test.test_id
@@ -391,7 +392,7 @@ class TestRunGenerator():
     def do_finalize(self):
         """Set is_done flags for all tests used in the testrun
 
-        This method must be called when all pepraration steps succeeded.
+        This method must be called when all preparation steps succeeded.
         It also resets the TestRunGenerator.tests attribute.
         """
         testids = tuple([test['id'] for test in self.tests])

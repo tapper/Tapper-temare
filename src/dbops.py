@@ -502,8 +502,10 @@ class Tests(DatabaseEntity):
         if self.cursor.fetchone() != None:
             raise ValueError('Test already exists.')
         self.cursor.execute('''
-                INSERT INTO test (test_name, os_type_id, test_command, runtime, timeout)
-                VALUES (?,?,?,?,?)''', (testname, ostypeid, testcommand, runtime, timeout))
+                INSERT INTO test
+                (test_name, os_type_id, test_command, runtime, timeout)
+                VALUES (?,?,?,?,?)''',
+                (testname, ostypeid, testcommand, runtime, timeout))
         self.cursor.execute('''
                 INSERT INTO host_schedule (host_id, test_id, image_id)
                 SELECT host_id, test_id, image_id
@@ -555,7 +557,8 @@ class Tests(DatabaseEntity):
             A tuple of dictionaries containing pairs of column name and value
         """
         self.cursor.execute('''
-                SELECT test_name, os_type_name, test_command, runtime, timeout FROM test
+                SELECT test_name, os_type_name, test_command, runtime, timeout
+                FROM test
                 LEFT JOIN os_type ON os_type.os_type_id=test.os_type_id
                 ORDER BY test_name''')
         return fetchassoc(self.cursor)

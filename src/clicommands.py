@@ -506,8 +506,8 @@ class TestAddCommand(TemareCommand):
         self.description = \
             '    TESTNAME     Name of the test program\n' \
             '    OSTYPE       Name of the operating system type\n' \
-            '    TESTCOMMAND  Command to start the test program' \
-            '    RUNTIME      Runtime for testsuite (seconds)' \
+            '    TESTCOMMAND  Command to start the test program\n' \
+            '    RUNTIME      Runtime for testsuite (seconds)\n' \
             '    TIMEOUT      Timeout for testsuite (seconds)' 
 
     def do_command(self, args):
@@ -553,7 +553,8 @@ class TestListCommand(TemareCommand):
         chk_arg_count(args, 0)
         testops = dbops.Tests()
         listing = testops.list()
-        ordering = ['test_name', 'os_type_name', 'test_command', 'runtime', 'timeout']
+        ordering = ['test_name', 'os_type_name',
+                'test_command', 'runtime', 'timeout']
         do_list(listing, ordering)
 
 

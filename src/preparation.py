@@ -336,7 +336,6 @@ class SubjectPreparation():
         osimagefile = osimage[self.testrun.subject['bitness']]
         testprogram = '/opt/artemis/bin/metainfo'
         installpkg = 'artemisutils/sles10/xen_installer_suse.tar.gz'
-            
         precondition = {
             'precondition_type':   'virt',
             'name':                'automatically generated Xen test'}
@@ -404,7 +403,6 @@ class SubjectPreparation():
             self.__write_metainfo(os.environ['ARTEMIS_TEMARE'])
         self.testrun.do_finalize()
 
-
     def gen_precondition_kvm(self):
         """Prepare a KVM test run and generate a precondition YAML string
 
@@ -414,7 +412,6 @@ class SubjectPreparation():
         self.gen_guest_configs()
         testprogram = '/opt/artemis/bin/metainfo'
         buildexec = '/bin/%s' % (basename(kvmbuildscript), )
-            
         precondition = {
             'precondition_type':   'virt',
             'name':                'automatically generated KVM test'}
@@ -442,7 +439,6 @@ initrd /tftpboot/stable/fedora/11/x86_64/initrd.img
             mountfile = '/kvm/images/%s' % (test['mntfile'], )
             execsource = '%s:%s/%s' % (nfshost, kvmexecpath, test['kvmexec'])
             execdest   = '/kvm/images/%s' % (test['kvmexec'], )
-
             used_timeout   = tstimeout
             used_runtime   = tstimeout / 3
             if test['timeout']:
