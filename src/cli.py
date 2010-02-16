@@ -14,6 +14,7 @@ class TemareCli:
     def __init__(self, args):
         self.commands = {}
         self.add_command(clicommands.HelpCommand(self))
+        self.add_command(clicommands.VersionCommand(self))
         self.add_command(clicommands.InitDbCommand(self))
         self.add_command(clicommands.HostAddCommand(self))
         self.add_command(clicommands.HostDelCommand(self))

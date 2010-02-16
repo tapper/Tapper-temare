@@ -7,6 +7,7 @@
 import sys
 import dbops
 import preparation
+import version
 from subprocess import Popen, PIPE
 from checks import chk_arg_count, chk_bitness, chk_hostname, chk_subject
 
@@ -730,3 +731,20 @@ class VendorListCommand(TemareCommand):
         listing = vendorops.list()
         ordering = ['vendor_name']
         do_list(listing, ordering)
+
+
+class VersionCommand(TemareCommand):
+    """Print the temare version number
+    """
+
+    def __init__(self, base):
+        TemareCommand.__init__(self, base)
+        self.names = ['version']
+        self.summary = 'Print the temare version number and exit'
+
+    def do_command(self, args):
+        """Validate the number of given arguments and
+           print the version number
+        """
+        chk_arg_count(args, 0)
+        sys.stdout.write('temare %s\n' % (version.__version__, ))
