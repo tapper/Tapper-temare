@@ -32,7 +32,9 @@ def init_database():
                     test_id         INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                     test_name       TEXT,
                     test_command    TEXT,
-                    os_type_id      INTEGER NOT NULL)''',
+                    os_type_id      INTEGER NOT NULL,
+                    timeout         INTEGER DEFAULT 36000,
+                    runtime         INTEGER DEFAULT 28800)''',
             '''CREATE TABLE IF NOT EXISTS host (
                     host_id         INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                     host_name       TEXT UNIQUE,

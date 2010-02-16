@@ -16,12 +16,12 @@ ostypes = ((1, "Linux"  ),
            (2, "Solaris"),
            (3, "Windows"))
 
-tests = ((1, "CTCS"     , 'run_cerberus',   1),
-         (2, "kernbench", 'loop_kernbench', 1),
-         (3, "lmbench"  , 'loop_lmbench',   1),
-         (4, "lmbench"  , 'loop_lmbench',   2),
-         (5, "LTP"      , 'run_ltp',        1),
-         (6, "WinSST"   , 'run_sst.bat',    3))
+tests = ((1, "CTCS"     , 'run_cerberus',   1, 36000, 28800),
+         (2, "kernbench", 'loop_kernbench', 1, 36000, 28800),
+         (3, "lmbench"  , 'loop_lmbench',   1, 36000, 28800),
+         (4, "lmbench"  , 'loop_lmbench',   2, 36000, 28800),
+         (5, "LTP"      , 'run_ltp',        1, 36000, 28800),
+         (6, "WinSST"   , 'run_sst.bat',    3, 36000, 28800))
 
 hosts = (( 1, "unicorn",  8192,  4, 0, 0, 1, 1),
          ( 2, "nagult",   8192,  4, 0, 0, 1, 1),
@@ -99,9 +99,11 @@ cursor.execute('''CREATE TABLE test (
                     test_id        INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                     test_name      TEXT,
                     test_command   TEXT,
-                    os_type_id     INTEGER NOT NULL)''')
+                    os_type_id     INTEGER NOT NULL,
+                    timeout        INTEGER DEFAULT 36000,
+                    runtime        INTEGER DEFAULT 28800)''')
 for dataset in tests:
-    cursor.execute('INSERT INTO test VALUES (?,?,?,?)', dataset)
+    cursor.execute('INSERT INTO test VALUES (?,?,?,?,?,?)', dataset)
 
 cursor.execute('''CREATE TABLE host (
                     host_id         INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
