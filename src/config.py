@@ -133,18 +133,6 @@ suiteimage = 'testsuites_raw.img'
 osimage = {0: 'suse/suse_sles10_sp2_32b_smp_raw.tar.gz',
            1: 'suse/suse_sles10_sp2_64b_smp_raw.tar.gz'}
 
-# Full filename of the image to be used as KVM host
-kvmimage = 'fedora/fedora-10-x86_64-20090513.tar.bz2'
-
-# KVM repository base path
-kvmrepopath = 'git://wotan.amd.com'
-
-# KVM kernel repository
-kvmkernelrepo = '%s/kvm' % (kvmrepopath, )
-
-# KVM userpace repository
-kvmuserspacerepo = '%s/qemu-kvm' % (kvmrepopath, )
-
 # Artemis repository path
 artemisrepo = '%s/repository' % (artemisdir, )
 
@@ -153,12 +141,6 @@ svmpath = '%s/configs/xen' % (artemisrepo, )
 
 # Directory to put the generated KVM start scripts into
 kvmexecpath = '%s/configs/kvm' % (artemisrepo, )
-
-# KVM kernel config
-kvmconfig = '%s/configs/kvm/.config' % (artemisrepo, )
-
-# KVM build script
-kvmbuildscript = '%s/packages/kvm/build_kvm.sh' % (artemisrepo, )
 
 # NFS path to guest image files
 imagepath = 'osko:/export/image_files/official_testing'

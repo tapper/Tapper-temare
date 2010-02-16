@@ -119,13 +119,6 @@ class DatabaseEntity:
         """
         raise NotImplementedError
 
-    # Might be added later...
-    #
-    #def modify(self):
-    #    """Modify the properties of an item
-    #    """
-    #    raise NotImplementedError
-
     def state(self, args):
         """Set the state of an item to enabled or disabled
         """

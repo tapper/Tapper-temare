@@ -17,15 +17,13 @@ import generator
 import datetime
 import time
 from subprocess import Popen, PIPE, STDOUT
-from socket import gethostname
 from os.path import basename
 from stat import S_IMODE, S_IXUSR, S_IXGRP, S_IXOTH
 from checks import chk_hostname, chk_subject
 from config import kvm, svm, formats, cfgscript, copyscript,        \
                    osimage, svmpath, nfshost, suiteimage,           \
                    builddir, buildarchs, buildpattern, imagepath,   \
-                   tstimeout, kvmexecpath, kvmimage, kvmconfig,     \
-                   kvmkernelrepo, kvmuserspacerepo, kvmbuildscript
+                   tstimeout, kvmexecpath
 
 
 class BasePreparation(threading.Thread):
@@ -213,11 +211,6 @@ class SubjectPreparation():
         self.builddir = None
         self.guestconfigs = {}
         self.host = chk_hostname(host)
-#         if gethostname() != nfshost:
-#             raise ValueError(
-#                     'This command is meant to be run on %s by Artemis.\n'
-#                     'Please update the config module if the Artemis '
-#                     'host has changed.' % (nfshost, ))
         self.testrun = generator.TestRunGenerator(
                 self.host, True, subject, bitness)
 
@@ -297,18 +290,22 @@ class SubjectPreparation():
             else:
                 raise ValueError('Invalid test subject.')
 
-    def __write_metainfo(self, filename):
-        output = {'subject':self.testrun.subject['name']}
-        cfgfile = None
-        try:
-            cfgfile = open(filename, 'w')
-            cfgfile.write(yaml.safe_dump(output, default_flow_style=False))
-        except:
-            raise ValueError('Can not write precondition file.')
-        finally:
-            if type(cfgfile) == file:
-                cfgfile.close()
+    def __write_subjectinfo(self, filename):
+        """Write a YAML dump of the test subject description to a file
 
+        Expects:
+            filename - Path of the file to be written to
+        """
+        data = {'subject': self.testrun.subject['name']}
+        infofile = None
+        try:
+            infofile = open(filename, 'w')
+            infofile.write(yaml.safe_dump(data, default_flow_style=False))
+        except:
+            raise ValueError('Failed to write test subject description file.')
+        finally:
+            if type(infofile) == file:
+                infofile.close()
 
     def gen_precondition(self):
         """Prepare a test run and generate a precondition YAML string
@@ -400,7 +397,7 @@ class SubjectPreparation():
             precondition['guests'].append(guest)
         sys.stdout.write(yaml.safe_dump(precondition, default_flow_style=False))
         if os.environ.has_key('ARTEMIS_TEMARE'):
-            self.__write_metainfo(os.environ['ARTEMIS_TEMARE'])
+            self.__write_subjectinfo(os.environ['ARTEMIS_TEMARE'])
         self.testrun.do_finalize()
 
     def gen_precondition_kvm(self):
@@ -411,7 +408,6 @@ class SubjectPreparation():
         """
         self.gen_guest_configs()
         testprogram = '/opt/artemis/bin/metainfo'
-        buildexec = '/bin/%s' % (basename(kvmbuildscript), )
         precondition = {
             'precondition_type':   'virt',
             'name':                'automatically generated KVM test'}
@@ -476,7 +472,7 @@ initrd /tftpboot/stable/fedora/11/x86_64/initrd.img
         sys.stdout.write(yaml.safe_dump(precondition,
                 default_flow_style=False, width=500))
         if os.environ.has_key('ARTEMIS_TEMARE'):
-            self.__write_metainfo(os.environ['ARTEMIS_TEMARE'])
+            self.__write_subjectinfo(os.environ['ARTEMIS_TEMARE'])
         self.testrun.do_finalize()
 
 
