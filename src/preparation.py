@@ -26,6 +26,7 @@ from config import kvm, svm, formats, cfgscript, copyscript,        \
                    tstimeout, kvmexecpath
 
 
+
 class BasePreparation(threading.Thread):
     """Base class to prepare a host for manual testing
     """
@@ -234,7 +235,7 @@ class SubjectPreparation():
             raise ValueError('Build directory does not exist.')
         if len(builds) < 1:
             raise ValueError(
-                    'No builds available for %s on %s.' % (version, arch))
+                    'No builds available for %s on %s. Builddir is %s' % (version, arch, self.builddir))
         builds.sort()
         self.build = builds.pop()
 
@@ -313,12 +314,15 @@ class SubjectPreparation():
         Just calls the appropriate method for the test subject which was
         determined by calling the test run generator.
         """
+        precondition = ""
         if self.testrun.subject['name'].startswith('xen'):
-            self.gen_precondition_xen()
+            precondition = self.gen_precondition_xen()
         elif self.testrun.subject['name'].startswith('kvm'):
-            self.gen_precondition_kvm()
+            precondition = self.gen_precondition_kvm()
         else:
             raise ValueError('Invalid test subject.')
+        self.write_precondition(precondition)
+
 
     def gen_precondition_xen(self):
         """Prepare a Xen test run and generate a precondition YAML string
@@ -395,10 +399,7 @@ class SubjectPreparation():
                     }
                 }
             precondition['guests'].append(guest)
-        sys.stdout.write(yaml.safe_dump(precondition, default_flow_style=False))
-        if os.environ.has_key('ARTEMIS_TEMARE'):
-            self.__write_subjectinfo(os.environ['ARTEMIS_TEMARE'])
-        self.testrun.do_finalize()
+        return precondition
 
     def gen_precondition_kvm(self):
         """Prepare a KVM test run and generate a precondition YAML string
@@ -469,6 +470,15 @@ initrd /tftpboot/stable/fedora/11/x86_64/initrd.img
                     }
                 }
             precondition['guests'].append(guest)
+        return precondition
+
+    def write_precondition(self, precondition):
+        """Write a given precondition and subjectinfo
+
+        Precondition is always written to STDOUT.
+        Subjectinfo is only written when working for ARTEMIS - i.e. when
+        $ARTEMIS_TEMARE is set. It is written to an associated file.
+        """
         sys.stdout.write(yaml.safe_dump(precondition,
                 default_flow_style=False, width=500))
         if os.environ.has_key('ARTEMIS_TEMARE'):

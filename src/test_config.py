@@ -2,7 +2,6 @@
 # vim: tabstop=4 shiftwidth=4 expandtab smarttab
 """Limits and paths and other things that might be changing
 """
-import os
 from socket import gethostname
 
 
@@ -138,10 +137,10 @@ osimage = {0: 'suse/suse_sles10_sp2_32b_smp_raw.tar.gz',
 artemisrepo = '%s/repository' % (artemisdir, )
 
 # Directory to put the generated svm files into
-svmpath = '%s/configs/xen' % (artemisrepo, )
+svmpath = '/tmp/'
 
 # Directory to put the generated KVM start scripts into
-kvmexecpath = '%s/configs/kvm' % (artemisrepo, )
+kvmexecpath = '/tmp/'
 
 # NFS path to guest image files
 imagepath = 'osko:/export/image_files/official_testing'
@@ -164,10 +163,3 @@ if debug == True:
     svmpath = 'debug/configs'
     kvmexecpath = 'debug/configs'
     builddir = 'debug/builds/%s/%s'
-
-if os.environ.has_key('HARNESS_ACTIVE'):
-    dbpath = 't/test-schedule.db'
-    nfshost = gethostname()
-    svmpath = '/tmp/'
-    kvmexecpath = '/tmp/'
-    builddir = 't/debug/builds/%s/%s'
