@@ -1,3 +1,9 @@
 *.py[co]
 *.db
 debug
+!t/misc_files/builds/x86_64/xen-3.2-testing/xen-3.2-testing.2010-03-02.20993_4554b305228a_.x86_64.tgz
+!t/misc_files/builds/x86_64/xen-unstable-pvops/xen-unstable-pvops.2010-03-02.20993_4554b305228a_.x86_64.tgz
+!t/misc_files/builds/x86_64/xen-3.1-testing/xen-3.1-testing.2010-03-02.20993_4554b305228a_.x86_64.tgz
+!t/misc_files/builds/x86_64/xen-3.3-testing/xen-3.3-testing.2010-03-02.20993_4554b305228a_.x86_64.tgz
+!t/misc_files/builds/x86_64/xen-3.4-testing/xen-3.4-testing.2010-03-02.20993_4554b305228a_.x86_64.tgz
+!t/misc_files/builds/x86_64/xen-unstable/xen-unstable.2010-03-02.20993_4554b305228a_.x86_64.tgz
