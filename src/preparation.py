@@ -327,25 +327,10 @@ class SubjectPreparation():
         self.write_precondition(precondition)
 
 
-    def gen_precondition_xen(self):
-        """Prepare a Xen test run and generate a precondition YAML string
-
-        Find latest build of the test subject, generate guest
-        configurations, write a precondition string to STDOUT, and finally
-        mark the guest tests as done in the database.
-        """
-        self.get_latest_build()
-        self.gen_guest_configs()
-        options = {}
-        options['arch'] = ('linux32', 'linux64')[self.testrun.subject['bitness']]
-        options['osimagefile'] = osimage[self.testrun.subject['bitness']]
-        options['testprogram'] = '/opt/artemis/bin/metainfo'
-        options['installpkg'] = 'artemisutils/sles10/xen_installer_suse.tar.gz'
-        precondition = {
-            'precondition_type':   'virt',
-            'name':                'automatically generated Xen test'}
-        precondition['host'] = {
-                'root': {
+    def gen_xen_host(self, options):
+        """ Generate host part of a Xen precondition"""
+        return {
+            'root': {
                     'precondition_type':    'image',
                     'mount':                '/',
                     'partition':            '/dev/sda2',
@@ -363,46 +348,92 @@ class SubjectPreparation():
                     {'precondition_type':   'exec',
                      'filename':            '/bin/xen_installer_suse.pl'}]
                 }
-        precondition['guests'] = []
-        for test in self.testrun.tests:
-            guest_options                 = {}
-            guest_options['imagefile']    = '%s/%s' % (imagepath, test['image'])
-            guest_options['mountfile']    = '/xen/images/%s' % (test['mntfile'], )
-            guest_options['svmsource']    = '%s:%s/%s' % (nfshost, svmpath, test['svmfile'])
-            guest_options['svmdest']      = '%s/%s' % ('/xen/images/', test['svmfile'])
-            guest_options['used_timeout'] = tstimeout
-            guest_options['used_runtime'] = tstimeout / 3
+
+    def gen_xen_guest_options(self, test):
+            guest_options                       = {}
+            guest_options['subject']            = self.testrun.subject['name']
+            guest_options['imagefile']          = '%s/%s' % (imagepath, test['image'])
+            guest_options['mountfile']          = '/xen/images/%s' % (test['mntfile'], )
+            guest_options['guest_start_source'] = '%s:%s/%s' % (nfshost, svmpath, test['svmfile'])
+            guest_options['guest_start_dest']   = '%s/%s' % ('/xen/images/', test['svmfile'])
+            guest_options['used_timeout']       = tstimeout
+            guest_options['used_runtime']       = tstimeout / 3
+            guest_options['testcommand']        = test['testcommand']
+            guest_options['os']                 = test['os']
+
             if test['timeout']:
                 guest_options['used_timeout'] = test['timeout']
             if test['runtime']:
                 guest_options['used_runtime'] = test['runtime']
             
-            if test['bitness'] == 1:
+            if test['os'].lower().startswith('windows'):
+                guest_options['arch'] = 'windows'
+            elif test['bitness'] == 1:
                 guest_options['arch'] = 'linux64'
             else:
                 guest_options['arch'] = 'linux32'
-            guest = {
+            return guest_options
+
+    def gen_guest_precond(self, guest_options):
+        mounttype = 'raw'
+        if guest_options['os'].lower().startswith('windows'):
+            mounttype = 'windows'
+        retval = {
                 'root': {
                     'precondition_type':    'copyfile',
                     'protocol':             'nfs',
                     'name':                 guest_options['imagefile'],
-                    'dest':                 '/xen/images/',
                     'mountfile':            guest_options['mountfile'],
-                    'mounttype':            'raw',
+                    'mounttype':            mounttype,
                     'arch'     :            guest_options['arch']
                     },
                 'config': {
                     'precondition_type':    'copyfile',
                     'protocol':             'nfs',
-                    'name':                 guest_options['svmsource'],
-                    'dest':                 '/xen/images/',
-                    'svm':                  guest_options['svmdest']},
+                    'name':                 guest_options['guest_start_source'], # source for svm or kvm_start_script
+                    },
                 'testprogram': {
-                    'execname':             test['testcommand'],
+                    'execname':             guest_options['testcommand'],
                     'timeout_testprogram':  guest_options['used_timeout'],
                     'runtime':              guest_options['used_runtime'],
                     }
                 }
+
+        if guest_options['subject'].startswith('kvm'):
+           retval['config']['exec'] = guest_options['guest_start_dest']
+           retval['root']['dest']   = '/kvm/images'
+           retval['config']['dest'] = '/kvm/images'
+        elif guest_options['subject'].startswith('xen'):
+           retval['config']['svm']  = guest_options['guest_start_dest']
+           retval['root']['dest']   = '/xen/images'
+           retval['config']['dest'] = '/xen/images'
+
+        return retval
+
+    def gen_precondition_xen(self):
+        """Prepare a Xen test run and generate a precondition YAML string
+
+        Find latest build of the test subject, generate guest
+        configurations, write a precondition string to STDOUT, and finally
+        mark the guest tests as done in the database.
+        """
+        self.get_latest_build()
+        self.gen_guest_configs()
+        options                = {}
+        options['arch']        = ('linux32', 'linux64')[self.testrun.subject['bitness']]
+        options['osimagefile'] = osimage[self.testrun.subject['bitness']]
+        options['testprogram'] = '/opt/artemis/bin/metainfo'
+        options['installpkg']  = 'artemisutils/sles10/xen_installer_suse.tar.gz'
+
+        precondition           = {
+            'precondition_type': 'virt',
+            'name'             : 'automatically generated Xen test'}
+        precondition['host']   = self.gen_xen_host(options)
+        precondition['guests'] = []
+
+        for test in self.testrun.tests:
+            guest_options = self.gen_xen_guest_options(test)
+            guest = self.gen_guest_precond(guest_options)
             precondition['guests'].append(guest)
         return precondition
 
@@ -413,7 +444,8 @@ class SubjectPreparation():
         and finally mark the guest tests as done in the database.
         """
         self.gen_guest_configs()
-        testprogram = '/opt/artemis/bin/metainfo'
+        options = {}
+        options['testprogram'] = '/opt/artemis/bin/metainfo'
         precondition = {
             'precondition_type':   'virt',
             'name':                'automatically generated KVM test'}
@@ -430,50 +462,44 @@ initrd /tftpboot/stable/fedora/11/x86_64/initrd.img
                     'timeout': '10000',
                     },
                 'testprogram': {
-                    'execname':             testprogram,
+                    'execname':             options['testprogram'],
                     'timeout_testprogram':  300,
                     'runtime':              50,
                     },
                 }
         precondition['guests'] = []
         for test in self.testrun.tests:
-            imagefile = '%s/%s' % (imagepath, test['image'])
-            mountfile = '/kvm/images/%s' % (test['mntfile'], )
-            execsource = '%s:%s/%s' % (nfshost, kvmexecpath, test['kvmexec'])
-            execdest   = '/kvm/images/%s' % (test['kvmexec'], )
-            used_timeout   = tstimeout
-            used_runtime   = tstimeout / 3
-            if test['timeout']:
-                used_timeout = test['timeout']
-            if test['runtime']:
-                used_runtime = test['runtime']
+            import pprint
+            pp = pprint.PrettyPrinter(indent=4)
+            guest_options                       = {}
+            guest_options['subject']            = self.testrun.subject['name']
+            guest_options['imagefile']          = '%s/%s' % (imagepath, test['image'])
+            guest_options['mountfile']          = '/kvm/images/%s' % (test['mntfile'], )
+            guest_options['guest_start_source'] = '%s:%s/%s' % (nfshost, kvmexecpath, test['kvmexec'])
+            guest_options['guest_start_dest']   = '/kvm/images/%s' % (test['kvmexec'], )
+            guest_options['used_timeout']       = tstimeout
+            guest_options['used_runtime']       = tstimeout / 3
+            guest_options['testcommand']        = test['testcommand']
+            guest_options['os']                 = test['os']
 
-            if test['bitness'] == 1:
-                arch = 'linux64'
+            if test['timeout']:
+                guest_options['used_timeout'] = test['timeout']
+            if test['runtime']:
+                guest_options['used_runtime'] = test['runtime']
+
+            if test['timeout']:
+                guest_options['used_timeout'] = test['timeout']
+            if test['runtime']:
+                guest_options['used_runtime'] = test['runtime']
+
+            if test['os'].lower().startswith('windows'):
+                guest_options['arch'] = 'windows'
+            elif test['bitness'] == 1:
+                guest_options['arch'] = 'linux64'
             else:
-                arch = 'linux32'
-            guest = {
-                'root': {
-                    'precondition_type':    'copyfile',
-                    'protocol':             'nfs',
-                    'name':                 imagefile,
-                    'dest':                 '/kvm/images/',
-                    'mountfile':            mountfile,
-                    'mounttype':            'raw',
-                    'arch'     :            arch
-                    },
-                'config': {
-                    'precondition_type':    'copyfile',
-                    'protocol':             'nfs',
-                    'name':                 execsource,
-                    'dest':                 execdest,
-                    'exec':                 execdest},
-                'testprogram': {
-                    'execname':             test['testcommand'],
-                    'timeout_testprogram':  used_timeout,
-                    'runtime':              used_runtime,
-                    }
-                }
+                guest_options['arch'] = 'linux32'
+
+            guest = self.gen_guest_precond(guest_options)
             precondition['guests'].append(guest)
         return precondition
 
