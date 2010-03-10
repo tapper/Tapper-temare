@@ -2,6 +2,7 @@
 # vim: tabstop=4 shiftwidth=4 expandtab smarttab
 """Module to generate guest configurations for a test run
 """
+import dbops
 import sqlite3
 import checks
 import random
@@ -386,6 +387,11 @@ class TestRunGenerator():
             test['image'] = checks.chk_imagename(test['image'])
             test['test'] = checks.chk_testname(test['test'])
             test['testcommand'] = checks.chk_testcommand(test['testcommand'])
+
+            image_id            = dbops.Images().get_id_by_name(test['image'])
+            os_id               = dbops.Images().get_os_type(image_id)
+            test['os']          = dbops.OsTypes().name_by_id(os_id)
+
             self.tests.append(test)
             count += 1
 
