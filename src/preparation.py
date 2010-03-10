@@ -214,6 +214,7 @@ class SubjectPreparation():
         self.host = chk_hostname(host)
         self.testrun = generator.TestRunGenerator(
                 self.host, True, subject, bitness)
+        self.dry_mode = 0
 
     def get_latest_build(self):
         """Find latest build of a test subject
@@ -239,8 +240,8 @@ class SubjectPreparation():
         builds.sort()
         self.build = builds.pop()
 
-    @staticmethod
-    def __write_config(filename, path, test, template):
+#    @staticmethod
+    def __write_config(self, filename, path, test, template):
         """Write a guest config file or start script to the specified location
 
         Expects:
@@ -249,6 +250,8 @@ class SubjectPreparation():
             test     - Dictionary of a single guest test
             template - Template of the files content
         """
+        if self.dry_mode == 1:
+            return
         filepath = '%s/%s' % (path, filename)
         cfgfile = None
         try:
