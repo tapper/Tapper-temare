@@ -375,17 +375,17 @@ class TestRunGenerator():
         count = 0
         while self.resources['memory'] >= 1024 and self.resources['cores'] > 0:
             test = self.get_test()
-            if test == None and len(self.tests) == 0:
+            if test   == None and len(self.tests) == 0:
                 raise ValueError('Nothing to do.')
             elif test == None:
                 break
             test.update(self.get_test_config(test))
-            test['vnc'] = count
-            test['runid'] = count + 1
-            test['macaddr'] = self.gen_macaddr(count + 1)
-            test['format'] = checks.chk_imageformat(test['format'])
-            test['image'] = checks.chk_imagename(test['image'])
-            test['test'] = checks.chk_testname(test['test'])
+            test['vnc']         = count
+            test['runid']       = count + 1
+            test['macaddr']     = self.gen_macaddr(count + 1)
+            test['format']      = checks.chk_imageformat(test['format'])
+            test['image']       = checks.chk_imagename(test['image'])
+            test['test']        = checks.chk_testname(test['test'])
             test['testcommand'] = checks.chk_testcommand(test['testcommand'])
 
             image_id            = dbops.Images().get_id_by_name(test['image'])
