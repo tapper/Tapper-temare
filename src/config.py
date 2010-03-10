@@ -14,7 +14,8 @@ debug = False
 artemisdir = '/data/bancroft/artemis/live'
 
 # Path to the sqlite database
-dbpath = '/data/bancroft/artemis/development/tools/temare/test-schedule.db'
+#dbpath = '/data/bancroft/artemis/development/tools/temare/test-schedule.db'
+dbpath = 't/test-schedule.db'
 
 # Amount of memory available on a host
 minmem = 1024
@@ -170,4 +171,4 @@ if os.environ.has_key('HARNESS_ACTIVE'):
     nfshost = gethostname()
     svmpath = '/tmp/'
     kvmexecpath = '/tmp/'
-    builddir = 't/debug/builds/%s/%s'
+    builddir = 't/misc_files/builds/%s/%s'
