@@ -22,7 +22,7 @@ class TestPreparation(unittest.TestCase):
         # pp.pprint(precondition)
         self.assertTrue(precondition['host']['root']['partition'] == '/dev/sda2')
         self.assertTrue(precondition['host']['preconditions'][0]['filename'] == \
-                            't/misc_files/builds/x86_64/xen-3.4-testing/xen-3.4-testing.2010-03-02.20993_4554b305228a_.x86_64.tgz')
+                            't/misc_files/builds/x86_64/xen-unstable/xen-unstable.2010-03-02.20993_4554b305228a_.x86_64.tgz')
         self.assertTrue(precondition['host']['root']['image'] == \
                             'suse/suse_sles10_sp2_64b_smp_raw.tar.gz')
         self.assertTrue(precondition['host']['testprogram']['execname'] == \
