@@ -82,7 +82,7 @@ def chk_imageformat(format):
        Valid values are raw, qcow, and qcow2
        @return: raw|qcow|qcow2
     """
-    if format not in ('raw', 'qcow', 'qcow2'):
+    if format not in ('raw', 'qcow', 'qcow2', 'file'):
         raise ValueError(
                 'Invalid guest image format.\n'
                 'Valid values are raw, qcow, or qcow2.')
