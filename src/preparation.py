@@ -375,22 +375,28 @@ class SubjectPreparation():
             return guest_options
 
     def gen_guest_precond(self, guest_options):
-        mounttype = 'raw'
-        if guest_options['os'].lower().startswith('windows'):
-            mounttype = 'windows'
+        path = ''
+        if guest_options['subject'].startswith('kvm'):
+            path = '/kvm/images/'
+        elif guest_options['subject'].startswith('xen'):
+            path = '/xen/images/'
+
+
         retval = {
                 'root': {
                     'precondition_type':    'copyfile',
                     'protocol':             'nfs',
                     'name':                 guest_options['imagefile'],
                     'mountfile':            guest_options['mountfile'],
-                    'mounttype':            mounttype,
-                    'arch'     :            guest_options['arch']
+                    'mounttype':            'raw',
+                    'arch'     :            guest_options['arch'],
+                    'dest':                 path,
                     },
                 'config': {
                     'precondition_type':    'copyfile',
                     'protocol':             'nfs',
                     'name':                 guest_options['guest_start_source'], # source for svm or kvm_start_script
+                    'dest':                 path,
                     },
                 'testprogram': {
                     'execname':             guest_options['testcommand'],
@@ -398,15 +404,15 @@ class SubjectPreparation():
                     'runtime':              guest_options['used_runtime'],
                     }
                 }
+        if guest_options['os'].lower().startswith('windows'):
+            retval['root']['mounttype']      = 'windows'
+            retval['root']['mountpartition'] = 'p1'
 
         if guest_options['subject'].startswith('kvm'):
-           retval['config']['exec'] = guest_options['guest_start_dest']
-           retval['root']['dest']   = '/kvm/images'
-           retval['config']['dest'] = '/kvm/images'
+            retval['config']['exec'] = guest_options['guest_start_dest']
         elif guest_options['subject'].startswith('xen'):
-           retval['config']['svm']  = guest_options['guest_start_dest']
-           retval['root']['dest']   = '/xen/images'
-           retval['config']['dest'] = '/xen/images'
+            retval['config']['svm']  = guest_options['guest_start_dest']
+
 
         return retval
 
