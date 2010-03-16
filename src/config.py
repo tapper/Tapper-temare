@@ -14,8 +14,7 @@ debug = False
 artemisdir = '/data/bancroft/artemis/live'
 
 # Path to the sqlite database
-#dbpath = '/data/bancroft/artemis/development/tools/temare/test-schedule.db'
-dbpath = 't/test-schedule.db'
+dbpath = '%s/configs/temare/test-schedule.db' % (artemisdir, )
 
 # Amount of memory available on a host
 minmem = 1024
