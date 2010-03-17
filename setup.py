@@ -12,7 +12,13 @@ setup(
     version = str(__version__),
     author = "OSRC Sysint team",
     author_email = "osrc-sysint@elbe.amd.com",
-    package_dir = {"" : "src/" },
+#    package_dir = {"" : "src/" },
+    packages         = ['src','t'],
+#   package_data     = {
+#        'src': ['testsuite.tar', 'language_build_config.yaml'],
+#        'slbench.benchmarks': ['benchmarks_config.yaml'],
+#    },
+
     url = "http://osrc/",
     scripts = [ "temare" ],
 )
