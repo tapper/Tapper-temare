@@ -102,16 +102,7 @@ svm =                                                                        \
         'shadow_memory = %(shadowmem)d\n'                                    \
         'memory = %(memory)d\n'                                              \
         'vcpus = %(cores)d\n'                                                \
-        'hap = %(hap)d\n'                                                    \
-        'xminfo = Popen(["xm", "info"], stdout=PIPE).communicate()[0]\n'     \
-        'for line in xminfo.split("\\n"):\n'                                 \
-        '    if line.startswith("xen_major"):\n'                             \
-        '        xen_major = int(line.split(":", 1)[1].strip())\n'           \
-        '    elif line.startswith("xen_minor"):\n'                           \
-        '        xen_minor = int(line.split(":", 1)[1].strip())\n'           \
-        'if (xen_major == 3 and xen_minor > 4) or xen_major > 3:\n'          \
-        '    for idx in range(0, len(disk)):\n'                              \
-        '        disk[idx] = re.sub("^tap:", "tap:tapdisk:", disk[idx])\n'   \
+        'hap = %(hap)d\n'
 
 # Designation of the guest image formats as used in the guest configuration
 formats = {'raw': 'tap:aio', 'qcow': 'tap:qcow', 'qcow2': 'tap:qcow2', 'file':'file'}
