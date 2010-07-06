@@ -459,11 +459,11 @@ class SubjectPreparation():
                 'root': {
                     'grub_text': '''timeout 2
 
-title Fedora 11 with KVM
-kernel /tftpboot/stable/fedora/11/x86_64/vmlinuz  console=ttyS0,115200 ks=http://bancroft/autoinstall/stable/fedora/11/x86_64/artemis-kvm.ks ksdevice=eth0 noapic $ARTEMIS_OPTIONS
-initrd /tftpboot/stable/fedora/11/x86_64/initrd.img
+title Fedora 13 with KVM
+kernel /tftpboot/stable/fedora/13/x86_64/vmlinuz  console=ttyS0,115200 ks=http://bancroft/autoinstall/stable/fedora/13/x86_64/artemis-kvm.ks ksdevice=link noapic $ARTEMIS_OPTIONS
+initrd /tftpboot/stable/fedora/13/x86_64/initrd.img
 ''',
-                    'name': 'Fedora_11',
+                    'name': 'Fedora_13',
                     'precondition_type': 'autoinstall',
                     'timeout': '10000',
                     },
