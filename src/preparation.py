@@ -346,7 +346,13 @@ class SubjectPreparation():
                     {'precondition_type':   'package',
                      'filename':            options['installpkg']},
                     {'precondition_type':   'exec',
-                     'filename':            '/bin/xen_installer_suse.pl'}]
+                     'filename':            '/bin/xen_installer_suse.pl'},
+                    {'precondition_type':   'package',
+                     'filename':            'artemisutils/sles10/netxtreme2.tgz'},
+                    {'precondition_type':   'package',
+                     'filename':            'artemisutils/sles10/linux-xen.tgz'},
+                    {'precondition_type':   'exec',
+                     'filename':            '/bin/build_netxtreme2'}]
                 }
 
     def gen_xen_guest_options(self, test):
