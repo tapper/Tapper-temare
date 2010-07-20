@@ -40,6 +40,10 @@ class TemareCli:
         self.add_command(clicommands.OsAddCommand(self))
         self.add_command(clicommands.OsDelCommand(self))
         self.add_command(clicommands.OsListCommand(self))
+        self.add_command(clicommands.CompletionAddCommand(self))
+        self.add_command(clicommands.CompletionDelCommand(self))
+        self.add_command(clicommands.CompletionListCommand(self))
+        self.add_command(clicommands.CompletionGetCommand(self))
         self.scriptname = basename(args[0])
         self.args = args[1:]
         self.run_command()
@@ -70,6 +74,9 @@ class TemareCli:
             except ValueError, err:
                 usage = self.commands['help'].get_command_usage(command)
                 sys.stderr.write("%s\n\n%s\n" % (err[0], usage))
+                sys.exit(1)
+            except RuntimeError, err:
+                sys.stderr.write("%s\n\n" % (err[0], ))
                 sys.exit(1)
 
 

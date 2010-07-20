@@ -184,8 +184,8 @@ def chk_subject(subject):
        @return: test subject name as string
     """
     subject = str(subject)
-    if not (subject.startswith('xen') or subject.startswith('kvm')):
-        raise ValueError('Invalid test subject name.')
+    if not (subject.startswith('xen') or subject.startswith('kvm') or subject.startswith('autoinstall')):
+        raise ValueError('Invalid test subject name. Possible subjects are xen, kvm and autoinstall')
     if re.match('^[A-Za-z][A-Za-z0-9_\-\.]*$', subject) == None:
         raise ValueError('Invalid test subject name.')
     if len(subject) > 64:

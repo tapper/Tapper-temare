@@ -65,7 +65,14 @@ def init_database():
                     subject_id      INTEGER NOT NULL,
                     test_id         INTEGER NOT NULL,
                     image_id        INTEGER NOT NULL,
-                    is_done         INTEGER DEFAULT 0)''']
+                    is_done         INTEGER DEFAULT 0)''',
+            # Autoinstall uses a template and a number of key-value pairs for its primary
+            # precondition. This table contains the key-value pairs.
+            '''CREATE TABLE IF NOT EXISTS completions (
+                    completions_id  INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    subject_name     INTEGER NOT NULL,
+                    key             TEXT,
+                    value           TEXT)''']
     try:
         for stmt in statements:
             cursor.execute(stmt)
@@ -757,6 +764,87 @@ class Vendors(DatabaseEntity):
         if vendorname == None:
             raise ValueError('No such vendor.')
         return vendorname[0].encode()
+
+class Completions(DatabaseEntity):
+    """Class for database operations on template completions
+
+    Autoinstall templates use variable keys that are
+    substituted with values from this table.
+    """
+
+    def add(self, args):
+        """Add a completion for given subjectname
+
+        Arguments:
+            subjectname -- Name of the subject this entry applies to
+            key         -- String that is present in the template
+            timeout     -- Substitution for key
+        """
+        checks.chk_arg_count(args, 3)
+        subjectname, key, value = args
+        subjectname = checks.chk_subject(subjectname)
+        self.cursor.execute('''
+                SELECT subject_id FROM subject
+                WHERE subject_name=?''', (subjectname, ))
+        row = self.cursor.fetchone()
+        if row == None:
+            raise ValueError('Subject "%s" not found .' % (subjectname, ))
+        self.cursor.execute('''
+                SELECT key, value FROM completions
+                WHERE subject_name=? AND key=?''', (subjectname, key))
+        if self.cursor.fetchone() != None:
+            sys.stderr.write('Key "%s" already exists for subject "%s". I will update it' % (key, subjectname))
+            self.cursor.execute('''UPDATE completions SET value=? WHERE subject_name=? AND key=?''',
+                                (value, subject_name, key))
+        else:
+            self.cursor.execute('''INSERT INTO completions(subject_name, key, value) VALUES (?,?,?)''',
+                                (subjectname, key, value))
+        self.connection.commit()
+
+
+    def delete(self, args):
+        """Remove a given key for a given subject
+
+        Arguments:
+            subjectname -- Name of the subject this entry applies to
+            key         -- Key to delete
+        """
+        checks.chk_arg_count(args, 2)
+        subjectname, key = args
+        subjectname = checks.chk_subject(subjectname)
+        self.cursor.execute('''
+                SELECT completions_id FROM completions WHERE subject_name=? AND key=?''', (subjectname, key))
+        result = self.cursor.fetchall()
+        if result != None:
+            self.cursor.execute('DELETE FROM completions WHERE subject_name=? AND key=?''', (subjectname, key))
+            self.connection.commit()
+
+    def get(self, args):
+        """Get the value for a given subject/key combination
+
+        Returns:
+            One string
+        """
+        checks.chk_arg_count(args, 2)
+        subjectname, key = args
+        subjectname = checks.chk_subject(subjectname)
+        self.cursor.execute('''SELECT value FROM completions WHERE subject_name=? AND key=?''',
+                            (subjectname, key))
+        value = self.cursor.fetchone()
+        if value == None:
+            raise RuntimeError('No value found for key "%s" in subject "%s"' % (key, subjectname))
+        return value[0]
+
+    def list(self):
+        """Return a list of all completions.
+
+        Returns:
+            Tuples containing subjectname, key, value
+        """
+        self.cursor.execute('''
+                SELECT subject_name, key, value FROM completions ORDER BY subject_name''')
+        return fetchassoc(self.cursor)
+
 
 
 if __name__ == "__main__":

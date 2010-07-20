@@ -16,6 +16,7 @@ import threading
 import generator
 import datetime
 import time
+import dbops
 from subprocess import Popen, PIPE, STDOUT
 from os.path import basename
 from stat import S_IMODE, S_IXUSR, S_IXGRP, S_IXOTH
@@ -23,7 +24,7 @@ from checks import chk_hostname, chk_subject
 from config import kvm, svm, formats, cfgscript, copyscript,        \
                    osimage, svmpath, nfshost, suiteimage,           \
                    builddir, buildarchs, buildpattern, imagepath,   \
-                   tstimeout, kvmexecpath
+                   tstimeout, kvmexecpath, templates
 
 
 
@@ -287,7 +288,8 @@ class SubjectPreparation():
             if self.testrun.subject['name'].startswith('xen'):
                 test['svmfile'] = '%s.svm' % (prefix, )
                 self.__write_config(test['svmfile'], svmpath, test, svm)
-            elif self.testrun.subject['name'].startswith('kvm'):
+            elif self.testrun.subject['name'].startswith('kvm') \
+                    or self.testrun.subject['name'].startswith('autoinstall'):
                 test['datadir'] = '/kvm'
                 test['kvmexec'] = '%s.sh' % (prefix, )
                 self.__write_config(test['kvmexec'], kvmexecpath, test, kvm)
@@ -319,9 +321,11 @@ class SubjectPreparation():
         """
         precondition = ""
         if self.testrun.subject['name'].startswith('xen'):
-            precondition = self.gen_precondition_xen()
+            precondition = (self.gen_precondition_xen())
         elif self.testrun.subject['name'].startswith('kvm'):
-            precondition = self.gen_precondition_kvm()
+            precondition = (self.gen_precondition_kvm())
+        elif self.testrun.subject['name'].startswith('autoinstall'):
+            precondition = self.gen_precondition_autoinstall()
         else:
             raise ValueError('Invalid test subject.')
         self.write_precondition(precondition)
@@ -371,7 +375,7 @@ class SubjectPreparation():
                 guest_options['used_timeout'] = test['timeout']
             if test['runtime']:
                 guest_options['used_runtime'] = test['runtime']
-            
+
             if test['os'].lower().startswith('windows'):
                 guest_options['arch'] = 'windows'
             elif test['bitness'] == 1:
@@ -421,6 +425,83 @@ class SubjectPreparation():
 
 
         return retval
+
+    def gen_precondition_autoinstall(self):
+        """Prepare a testrun using autoinstall tools like kickstart or autoyast.
+
+        Generate guest configurations, write a precondition string to STDOUT,
+        and finally mark the guest tests as done in the database.
+        """
+        self.gen_guest_configs()
+
+        # query = '''select key, value from completions where vendor_id = ?'''
+        # self.cursor.execute(query, self.testrun.resources['lastvendor'])
+        # result = self.cursor.fetchone()
+
+        options            = {}
+        if self.testrun.subject['name'].lower().find('suse') or self.testrun.subject['name'].lower().find('sles'):
+            options['template'] = templates['suse']
+        elif self.testrun.subject['name'].lower().find('redhat') or self.testrun.subject['name'].lower().find('rhel'):
+            options['template'] = templates['suse']
+
+        compops = dbops.Completions()
+        options['ks_file'] = compops.get([self.testrun.subject['name'], 'ks_file'])
+        options['kernel']  = compops.get([self.testrun.subject['name'], 'kernel'])
+        options['initrd']  = compops.get([self.testrun.subject['name'], 'initrd'])
+
+
+        options['testprogram'] = '/opt/artemis/bin/metainfo'
+
+        precondition = {
+            'precondition_type':   'virt',
+            'name':                'automatically generated KVM test'}
+        precondition['host'] = {
+                'root': {
+                    'grub_text'         : options['template'] % (options['kernel'], options['ks_file'], options['initrd']),
+                    'name'              : self.testrun.subject['name'],
+                    'precondition_type' : 'autoinstall',
+                    'timeout'           : '10000',
+                    },
+                'testprogram': {
+                    'execname':             options['testprogram'],
+                    'timeout_testprogram':  300,
+                    'runtime':              50,
+                    },
+                }
+
+        precondition['guests'] = []
+        for test in self.testrun.tests:
+            guest_options                       = {}
+            guest_options['subject']            = self.testrun.subject['name']
+            guest_options['imagefile']          = '%s/%s' % (imagepath, test['image'])
+            guest_options['mountfile']          = '/kvm/images/%s' % (test['mntfile'], )
+            guest_options['guest_start_source'] = '%s:%s/%s' % (nfshost, kvmexecpath, test['kvmexec'])
+            guest_options['guest_start_dest']   = '/kvm/images/%s' % (test['kvmexec'], )
+            guest_options['used_timeout']       = tstimeout
+            guest_options['used_runtime']       = tstimeout / 3
+            guest_options['testcommand']        = test['testcommand']
+            guest_options['os']                 = test['os']
+
+            if test['timeout']:
+                guest_options['used_timeout'] = test['timeout']
+            if test['runtime']:
+                guest_options['used_runtime'] = test['runtime']
+
+            if test['timeout']:
+                guest_options['used_timeout'] = test['timeout']
+            if test['runtime']:
+                guest_options['used_runtime'] = test['runtime']
+
+            if test['os'].lower().startswith('windows'):
+                guest_options['arch'] = 'windows'
+            elif test['bitness'] == 1:
+                guest_options['arch'] = 'linux64'
+            else:
+                guest_options['arch'] = 'linux32'
+
+            guest = self.gen_guest_precond(guest_options)
+            precondition['guests'].append(guest)
+        return precondition
 
     def gen_precondition_xen(self):
         """Prepare a Xen test run and generate a precondition YAML string

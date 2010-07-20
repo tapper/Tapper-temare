@@ -146,8 +146,19 @@ builddir = '%s/packages/xen/builds/%%s/%%s' % (artemisrepo, )
 # Architecture portion of the build path (0 = 32-bit, 1 = 64-bit)
 buildarchs = {0: 'i686', 1: 'x86_64'}
 
+
 # Filename pattern for unpatched builds
 buildpattern = '^%s\.[0-9]{4}-[0-9]{2}-[0-9]{2}\.[0-9a-f_]+\.%s\.tgz$'
+templates = {'redhat' : '''   timeout 2
+
+   title RedHat Testing
+   kernel %s  console=ttyS0,115200 ks=%s ksdevice=eth0 noapic $ARTEMIS_OPTIONS
+   initrd %s''',
+             'suse'    : '''   timeout 2
+
+   title SUSE Testing
+   kernel %s  console=ttyS0,115200 ks=%s ksdevice=eth0 noapic $ARTEMIS_OPTIONS
+   initrd %s''',}
 
 if debug == True:
     dbpath = 'test-schedule.db'

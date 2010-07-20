@@ -38,6 +38,8 @@ def do_list(listing, ordering):
             'is_64bit'    : 'Bitness',
             'is_bigmem'   : 'BigMem',
             'is_enabled'  : 'State',
+            'key'         : 'Key',
+            'value'       : 'Value',
             'is_smp'      : 'SMP'}
     substitutions = {
             'is_64bit'  : {0: '32',       1: '64'},
@@ -110,7 +112,6 @@ class TemareCommand:
         """Execute the actual command and raise an error on failure
         """
         pass
-
 
 class HelpCommand(TemareCommand):
     """Output help and descriptions for CLI commands
@@ -509,7 +510,7 @@ class TestAddCommand(TemareCommand):
             '    OSTYPE       Name of the operating system type\n' \
             '    TESTCOMMAND  Command to start the test program\n' \
             '    RUNTIME      Runtime for testsuite (seconds)\n' \
-            '    TIMEOUT      Timeout for testsuite (seconds)' 
+            '    TIMEOUT      Timeout for testsuite (seconds)'
 
     def do_command(self, args):
         """Add a test program to the database
@@ -748,3 +749,82 @@ class VersionCommand(TemareCommand):
         """
         chk_arg_count(args, 0)
         sys.stdout.write('temare %s\n' % (version.__version__, ))
+
+class CompletionAddCommand(TemareCommand):
+    """Add a new operting system type
+    """
+
+    def __init__(self, base):
+        TemareCommand.__init__(self, base)
+        self.names = ['completionadd']
+        self.usage = 'SUBJECTNAME KEY VALUE'
+        self.summary = 'Add a new completion entry'
+        self.description = \
+            '    SUBJECTNAME  Name of the subject this entry applies to' \
+            '    KEY          Name of the variable as present in the template' \
+            '    VALUE        Subtitution for the key'
+
+    def do_command(self, args):
+        """Add completion to the database
+        """
+        compops = dbops.Completions()
+        compops.add(args)
+
+
+class CompletionDelCommand(TemareCommand):
+    """Remove an existing completion entry
+    """
+
+    def __init__(self, base):
+        TemareCommand.__init__(self, base)
+        self.names = ['completiondel']
+        self.usage = 'SUBJECTNAME KEY'
+        self.summary = 'Delete an existing completion entry'
+        self.description = \
+            '    SUBJECTNAME  Name of the subject this entry applies to' \
+            '    KEY          Name of the variable as present in the template'
+
+    def do_command(self, args):
+        """Remove an OS type from the database
+        """
+        compops = dbops.Completions()
+        compops.delete(args)
+
+
+class CompletionListCommand(TemareCommand):
+    """Display a list of all operating system types
+    """
+
+    def __init__(self, base):
+        TemareCommand.__init__(self, base)
+        self.names = ['completionlist']
+        self.summary = 'Get a list of all completions for all subjects'
+
+    def do_command(self, args):
+        """Print a list of all completions for all subjects
+        """
+        chk_arg_count(args, 0)
+        compops = dbops.Completions()
+        listing = compops.list()
+        ordering = ['subject_name', 'key', 'value']
+        do_list(listing, ordering)
+
+class CompletionGetCommand(TemareCommand):
+    """Display a list of all operating system types
+    """
+
+    def __init__(self, base):
+        TemareCommand.__init__(self, base)
+        self.names = ['completionget']
+        self.usage = 'SUBJECTNAME KEY'
+        self.summary = 'Get the value for one subject/key combination'
+        self.description = \
+            '    SUBJECTNAME  Name of the subject this entry applies to' \
+            '    KEY          Name of the variable as present in the template'
+
+    def do_command(self, args):
+        """Validate the number of given arguments and
+           print a list of all operating system types
+        """
+        compops = dbops.Completions()
+        print compops.get(args)
