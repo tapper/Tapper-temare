@@ -10,13 +10,13 @@ random.seed(1)
 class TestPreparation(unittest.TestCase):
 
     def test_xenhostpreparation(self):
-        prep = preparation.SubjectPreparation('bullock')
+        prep = preparation.SubjectPreparation('bullock', 'xen-unstable', 1)
         precondition = prep.gen_precondition_xen()
         self.assertTrue(precondition['precondition_type'] == 'virt')
 
 
     def test_xenhostpreparation_deeply(self):
-        prep = preparation.SubjectPreparation('bullock')
+        prep = preparation.SubjectPreparation('bullock', 'xen-unstable', 1)
         precondition = prep.gen_precondition_xen()
         # pp = pprint.PrettyPrinter(indent=4)
         # pp.pprint(precondition)
