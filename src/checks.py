@@ -203,13 +203,13 @@ def chk_testcommand(testcommand):
     """
     testcommand = str(testcommand)
     if re.match('^[A-Za-z0-9_,+@\-\.=/]*$', testcommand) == None:
-        raise ValueError('Invalid test command filename.')
+        raise ValueError('Invalid test command filename "%s".' % testcommand)
     if len(testcommand) > 255:
         raise ValueError(
-                'Invalid test command filename.\n'
-                'The length is limited to 255 characters.')
+                'Invalid test command filename "%s".\n'
+                'The length is limited to 255 characters.' % testcommand)
     if normpath(testcommand) != testcommand:
-        raise ValueError('Invalid test command filename.')
+        raise ValueError('Command filename "%s" is not in the normpath.' % testcommand)
     return testcommand
 
 
