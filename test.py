@@ -46,6 +46,20 @@ class TestPreparation(unittest.TestCase):
         self.assertTrue(precondition['guests'][0]['config'].has_key('exec'))
         self.assertTrue(precondition['guests'][0]['config']['exec'].startswith('/kvm/images/001-bullock-'))
 
+
+    def test_autoinstallpreparation(self):
+        prep = preparation.SubjectPreparation('bullock', 'autoinstall-rhel6', 1)
+        precondition = prep.gen_precondition_autoinstall()
+        self.assertTrue(precondition['precondition_type'] == 'virt')
+
+    def test_autoinstallpreparation_deeply(self):
+        prep = preparation.SubjectPreparation('bullock', 'autoinstall-rhel6', 1)
+        precondition = prep.gen_precondition_autoinstall()
+        self.assertTrue(precondition['host']['root']['grub_text'] == \
+                            '   timeout 2\n\n   title SUSE Testing\n   kernel /tftpboot/stable/kernel/vmlinuz  console=ttyS0,115200 ks=/path/to/ks_file.ks ksdevice=eth0 noapic $ARTEMIS_OPTIONS\n   initrd /tftpboot/stable/initrd/initrd')
+
+
+
 if __name__ == '__main__':
     unittest.main()
 
