@@ -233,7 +233,7 @@ class SubjectPreparation():
                 if re.match(pattern, build):
                     builds.append(build)
         except OSError:
-            raise ValueError('Build directory does not exist.')
+            raise ValueError('Build directory "%s" does not exist.' % (self.builddir,))
         if len(builds) < 1:
             raise ValueError(
                     'No builds available for %s on %s. Builddir is %s' % (version, arch, self.builddir))
