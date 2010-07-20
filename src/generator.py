@@ -141,7 +141,7 @@ class TestRunGenerator():
                     (subject, bitness))
             result = self.cursor.fetchone()
             if result == None:
-                raise ValueError('No such test subject.')
+                raise ValueError('No such test subject "%s".' % subject)
         else:
             raise ValueError('Test subject or bitness not specified.')
         self.subject['id'],                     \
