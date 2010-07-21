@@ -443,7 +443,7 @@ class SubjectPreparation():
         if self.testrun.subject['name'].lower().find('suse') or self.testrun.subject['name'].lower().find('sles'):
             options['template'] = Template(templates['suse'])
         elif self.testrun.subject['name'].lower().find('redhat') or self.testrun.subject['name'].lower().find('rhel'):
-            options['template'] = Template(templates['suse'])
+            options['template'] = Template(templates['redhat'])
 
         substitutions = {}
         compops = dbops.Completions()
