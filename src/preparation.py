@@ -18,6 +18,7 @@ import datetime
 import time
 import dbops
 from subprocess import Popen, PIPE, STDOUT
+from string import Template
 from os.path import basename
 from stat import S_IMODE, S_IXUSR, S_IXGRP, S_IXOTH
 from checks import chk_hostname, chk_subject
@@ -440,15 +441,16 @@ class SubjectPreparation():
 
         options            = {}
         if self.testrun.subject['name'].lower().find('suse') or self.testrun.subject['name'].lower().find('sles'):
-            options['template'] = templates['suse']
+            options['template'] = Template(templates['suse'])
         elif self.testrun.subject['name'].lower().find('redhat') or self.testrun.subject['name'].lower().find('rhel'):
-            options['template'] = templates['suse']
+            options['template'] = Template(templates['suse'])
 
+        substitutions = {}
         compops = dbops.Completions()
-        options['ks_file'] = compops.get([self.testrun.subject['name'], 'ks_file'])
-        options['kernel']  = compops.get([self.testrun.subject['name'], 'kernel'])
-        options['initrd']  = compops.get([self.testrun.subject['name'], 'initrd'])
+        for line in compops.get(self.testrun.subject['name']):
+            substitutions[line['key']] = line['value']
 
+        options['template'] = options['template'].safe_substitute(substitutions)
 
         options['testprogram'] = '/opt/artemis/bin/metainfo'
 
@@ -457,7 +459,7 @@ class SubjectPreparation():
             'name':                'automatically generated KVM test'}
         precondition['host'] = {
                 'root': {
-                    'grub_text'         : options['template'] % (options['kernel'], options['ks_file'], options['initrd']),
+                    'grub_text'         : options['template'],
                     'name'              : self.testrun.subject['name'],
                     'precondition_type' : 'autoinstall',
                     'timeout'           : '10000',

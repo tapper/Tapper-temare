@@ -819,21 +819,15 @@ class Completions(DatabaseEntity):
             self.cursor.execute('DELETE FROM completions WHERE subject_name=? AND key=?''', (subjectname, key))
             self.connection.commit()
 
-    def get(self, args):
-        """Get the value for a given subject/key combination
+    def get(self, subjectname):
+        """Get all key/values pairs for one subject
 
         Returns:
             One string
         """
-        checks.chk_arg_count(args, 2)
-        subjectname, key = args
         subjectname = checks.chk_subject(subjectname)
-        self.cursor.execute('''SELECT value FROM completions WHERE subject_name=? AND key=?''',
-                            (subjectname, key))
-        value = self.cursor.fetchone()
-        if value == None:
-            raise RuntimeError('No value found for key "%s" in subject "%s"' % (key, subjectname))
-        return value[0]
+        self.cursor.execute('''SELECT key, value FROM completions WHERE subject_name=? ORDER BY key''', (subjectname,))
+        return fetchassoc(self.cursor)
 
     def list(self):
         """Return a list of all completions.

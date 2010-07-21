@@ -810,21 +810,23 @@ class CompletionListCommand(TemareCommand):
         do_list(listing, ordering)
 
 class CompletionGetCommand(TemareCommand):
-    """Display a list of all operating system types
+    """Display a list of all completions for one subject
     """
 
     def __init__(self, base):
         TemareCommand.__init__(self, base)
         self.names = ['completionget']
-        self.usage = 'SUBJECTNAME KEY'
-        self.summary = 'Get the value for one subject/key combination'
+        self.usage = 'SUBJECTNAME'
+        self.summary = 'Get all key/value pairs for one subject'
         self.description = \
-            '    SUBJECTNAME  Name of the subject this entry applies to' \
-            '    KEY          Name of the variable as present in the template'
+            '    SUBJECTNAME  Name of the subject this entry applies to' 
 
     def do_command(self, args):
         """Validate the number of given arguments and
            print a list of all operating system types
         """
+        chk_arg_count(args, 1)
         compops = dbops.Completions()
-        print compops.get(args)
+        listing = compops.get(args[0])
+        ordering = ['key', 'value']
+        do_list(listing, ordering)

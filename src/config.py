@@ -152,13 +152,13 @@ buildpattern = '^%s\.[0-9]{4}-[0-9]{2}-[0-9]{2}\.[0-9a-f_]+\.%s\.tgz$'
 templates = {'redhat' : '''   timeout 2
 
    title RedHat Testing
-   kernel %s  console=ttyS0,115200 ks=%s ksdevice=eth0 noapic $ARTEMIS_OPTIONS
-   initrd %s''',
+   kernel $kernel  console=ttyS0,115200 ks=$ks_file ksdevice=eth0 noapic $ARTEMIS_OPTIONS
+   initrd $initrd''',
              'suse'    : '''   timeout 2
 
    title SUSE Testing
-   kernel %s  console=ttyS0,115200 ks=%s ksdevice=eth0 noapic $ARTEMIS_OPTIONS
-   initrd %s''',}
+   kernel $kernel  console=ttyS0,115200 ks=$ks_file ksdevice=eth0 noapic $ARTEMIS_OPTIONS
+   initrd $initrd''',}
 
 if debug == True:
     dbpath = 'test-schedule.db'
