@@ -462,7 +462,7 @@ class SubjectPreparation():
                     'grub_text'         : options['template'],
                     'name'              : self.testrun.subject['name'],
                     'precondition_type' : 'autoinstall',
-                    'timeout'           : '10000',
+                    'timeout'           : 10000,
                     },
                 'testprogram': {
                     'execname':             options['testprogram'],
