@@ -387,7 +387,7 @@ class SubjectPreparation():
 
     def gen_guest_precond(self, guest_options):
         path = ''
-        if guest_options['subject'].startswith('kvm') or guest_options['subject'].startswith('kvm'):
+        if guest_options['subject'].startswith('kvm') or guest_options['subject'].startswith('autoinstall'):
             path = '/kvm/images/'
         elif guest_options['subject'].startswith('xen'):
             path = '/xen/images/'
