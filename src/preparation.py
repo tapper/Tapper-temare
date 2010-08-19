@@ -549,7 +549,7 @@ class SubjectPreparation():
                     'grub_text': '''timeout 2
 
 title Fedora 13 with KVM
-kernel /tftpboot/stable/fedora/13/x86_64/vmlinuz  console=ttyS0,115200 ks=http://bancroft/autoinstall/stable/fedora/13/x86_64/artemis-kvm.ks ksdevice=link noapic $ARTEMIS_OPTIONS
+kernel /tftpboot/stable/fedora/13/x86_64/vmlinuz  console=ttyS0,115200 ks=http://bancroft/autoinstall/stable/fedora/13/x86_64/kvm-upstream.ks ksdevice=link noapic $ARTEMIS_OPTIONS
 initrd /tftpboot/stable/fedora/13/x86_64/initrd.img
 ''',
                     'name': 'Fedora_13',
