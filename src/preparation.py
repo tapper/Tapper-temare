@@ -440,11 +440,11 @@ class SubjectPreparation():
         # result = self.cursor.fetchone()
 
         options            = {}
-        if self.testrun.subject['name'].lower().find('suse') or self.testrun.subject['name'].lower().find('sles'):
+        if (self.testrun.subject['name'].lower().find('suse') != -1) and (self.testrun.subject['name'].lower().find('sles') != -1):
             options['template'] = Template(templates['suse'])
-        elif self.testrun.subject['name'].lower().find('redhat') or self.testrun.subject['name'].lower().find('rhel'):
+        elif (self.testrun.subject['name'].lower().find('redhat') != -1) or (self.testrun.subject['name'].lower().find('rhel') != -1):
             options['template'] = Template(templates['redhat'])
-        elif self.testrun.subject['name'].lower().find('fedora'):
+        elif (self.testrun.subject['name'].lower().find('fedora') != -1):
             options['template'] = Template(templates['redhat'])
 
 
