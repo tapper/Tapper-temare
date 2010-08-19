@@ -613,6 +613,8 @@ class TestSubjectAddCommand(TemareCommand):
         """
         subjectops = dbops.TestSubjects()
         subjectops.add(args)
+        sys.stdout.write("Inserted subject but did not activate it. Use subjectstate to activate.\n")
+
 
 
 class TestSubjectDelCommand(TemareCommand):
@@ -633,6 +635,7 @@ class TestSubjectDelCommand(TemareCommand):
         """
         subjectops = dbops.TestSubjects()
         subjectops.delete(args)
+
 
 
 class TestSubjectStateCommand(TemareCommand):
