@@ -419,12 +419,12 @@ class SubjectPreparation():
             retval['root']['mounttype']      = 'windows'
             retval['root']['mountpartition'] = 'p1'
 
-        if guest_options['subject'].startswith('kvm'):
+
+
+        if (guest_options['subject'].lower().find('kvm') != -1):
             retval['config']['exec'] = guest_options['guest_start_dest']
-        elif guest_options['subject'].startswith('xen'):
+        elif (guest_options['subject'].lower().find('xen') != -1):
             retval['config']['svm']  = guest_options['guest_start_dest']
-
-
         return retval
 
     def gen_precondition_autoinstall(self):
