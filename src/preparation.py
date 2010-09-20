@@ -419,12 +419,12 @@ class SubjectPreparation():
             retval['root']['mounttype']      = 'windows'
             retval['root']['mountpartition'] = 'p1'
 
-        if guest_options['subject'].startswith('kvm'):
+
+
+        if (guest_options['subject'].lower().find('kvm') != -1):
             retval['config']['exec'] = guest_options['guest_start_dest']
-        elif guest_options['subject'].startswith('xen'):
+        elif (guest_options['subject'].lower().find('xen') != -1):
             retval['config']['svm']  = guest_options['guest_start_dest']
-
-
         return retval
 
     def gen_precondition_autoinstall(self):
@@ -440,10 +440,13 @@ class SubjectPreparation():
         # result = self.cursor.fetchone()
 
         options            = {}
-        if self.testrun.subject['name'].lower().find('suse') or self.testrun.subject['name'].lower().find('sles'):
+        if (self.testrun.subject['name'].lower().find('suse') != -1) and (self.testrun.subject['name'].lower().find('sles') != -1):
             options['template'] = Template(templates['suse'])
-        elif self.testrun.subject['name'].lower().find('redhat') or self.testrun.subject['name'].lower().find('rhel'):
+        elif (self.testrun.subject['name'].lower().find('redhat') != -1) or (self.testrun.subject['name'].lower().find('rhel') != -1):
             options['template'] = Template(templates['redhat'])
+        elif (self.testrun.subject['name'].lower().find('fedora') != -1):
+            options['template'] = Template(templates['redhat'])
+
 
         substitutions = {}
         compops = dbops.Completions()
