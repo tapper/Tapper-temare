@@ -5,6 +5,7 @@ os.system('cp t/orig-db t/test-schedule.db')
 from src import preparation
 import pprint
 import random
+import re
 random.seed(1)
 
 class TestPreparation(unittest.TestCase):
@@ -48,15 +49,16 @@ class TestPreparation(unittest.TestCase):
 
 
     def test_autoinstallpreparation(self):
-        prep = preparation.SubjectPreparation('bullock', 'autoinstall-rhel6', 1)
+        prep = preparation.SubjectPreparation('bullock', 'autoinstall-rhel6-kvm', 1)
         precondition = prep.gen_precondition_autoinstall()
         self.assertTrue(precondition['precondition_type'] == 'virt')
 
     def test_autoinstallpreparation_deeply(self):
-        prep = preparation.SubjectPreparation('bullock', 'autoinstall-rhel6', 1)
+        prep = preparation.SubjectPreparation('bullock', 'autoinstall-rhel6-kvm', 1)
         precondition = prep.gen_precondition_autoinstall()
         self.assertTrue(precondition['host']['root']['grub_text'] == \
-                            '   timeout 2\n\n   title SUSE Testing\n   kernel /tftpboot/stable/kernel/vmlinuz  console=ttyS0,115200 ks=/path/to/ks_file.ks ksdevice=eth0 noapic $ARTEMIS_OPTIONS\n   initrd /tftpboot/stable/initrd/initrd')
+                            '   timeout 2\n\n   title RedHat Testing\n   kernel /tftpboot/stable/kernel/vmlinuz  console=ttyS0,115200 ks=/path/to/ks_file.ks ksdevice=eth0 noapic $ARTEMIS_OPTIONS\n   initrd /tftpboot/stable/initrd/initrd')
+        self.assertTrue(re.match('/kvm/images/001-bullock-\d+.sh',precondition['guests'][0]['config']['exec']))
 
 
 

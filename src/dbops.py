@@ -621,7 +621,7 @@ class TestSubjects(DatabaseEntity):
                 INSERT INTO subject
                 (subject_name, last_vendor_id, is_64bit, is_enabled)
                 VALUES (?,?,?,?)''',
-                (subject, 0, bitness, 1))
+                (subject, 0, bitness, 0)) # default to disabled
         self.cursor.execute('''
                 INSERT INTO subject_schedule (subject_id, test_id, image_id)
                 SELECT subject_id, test_id, image_id
