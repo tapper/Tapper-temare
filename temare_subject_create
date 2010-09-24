@@ -25,8 +25,9 @@ foreach my $distro ( @distros ) {
         my %tests;
         foreach my $path ( @paths ) {
                 my ($bitness, $test) = $path =~ m"$autoinstall_path/$state/$subject/$version/([^/]+)/([^/]+)\.xml";
-                my $temare_subject   = "autoinstall-$subject-$test";
-                $temare_subject     .= "-32" if $bitness =~ m'i\d68'; # usually i386 but we also want to catch i686
+                my $temare_subject   = "autoinstall-$subject$version-$test";
+                next if $test eq 'bare';
+                $temare_subject     .= "-32" if $bitness =~ m'i\d86'; # usually i386 but we also want to catch i686
                 $tests{$temare_subject} = {
                                            ks_file => "http://bancroft/$state/$subject/$version/$bitness/$test.xml",
                                            initrd  => "/tftpboot/$state/$subject/$version/$bitness/initrd",
@@ -39,7 +40,7 @@ foreach my $distro ( @distros ) {
                         $ftp->login("anonymous",'osrc-sysint@elbe.amd.com')
                           or (warn("Cannot login ", $ftp->message, "\n"), next DISTRO);
                         
-                        if ($ftp->ls('/testing/$subject/$version/$bitness/')) {
+                        if ($ftp->ls("/testing/$subject/$version/$bitness/")) {
                                 $tests{$temare_subject}->{install} = "ftp://osko/testing/$subject/$version/$bitness/";
                         } else {
                                 warn("Can not find installer for $temare_subject\n");
@@ -47,21 +48,23 @@ foreach my $distro ( @distros ) {
                         }
                 }
                 
-                my $cmd = "temare subjectadd $temare_subject ". $bitness eq 'x86_64' ? '64' : '32';
+                my $cmd = "temare subjectadd $temare_subject ";
+                $cmd   .= $bitness eq 'x86_64' ? '64' : '32';
                 my $retval = qx($cmd);
                 if ($?) {
                         warn($retval);
                         next DISTRO;
                 }
 
-                while (my ($key, $value) = each %tests) {
+                while (my ($key, $value) = each %{$tests{$temare_subject}}) {
                         $retval = qx(temare completionadd $temare_subject $key $value);
                         if ($?) {
                                 warn($retval,"\nYou need to clean $temare_subject yourself\n");
                                 next DISTRO;
                         }
                 }
-                $cmd = "temare subjectstate $temare_subject ". $bitness eq 'x86_64' ? '64' : '32';
+                $cmd  = "temare subjectstate $temare_subject ";
+                $cmd .= $bitness eq 'x86_64' ? '64' : '32';
                 qx($cmd enable);
         }
 }
