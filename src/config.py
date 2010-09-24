@@ -157,7 +157,7 @@ templates = {'redhat' : '''   timeout 2
              'suse'    : '''   timeout 2
 
    title SUSE Testing
-   kernel $kernel  console=ttyS0,115200 ks=$ks_file ksdevice=eth0 noapic $ARTEMIS_OPTIONS
+   kernel $kernel  console=ttyS0,115200 install=$install autoyast=$ks_file textmode=1 noapic $ARTEMIS_OPTIONS
    initrd $initrd''',}
 
 if debug == True:
