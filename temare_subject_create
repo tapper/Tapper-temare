@@ -1,0 +1,67 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Net::FTP;
+
+$ENV{PATH} = "$ENV{PATH}:."; # temare calls look nicer
+
+my @distros = ('sles-10','sles-11');
+
+my $autoinstall_path = '/data/bancroft/artemis/live/configs/autoinstall';
+my $state = 'stable';
+
+DISTRO:
+foreach my $distro ( @distros ) {
+        my ($subject, $version) = split "-", $distro;
+
+        if (not ($subject and $version)) {
+                warn "$distro is not a valid distribution name in the form name-version";
+                next DISTRO;
+        }
+
+        my @paths = qx(find $autoinstall_path/$state/$subject/$version/ -type f);
+
+        my %tests;
+        foreach my $path ( @paths ) {
+                my ($bitness, $test) = $path =~ m"$autoinstall_path/$state/$subject/$version/([^/]+)/([^/]+)\.xml";
+                my $temare_subject   = "autoinstall-$subject-$test";
+                $temare_subject     .= "-32" if $bitness =~ m'i\d68'; # usually i386 but we also want to catch i686
+                $tests{$temare_subject} = {
+                                           ks_file => "http://bancroft/$state/$subject/$version/$bitness/$test.xml",
+                                           initrd  => "/tftpboot/$state/$subject/$version/$bitness/initrd",
+                                           vmlinuz  => "/tftpboot/$state/$subject/$version/$bitness/vmlinuz",
+                                          };
+                if ($subject =~ m"suse|sles"i) {
+                        my $ftp = Net::FTP->new("osko", Debug => 0)
+                          or (warn"Cannot connect to osko: $@\n", next DISTRO);
+
+                        $ftp->login("anonymous",'osrc-sysint@elbe.amd.com')
+                          or (warn("Cannot login ", $ftp->message, "\n"), next DISTRO);
+                        
+                        if ($ftp->ls('/testing/$subject/$version/$bitness/')) {
+                                $tests{$temare_subject}->{install} = "ftp://osko/testing/$subject/$version/$bitness/";
+                        } else {
+                                warn("Can not find installer for $temare_subject\n");
+                                next DISTRO;
+                        }
+                }
+                
+                my $cmd = "temare subjectadd $temare_subject ". $bitness eq 'x86_64' ? '64' : '32';
+                my $retval = qx($cmd);
+                if ($?) {
+                        warn($retval);
+                        next DISTRO;
+                }
+
+                while (my ($key, $value) = each %tests) {
+                        $retval = qx(temare completionadd $temare_subject $key $value);
+                        if ($?) {
+                                warn($retval,"\nYou need to clean $temare_subject yourself\n");
+                                next DISTRO;
+                        }
+                }
+                $cmd = "temare subjectstate $temare_subject ". $bitness eq 'x86_64' ? '64' : '32';
+                qx($cmd enable);
+        }
+}
