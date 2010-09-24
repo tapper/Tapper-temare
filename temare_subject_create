@@ -68,3 +68,7 @@ foreach my $distro ( @distros ) {
                 qx($cmd enable);
         }
 }
+
+print "Use these lines to add create Artemis testruns. Adapt the awk regex accordingly:\n\n";
+print q(./temare subjectlist |awk '/opensuse|sles/ {printf "artemis-testrun new --queue=%s --macroprecond=/tmp/autoinstall.yml -Dsubject=%s -Dbitness=%s\n",$2,$2,$4}' | bash),"\n";
+print q(for queue in $(./temare subjectlist | awk '/opensuse|sles/ {print $2}'); do artemis-testrun newqueue --name $queue --priority 300 --active ; done),"\n";
