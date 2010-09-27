@@ -28,10 +28,14 @@ foreach my $distro ( @distros ) {
                 my $temare_subject   = "autoinstall-$subject$version-$test";
                 next if $test eq 'bare';
                 $temare_subject     .= "-32" if $bitness =~ m'i\d86'; # usually i386 but we also want to catch i686
+                my $kernel;
+                $kernel = "/tftpboot/$state/$subject/$version/$bitness/vmlinuz" if -e "/tftpboot/$state/$subject/$version/$bitness/vmlinuz";
+                $kernel = "/tftpboot/$state/$subject/$version/$bitness/linux" if -e "/tftpboot/$state/$subject/$version/$bitness/linux";
+
                 $tests{$temare_subject} = {
                                            ks_file => "http://bancroft/$state/$subject/$version/$bitness/$test.xml",
                                            initrd  => "/tftpboot/$state/$subject/$version/$bitness/initrd",
-                                           vmlinuz  => "/tftpboot/$state/$subject/$version/$bitness/vmlinuz",
+                                           vmlinuz  => $kernel,
                                           };
                 if ($subject =~ m"suse|sles"i) {
                         my $ftp = Net::FTP->new("osko", Debug => 0)
