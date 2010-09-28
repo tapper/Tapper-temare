@@ -4,6 +4,9 @@ use strict;
 use warnings;
 use Net::FTP;
 
+die "Broken! FTP links are not set correctly. Please fix and reactivate!\n";
+
+
 $ENV{PATH} = "$ENV{PATH}:."; # temare calls look nicer
 
 my @distros = ('sles-10','sles-11');
