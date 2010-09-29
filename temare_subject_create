@@ -3,16 +3,17 @@
 use strict;
 use warnings;
 use Net::FTP;
+use 5.010;
 
-die "Broken! FTP links are not set correctly. Please fix and reactivate!\n";
+# die "Broken! FTP links are not set correctly. Please fix and reactivate!\n";
 
 
 $ENV{PATH} = "$ENV{PATH}:."; # temare calls look nicer
 
-my @distros = ('sles-10','sles-11');
+my @distros = ('sles-10.3','sles-11.1');
 
 my $autoinstall_path = '/data/bancroft/artemis/live/configs/autoinstall';
-my $state = 'stable';
+my $state = 'testing';
 
 DISTRO:
 foreach my $distro ( @distros ) {
@@ -23,12 +24,13 @@ foreach my $distro ( @distros ) {
                 next DISTRO;
         }
 
-        my @paths = qx(find $autoinstall_path/$state/$subject/$version/ -type f);
+        my ($main_version, undef) = split /\./, $version;
+        my @paths = qx(find $autoinstall_path/stable/$subject/$main_version/ -type f);
 
         my %tests;
         foreach my $path ( @paths ) {
-                my ($bitness, $test) = $path =~ m"$autoinstall_path/$state/$subject/$version/([^/]+)/([^/]+)\.xml";
-                my $temare_subject   = "autoinstall-$subject$version-$test";
+                my ($bitness, $test) = $path =~ m"$autoinstall_path/stable/$subject/$main_version/([^/]+)/([^/]+)\.xml";
+                my $temare_subject   = "autoinstall-$subject$main_version-$test";
                 next if $test eq 'bare';
                 $temare_subject     .= "-32" if $bitness =~ m'i\d86'; # usually i386 but we also want to catch i686
                 my $kernel;
@@ -36,9 +38,9 @@ foreach my $distro ( @distros ) {
                 $kernel = "/tftpboot/$state/$subject/$version/$bitness/linux" if -e "/tftpboot/$state/$subject/$version/$bitness/linux";
 
                 $tests{$temare_subject} = {
-                                           ks_file => "http://bancroft/$state/$subject/$version/$bitness/$test.xml",
+                                           ks_file => "http://bancroft/autoinstall/$state/$subject/$version/$bitness/$test.xml",
                                            initrd  => "/tftpboot/$state/$subject/$version/$bitness/initrd",
-                                           vmlinuz  => $kernel,
+                                           kernel  => $kernel,
                                           };
                 if ($subject =~ m"suse|sles"i) {
                         my $ftp = Net::FTP->new("osko", Debug => 0)
@@ -46,7 +48,7 @@ foreach my $distro ( @distros ) {
 
                         $ftp->login("anonymous",'osrc-sysint@elbe.amd.com')
                           or (warn("Cannot login ", $ftp->message, "\n"), next DISTRO);
-                        
+
                         if ($ftp->ls("/testing/$subject/$version/$bitness/")) {
                                 $tests{$temare_subject}->{install} = "ftp://osko/testing/$subject/$version/$bitness/";
                         } else {
@@ -54,25 +56,17 @@ foreach my $distro ( @distros ) {
                                 next DISTRO;
                         }
                 }
-                
+
                 my $cmd = "temare subjectadd $temare_subject ";
                 $cmd   .= $bitness eq 'x86_64' ? '64' : '32';
-                my $retval = qx($cmd);
-                if ($?) {
-                        warn($retval);
-                        next DISTRO;
-                }
+                say($cmd);
 
                 while (my ($key, $value) = each %{$tests{$temare_subject}}) {
-                        $retval = qx(temare completionadd $temare_subject $key $value);
-                        if ($?) {
-                                warn($retval,"\nYou need to clean $temare_subject yourself\n");
-                                next DISTRO;
-                        }
+                        say("temare completionadd $temare_subject $key $value");
                 }
                 $cmd  = "temare subjectstate $temare_subject ";
                 $cmd .= $bitness eq 'x86_64' ? '64' : '32';
-                qx($cmd enable);
+                say("$cmd enable");
         }
 }
 
