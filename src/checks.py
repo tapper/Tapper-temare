@@ -4,7 +4,7 @@
 """
 import re
 from os.path import normpath
-from config import minmem, maxmem, mincores, maxcores
+from config import minmem, maxmem, mincores, maxcores, formats
 
 
 def chk_arg_count(args, count):
@@ -77,16 +77,17 @@ def chk_hostname(hostname):
     return hostname
 
 
-def chk_imageformat(format):
+def chk_imageformat(imageformat):
     """Check input value for the guest image format
-       Valid values are raw, qcow, and qcow2
-       @return: raw|qcow|qcow2
+       Valid values are defined as the keys of config.formats
+       @return: image format
     """
-    if format not in ('raw', 'qcow', 'qcow2', 'file'):
+    imageformats = formats.keys()
+    if imageformat not in imageformats:
         raise ValueError(
                 'Invalid guest image format.\n'
-                'Valid values are raw, qcow, or qcow2.')
-    return format
+                'Valid values are %s.' % (", ".join(imageformats), ))
+    return imageformat
 
 
 def chk_imagename(imagename):
