@@ -105,7 +105,8 @@ svm =                                                                        \
         'hap = %(hap)d\n'
 
 # Designation of the guest image formats as used in the guest configuration
-formats = {'raw': 'tap:aio', 'qcow': 'tap:qcow', 'qcow2': 'tap:qcow2', 'file':'file'}
+formats = {'raw': 'tap:aio', 'qcow': 'tap:qcow',
+        'qcow2': 'tap:qcow2', 'file': 'file'}
 
 # Command to generate svm files on hosts for manual testing
 cfgscript = 'echo \'%%s\' >/xen/images/%(runid)03d.%(cfgext)s'

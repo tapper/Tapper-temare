@@ -214,7 +214,6 @@ class SubjectPreparation():
         self.builddir = None
         self.guestconfigs = {}
         self.host = chk_hostname(host)
-        self.subject = subject
         self.testrun = generator.TestRunGenerator(
                 self.host, True, subject, bitness)
         self.dry_mode = 0
@@ -335,7 +334,6 @@ class SubjectPreparation():
 
     def gen_xen_host(self, options):
         """ Generate host part of a Xen precondition"""
-
         return {
             'root': {
                     'precondition_type':    'image',
@@ -353,8 +351,7 @@ class SubjectPreparation():
                     {'precondition_type':   'package',
                      'filename':            options['installpkg']},
                     {'precondition_type':   'exec',
-                     'filename':            '/bin/xen_install.sh',
-                     'options':             [ self.subject ] },
+                     'filename':            '/bin/xen_installer_suse.pl'},
                     {'precondition_type':   'package',
                      'filename':            'artemisutils/sles10/netxtreme2.tgz'},
                     {'precondition_type':   'package',

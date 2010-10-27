@@ -4,7 +4,7 @@
 """
 import re
 from os.path import normpath
-from config import minmem, maxmem, mincores, maxcores
+from config import minmem, maxmem, mincores, maxcores, formats
 
 
 def chk_arg_count(args, count):
@@ -77,16 +77,17 @@ def chk_hostname(hostname):
     return hostname
 
 
-def chk_imageformat(format):
+def chk_imageformat(imageformat):
     """Check input value for the guest image format
-       Valid values are raw, qcow, and qcow2
-       @return: raw|qcow|qcow2
+       Valid values are defined as the keys of config.formats
+       @return: image format
     """
-    if format not in ('raw', 'qcow', 'qcow2', 'file'):
+    imageformats = formats.keys()
+    if imageformat not in imageformats:
         raise ValueError(
                 'Invalid guest image format.\n'
-                'Valid values are raw, qcow, or qcow2.')
-    return format
+                'Valid values are %s.' % (', '.join(imageformats), ))
+    return imageformat
 
 
 def chk_imagename(imagename):
@@ -184,8 +185,11 @@ def chk_subject(subject):
        @return: test subject name as string
     """
     subject = str(subject)
-    if not (subject.startswith('xen') or subject.startswith('kvm') or subject.startswith('autoinstall')):
-        raise ValueError('Invalid test subject name. Possible subjects start with xen, kvm and autoinstall')
+    subjects = ('xen', 'kvm', 'autoinstall')
+    if not re.match('^(%s)' % ('|'.join(subjects), ), subject):
+        raise ValueError(
+                'Invalid test subject name.\n'
+                'Possible subjects start with %s.' % (', '.join(subjects), ))
     if re.match('^[A-Za-z][A-Za-z0-9_\-\.]*$', subject) == None:
         raise ValueError('Invalid test subject name.')
     if len(subject) > 64:
@@ -203,13 +207,14 @@ def chk_testcommand(testcommand):
     """
     testcommand = str(testcommand)
     if re.match('^[A-Za-z0-9_,+@\-\.=/]*$', testcommand) == None:
-        raise ValueError('Invalid test command filename "%s".' % testcommand)
+        raise ValueError(
+                'Invalid test command filename "%s".' % (testcommand, ))
     if len(testcommand) > 255:
         raise ValueError(
                 'Invalid test command filename "%s".\n'
-                'The length is limited to 255 characters.' % testcommand)
+                'The length is limited to 255 characters.' % (testcommand, ))
     if normpath(testcommand) != testcommand:
-        raise ValueError('Command filename "%s" is not in the normpath.' % testcommand)
+        raise ValueError('Path to test command file is not normalized.')
     return testcommand
 
 
