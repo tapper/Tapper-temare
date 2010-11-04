@@ -150,15 +150,17 @@ buildarchs = {0: 'i686', 1: 'x86_64'}
 
 # Filename pattern for unpatched builds
 buildpattern = '^%s\.[0-9]{4}-[0-9]{2}-[0-9]{2}\.[0-9a-f_]+\.%s\.tgz$'
+
+# GRUB templates for automatic installation through Kickstart or AutoYAST
 templates = {'redhat' : '''   timeout 2
 
    title RedHat Testing
-   kernel $kernel  console=ttyS0,115200 ks=$ks_file ksdevice=eth0 noapic $ARTEMIS_OPTIONS
+   kernel $kernel  console=ttyS0,115200 ks=$ks_file ksdevice=link $ARTEMIS_OPTIONS
    initrd $initrd''',
              'suse'    : '''   timeout 2
 
    title SUSE Testing
-   kernel $kernel  console=ttyS0,115200 install=$install autoyast=$ks_file textmode=1 noapic $ARTEMIS_OPTIONS
+   kernel $kernel  console=ttyS0,115200 install=$install autoyast=$ks_file textmode=1 $ARTEMIS_OPTIONS
    initrd $initrd''',}
 
 if debug == True:
