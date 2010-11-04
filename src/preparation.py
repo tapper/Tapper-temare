@@ -364,29 +364,29 @@ class SubjectPreparation():
                 }
 
     def gen_xen_guest_options(self, test):
-            guest_options                       = {}
-            guest_options['subject']            = self.testrun.subject['name']
-            guest_options['imagefile']          = '%s/%s' % (imagepath, test['image'])
-            guest_options['mountfile']          = '/xen/images/%s' % (test['mntfile'], )
-            guest_options['guest_start_source'] = '%s:%s/%s' % (nfshost, svmpath, test['svmfile'])
-            guest_options['guest_start_dest']   = '%s/%s' % ('/xen/images/', test['svmfile'])
-            guest_options['used_timeout']       = tstimeout
-            guest_options['used_runtime']       = tstimeout / 3
-            guest_options['testcommand']        = test['testcommand']
-            guest_options['os']                 = test['os']
+        guest_options                       = {}
+        guest_options['subject']            = self.testrun.subject['name']
+        guest_options['imagefile']          = '%s/%s' % (imagepath, test['image'])
+        guest_options['mountfile']          = '/xen/images/%s' % (test['mntfile'], )
+        guest_options['guest_start_source'] = '%s:%s/%s' % (nfshost, svmpath, test['svmfile'])
+        guest_options['guest_start_dest']   = '%s/%s' % ('/xen/images/', test['svmfile'])
+        guest_options['used_timeout']       = tstimeout
+        guest_options['used_runtime']       = tstimeout / 3
+        guest_options['testcommand']        = test['testcommand']
+        guest_options['os']                 = test['os']
 
-            if test['timeout']:
-                guest_options['used_timeout'] = test['timeout']
-            if test['runtime']:
-                guest_options['used_runtime'] = test['runtime']
+        if test['timeout']:
+            guest_options['used_timeout'] = test['timeout']
+        if test['runtime']:
+            guest_options['used_runtime'] = test['runtime']
 
-            if test['os'].lower().startswith('windows'):
-                guest_options['arch'] = 'windows'
-            elif test['bitness'] == 1:
-                guest_options['arch'] = 'linux64'
-            else:
-                guest_options['arch'] = 'linux32'
-            return guest_options
+        if test['os'].lower().startswith('windows'):
+            guest_options['arch'] = 'windows'
+        elif test['bitness'] == 1:
+            guest_options['arch'] = 'linux64'
+        else:
+            guest_options['arch'] = 'linux32'
+        return guest_options
 
     def gen_guest_precond(self, guest_options):
         path = ''
@@ -577,8 +577,6 @@ initrd /tftpboot/stable/fedora/14/x86_64/initrd.img
         }
         precondition['guests'] = []
         for test in self.testrun.tests:
-            import pprint
-            pp = pprint.PrettyPrinter(indent=4)
             guest_options                       = {}
             guest_options['subject']            = self.testrun.subject['name']
             guest_options['imagefile']          = '%s/%s' % (imagepath, test['image'])
