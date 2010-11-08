@@ -442,21 +442,22 @@ class SubjectPreparation():
         # self.cursor.execute(query, self.testrun.resources['lastvendor'])
         # result = self.cursor.fetchone()
 
-        options            = {}
-        if (self.testrun.subject['name'].lower().find('suse') != -1) and (self.testrun.subject['name'].lower().find('sles') != -1):
+        options = {}
+        subject = self.testrun.subject['name'].lower()
+        if re.search('sles|opensuse', subject):
             options['template'] = Template(templates['suse'])
-        elif (self.testrun.subject['name'].lower().find('redhat') != -1) or (self.testrun.subject['name'].lower().find('rhel') != -1):
-            options['template'] = Template(templates['redhat'])
-        elif (self.testrun.subject['name'].lower().find('fedora') != -1):
+        elif re.search('redhat|rhel|fedora', subject):
             options['template'] = Template(templates['redhat'])
 
-
+        # FIXME:
+        # * String module deprecated, use built-in templating
+        # * Stubborn data structure returned from dbops.Completions().get()
         substitutions = {}
         compops = dbops.Completions()
         for line in compops.get(self.testrun.subject['name']):
             substitutions[line['key']] = line['value']
-
         options['template'] = options['template'].safe_substitute(substitutions)
+        # FIXME end
 
         options['testprogram'] = '/opt/artemis/bin/metainfo'
 
