@@ -3,6 +3,7 @@
 """Module for database operations to be performed on the schedule database
 """
 import sqlite3
+import sys
 import checks
 from config import dbpath
 
