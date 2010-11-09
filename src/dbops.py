@@ -401,33 +401,6 @@ class Images(DatabaseEntity):
                 ORDER BY image_name''')
         return fetchassoc(self.cursor)
 
-    def get_os_type(self, image_id):
-        """Getter for the os_type attribute of the image
-
-        Returns:
-            An int that is the id of the os type of this image
-        """
-        self.cursor.execute('''
-                SELECT os_type_id FROM image WHERE image_id=?''', (image_id, ))
-        os_type_id = self.cursor.fetchone()
-        if os_type_id == None:
-            raise ValueError('No such image.')
-        return os_type_id[0]
-
-    def get_id_by_name(self, image_name):
-        """Getter for the os_type attribute of the image
-
-        Returns:
-            An int that is the id of the os type of this image
-        """
-        self.cursor.execute('''
-                SELECT image_id FROM image WHERE image_name=?''',
-                (image_name, ))
-        image_id = self.cursor.fetchone()
-        if image_id == None:
-            raise ValueError('No such image.')
-        return image_id[0]
-
 
 class OsTypes(DatabaseEntity):
     """Class for database operations on OS type entries
@@ -496,17 +469,6 @@ class OsTypes(DatabaseEntity):
         self.cursor.execute('''
                 SELECT os_type_name FROM os_type ORDER BY os_type_name''')
         return fetchassoc(self.cursor)
-
-    def name_by_id(self, os_id):
-        """Return the os name for a given id
-        """
-        self.cursor.execute('''
-                SELECT os_type_name FROM os_type WHERE os_type_id=?''',
-                (os_id,))
-        os_name = self.cursor.fetchone()
-        if os_name == None:
-            raise ValueError('No such os_type.')
-        return os_name[0].encode()
 
 
 class Tests(DatabaseEntity):
@@ -763,16 +725,6 @@ class Vendors(DatabaseEntity):
         self.cursor.execute('''
                 SELECT vendor_name FROM vendor ORDER BY vendor_name''')
         return fetchassoc(self.cursor)
-
-    def name_by_id(self, vendorid):
-        """Return the vendor name for a given id"""
-        self.cursor.execute('''
-                SELECT vendor_name FROM vendor
-                WHERE vendor_id=?''', (vendorid,))
-        vendorname = self.cursor.fetchone()
-        if vendorname == None:
-            raise ValueError('No such vendor.')
-        return vendorname[0].encode()
 
 
 class Completions(DatabaseEntity):

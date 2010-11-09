@@ -2,7 +2,6 @@
 # vim: tabstop=4 shiftwidth=4 expandtab smarttab
 """Module to generate guest configurations for a test run
 """
-import dbops
 import sqlite3
 import checks
 import random
@@ -297,11 +296,12 @@ class TestRunGenerator():
         query = '''
                 SELECT schedule_id, image_name, image_format,
                         test_name, test_command, runtime, timeout,
-                        is_bigmem, is_smp, image.is_64bit
+                        is_bigmem, is_smp, image.is_64bit, os_type_name
                 FROM %s_schedule
                 LEFT JOIN image ON %s_schedule.image_id=image.image_id
                 LEFT JOIN test ON %s_schedule.test_id=test.test_id
                 LEFT JOIN %s ON %s_schedule.%s_id=%s.%s_id
+                LEFT JOIN os_type ON os_type.os_type_id=image.os_type_id
                 WHERE %s.is_64bit>=image.is_64bit
                 AND image.is_enabled=1
                 AND is_done=0
@@ -326,7 +326,7 @@ class TestRunGenerator():
         return dict(zip(
                 ('id', 'image', 'format', 'test',
                  'testcommand', 'runtime','timeout',
-                 'bigmem', 'smp', 'bitness'),
+                 'bigmem', 'smp', 'bitness', 'os'),
                 self.do_weighing(smallup, smallsmp, bigup, bigsmp)))
 
     def get_test_config(self, test):
@@ -387,11 +387,7 @@ class TestRunGenerator():
             test['image']       = checks.chk_imagename(test['image'])
             test['test']        = checks.chk_testname(test['test'])
             test['testcommand'] = checks.chk_testcommand(test['testcommand'])
-
-            image_id            = dbops.Images().get_id_by_name(test['image'])
-            os_id               = dbops.Images().get_os_type(image_id)
-            test['os']          = dbops.OsTypes().name_by_id(os_id)
-
+            test['os']          = checks.chk_ostype(test['os'])
             self.tests.append(test)
             count += 1
 
