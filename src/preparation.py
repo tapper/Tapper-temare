@@ -373,14 +373,14 @@ class SubjectPreparation():
         guest_options['used_timeout']       = tstimeout
         guest_options['used_runtime']       = tstimeout / 3
         guest_options['testcommand']        = test['testcommand']
-        guest_options['os']                 = test['os']
+        guest_options['ostype']             = test['ostype']
 
         if test['timeout']:
             guest_options['used_timeout'] = test['timeout']
         if test['runtime']:
             guest_options['used_runtime'] = test['runtime']
 
-        if test['os'].lower().startswith('windows'):
+        if test['ostype'].lower().startswith('windows'):
             guest_options['arch'] = 'windows'
         elif test['bitness'] == 1:
             guest_options['arch'] = 'linux64'
@@ -418,7 +418,7 @@ class SubjectPreparation():
                     'runtime':              guest_options['used_runtime'],
                     }
                 }
-        if guest_options['os'].lower().startswith('windows'):
+        if guest_options['ostype'].lower().startswith('windows'):
             retval['root']['mounttype']      = 'windows'
             retval['root']['mountpartition'] = 'p1'
 
@@ -489,7 +489,7 @@ class SubjectPreparation():
             guest_options['used_timeout']       = tstimeout
             guest_options['used_runtime']       = tstimeout / 3
             guest_options['testcommand']        = test['testcommand']
-            guest_options['os']                 = test['os']
+            guest_options['ostype']             = test['ostype']
 
             if test['timeout']:
                 guest_options['used_timeout'] = test['timeout']
@@ -501,7 +501,7 @@ class SubjectPreparation():
             if test['runtime']:
                 guest_options['used_runtime'] = test['runtime']
 
-            if test['os'].lower().startswith('windows'):
+            if test['ostype'].lower().startswith('windows'):
                 guest_options['arch'] = 'windows'
             elif test['bitness'] == 1:
                 guest_options['arch'] = 'linux64'
@@ -587,7 +587,7 @@ initrd /tftpboot/stable/fedora/14/x86_64/initrd.img
             guest_options['used_timeout']       = tstimeout
             guest_options['used_runtime']       = tstimeout / 3
             guest_options['testcommand']        = test['testcommand']
-            guest_options['os']                 = test['os']
+            guest_options['ostype']             = test['ostype']
 
             if test['timeout']:
                 guest_options['used_timeout'] = test['timeout']
@@ -599,7 +599,7 @@ initrd /tftpboot/stable/fedora/14/x86_64/initrd.img
             if test['runtime']:
                 guest_options['used_runtime'] = test['runtime']
 
-            if test['os'].lower().startswith('windows'):
+            if test['ostype'].lower().startswith('windows'):
                 guest_options['arch'] = 'windows'
             elif test['bitness'] == 1:
                 guest_options['arch'] = 'linux64'

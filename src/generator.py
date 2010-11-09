@@ -53,6 +53,7 @@ class TestRunGenerator():
         'memory'        -- Memory                            (integer)
         'shadowmem'     -- Shadow memory                     (integer)
         'hap'           -- Nested paging enabled             (0|1)
+        'ostype'        -- Type of the guest OS              (string)
 
     Methods:
         TestRunGenerator.do_finalize()
@@ -326,7 +327,7 @@ class TestRunGenerator():
         return dict(zip(
                 ('id', 'image', 'format', 'test',
                  'testcommand', 'runtime','timeout',
-                 'bigmem', 'smp', 'bitness', 'os'),
+                 'bigmem', 'smp', 'bitness', 'ostype'),
                 self.do_weighing(smallup, smallsmp, bigup, bigsmp)))
 
     def get_test_config(self, test):
@@ -387,7 +388,7 @@ class TestRunGenerator():
             test['image']       = checks.chk_imagename(test['image'])
             test['test']        = checks.chk_testname(test['test'])
             test['testcommand'] = checks.chk_testcommand(test['testcommand'])
-            test['os']          = checks.chk_ostype(test['os'])
+            test['ostype']      = checks.chk_ostype(test['ostype'])
             self.tests.append(test)
             count += 1
 
