@@ -59,21 +59,21 @@ def do_list(listing, ordering):
                 listing[index][key] = value
             if width[key] < len(str(value)):
                 width[key] = len(str(value))
-    format = []
+    colformat = []
     header = ()
     separator = ()
     for column in ordering:
-        format.append('%%-%ds' % (width[column], ))
+        colformat.append('%%-%ds' % (width[column], ))
         header += (headings[column], )
         separator += ('-' * width[column], )
-    separator = '+-' + '-+-'.join(format) % separator +'-+\n'
-    header = '| ' + ' | '.join(format) % header + ' |\n'
+    separator = '+-' + '-+-'.join(colformat) % separator +'-+\n'
+    header = '| ' + ' | '.join(colformat) % header + ' |\n'
     sys.stdout.write('%s%s%s' % (separator, header, separator))
     for line in listing:
         values = ()
         for column in ordering:
             values += (line[column], )
-        sys.stdout.write('| ' + ' | '.join(format) % values + ' |\n')
+        sys.stdout.write('| ' + ' | '.join(colformat) % values + ' |\n')
     sys.stdout.write(separator)
 
 
