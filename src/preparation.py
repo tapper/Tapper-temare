@@ -14,7 +14,6 @@ import sys
 import re
 import threading
 import generator
-import datetime
 import time
 import dbops
 from subprocess import Popen, PIPE, STDOUT
@@ -281,7 +280,7 @@ class SubjectPreparation():
 
         Config files from prior runs will be overwritten.
         """
-        timestamp = time.mktime(datetime.datetime.utcnow().timetuple())
+        timestamp = time.mktime(time.gmtime())
         for test in self.testrun.tests:
             prefix = '%03d-%s-%ld' % (test['runid'], self.host, timestamp)
             test['mntfile'] = '%s.img' % (prefix, )
