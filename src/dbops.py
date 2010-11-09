@@ -806,7 +806,7 @@ class Completions(DatabaseEntity):
             self.cursor.execute('''
                     UPDATE completions SET value=?
                     WHERE subject_name=? AND key=?''',
-                    (value, subject_name, key))
+                    (value, subjectname, key))
             sys.stderr.write(
                     ('Key "%s" already existed for subject "%s".\n' +
                     'The key got updated with the new value.\n') %
