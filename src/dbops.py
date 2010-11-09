@@ -285,7 +285,7 @@ class Images(DatabaseEntity):
 
         Arguments:
             imagename -- Filename of the guest image
-            format    -- Format of the guest image
+            imgformat -- Format of the guest image
             vendor    -- Vendor or distributor name of the guests OS
             ostype    -- Operating system type of the guest image
             bitness   -- 1 for 64-bit guests, 0 for 32-bit guests
@@ -293,9 +293,9 @@ class Images(DatabaseEntity):
             smp       -- 1 for SMP guests, otherwise 0
         """
         checks.chk_arg_count(args, 7)
-        imagename, format, vendor, ostype, bitness, bigmem, smp = args
+        imagename, imgformat, vendor, ostype, bitness, bigmem, smp = args
         imagename = checks.chk_imagename(imagename)
-        format = checks.chk_imageformat(format)
+        imgformat = checks.chk_imageformat(imgformat)
         vendor = checks.chk_vendor(vendor)
         ostype = checks.chk_ostype(ostype)
         bitness = checks.chk_bitness(bitness)
@@ -323,7 +323,7 @@ class Images(DatabaseEntity):
                     (image_name, image_format, vendor_id, os_type_id,
                      is_64bit, is_bigmem, is_smp, is_enabled)
                     VALUES (?,?,?,?,?,?,?,?)''',
-                    (imagename, format, vendorid, ostypeid,
+                    (imagename, imgformat, vendorid, ostypeid,
                     bitness, bigmem, smp, 1))
         except sqlite3.IntegrityError:
             raise ValueError('Image already exists.')
