@@ -531,8 +531,6 @@ class SubjectPreparation():
         and finally mark the guest tests as done in the database.
         """
         self.gen_guest_configs()
-        options = {}
-        options['testprogram'] = '/opt/artemis/bin/metainfo'
         precondition = {
             'precondition_type':   'virt',
             'name':                'automatically generated KVM test'}
@@ -555,7 +553,7 @@ initrd /tftpboot/stable/fedora/14/x86_64/initrd.img
                     'timeout_testprogram':  1800,
                 },
                 {
-                    'execname':             options['testprogram'],
+                    'execname':             '/opt/artemis/bin/metainfo',
                     'timeout_testprogram':  300,
                     'runtime':              50,
                 },
