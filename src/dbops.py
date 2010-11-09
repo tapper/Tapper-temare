@@ -66,11 +66,11 @@ def init_database():
                     test_id         INTEGER NOT NULL,
                     image_id        INTEGER NOT NULL,
                     is_done         INTEGER DEFAULT 0)''',
-            # Autoinstall uses a template and a number of key-value pairs for its primary
-            # precondition. This table contains the key-value pairs.
+            # Autoinstall uses a template and a number of key-value pairs for
+            # its primary precondition. This table contains the key-value pairs.
             '''CREATE TABLE IF NOT EXISTS completions (
                     completions_id  INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                    subject_name     INTEGER NOT NULL,
+                    subject_name    INTEGER NOT NULL,
                     key             TEXT,
                     value           TEXT)''']
     try:
@@ -82,7 +82,6 @@ def init_database():
     finally:
         cursor.close()
         connection.close()
-
 
 def fetchassoc(cursor):
     """Return dictionaries for each resulting row of a database query.
@@ -407,7 +406,8 @@ class Images(DatabaseEntity):
         Returns:
             An int that is the id of the os type of this image
         """
-        self.cursor.execute('SELECT os_type_id FROM image WHERE image_id=?', (image_id, ))
+        self.cursor.execute('''
+                SELECT os_type_id FROM image WHERE image_id=?''', (image_id, ))
         os_type_id = self.cursor.fetchone()
         if os_type_id == None:
             raise ValueError('No such image.')
@@ -419,7 +419,9 @@ class Images(DatabaseEntity):
         Returns:
             An int that is the id of the os type of this image
         """
-        self.cursor.execute('SELECT image_id FROM image WHERE image_name=?', (image_name, ))
+        self.cursor.execute('''
+                SELECT image_id FROM image WHERE image_name=?''',
+                (image_name, ))
         image_id = self.cursor.fetchone()
         if image_id == None:
             raise ValueError('No such image.')
@@ -495,12 +497,16 @@ class OsTypes(DatabaseEntity):
         return fetchassoc(self.cursor)
 
     def name_by_id(self, os_id):
-        """Return the os name for a given id"""
-        self.cursor.execute('SELECT os_type_name FROM os_type WHERE os_type_id=?', (os_id,))
+        """Return the os name for a given id
+        """
+        self.cursor.execute('''
+                SELECT os_type_name FROM os_type WHERE os_type_id=?''',
+                (os_id,))
         os_name = self.cursor.fetchone()
         if os_name == None:
             raise ValueError('No such os_type.')
         return os_name[0].encode()
+
 
 class Tests(DatabaseEntity):
     """Class for database operations on test program entries
@@ -759,11 +765,14 @@ class Vendors(DatabaseEntity):
 
     def name_by_id(self, vendorid):
         """Return the vendor name for a given id"""
-        self.cursor.execute('SELECT vendor_name FROM vendor WHERE vendor_id=?', (vendorid,))
+        self.cursor.execute('''
+                SELECT vendor_name FROM vendor
+                WHERE vendor_id=?''', (vendorid,))
         vendorname = self.cursor.fetchone()
         if vendorname == None:
             raise ValueError('No such vendor.')
         return vendorname[0].encode()
+
 
 class Completions(DatabaseEntity):
     """Class for database operations on template completions
@@ -794,13 +803,16 @@ class Completions(DatabaseEntity):
                 WHERE subject_name=? AND key=?''', (subjectname, key))
         if self.cursor.fetchone() != None:
             sys.stderr.write('Key "%s" already exists for subject "%s". I will update it' % (key, subjectname))
-            self.cursor.execute('''UPDATE completions SET value=? WHERE subject_name=? AND key=?''',
-                                (value, subject_name, key))
+            self.cursor.execute('''
+                    UPDATE completions SET value=?
+                    WHERE subject_name=? AND key=?''',
+                    (value, subject_name, key))
         else:
-            self.cursor.execute('''INSERT INTO completions(subject_name, key, value) VALUES (?,?,?)''',
-                                (subjectname, key, value))
+            self.cursor.execute('''
+                    INSERT INTO completions(subject_name, key, value)
+                    VALUES (?,?,?)''',
+                    (subjectname, key, value))
         self.connection.commit()
-
 
     def delete(self, args):
         """Remove a given key for a given subject
@@ -813,10 +825,15 @@ class Completions(DatabaseEntity):
         subjectname, key = args
         subjectname = checks.chk_subject(subjectname)
         self.cursor.execute('''
-                SELECT completions_id FROM completions WHERE subject_name=? AND key=?''', (subjectname, key))
+                SELECT completions_id FROM completions
+                WHERE subject_name=? AND key=?''',
+                (subjectname, key))
         result = self.cursor.fetchall()
         if result != None:
-            self.cursor.execute('DELETE FROM completions WHERE subject_name=? AND key=?''', (subjectname, key))
+            self.cursor.execute('''
+                    DELETE FROM completions
+                    WHERE subject_name=? AND key=?''',
+                    (subjectname, key))
             self.connection.commit()
 
     def get(self, subjectname):
@@ -826,7 +843,10 @@ class Completions(DatabaseEntity):
             One string
         """
         subjectname = checks.chk_subject(subjectname)
-        self.cursor.execute('''SELECT key, value FROM completions WHERE subject_name=? ORDER BY key''', (subjectname,))
+        self.cursor.execute('''
+                SELECT key, value FROM completions
+                WHERE subject_name=? ORDER BY key''',
+                (subjectname,))
         return fetchassoc(self.cursor)
 
     def list(self):
@@ -836,9 +856,9 @@ class Completions(DatabaseEntity):
             Tuples containing subjectname, key, value
         """
         self.cursor.execute('''
-                SELECT subject_name, key, value FROM completions ORDER BY subject_name''')
+                SELECT subject_name, key, value FROM completions
+                ORDER BY subject_name''')
         return fetchassoc(self.cursor)
-
 
 
 if __name__ == "__main__":
