@@ -236,7 +236,7 @@ class SubjectPreparation():
             message = 'Build directory "%s" does not exist.'
             raise ValueError(message % (self.builddir, ))
         if len(builds) < 1:
-            message = 'No builds available for %s on %s. Builddir is %s'
+            message = 'No builds available for %s on %s.\nBuilddir is %s'
             raise ValueError(message % (version, arch, self.builddir))
         builds.sort()
         self.build = builds.pop()
