@@ -27,7 +27,6 @@ from config import kvm, svm, formats, cfgscript, copyscript,        \
                    tstimeout, kvmexecpath, templates
 
 
-
 class BasePreparation(threading.Thread):
     """Base class to prepare a host for manual testing
     """
@@ -235,14 +234,14 @@ class SubjectPreparation():
                 if re.match(pattern, build):
                     builds.append(build)
         except OSError:
-            raise ValueError('Build directory "%s" does not exist.' % (self.builddir,))
+            message = 'Build directory "%s" does not exist.'
+            raise ValueError(message % (self.builddir, ))
         if len(builds) < 1:
-            raise ValueError(
-                    'No builds available for %s on %s. Builddir is %s' % (version, arch, self.builddir))
+            message = 'No builds available for %s on %s. Builddir is %s'
+            raise ValueError(message % (version, arch, self.builddir))
         builds.sort()
         self.build = builds.pop()
 
-#    @staticmethod
     def __write_config(self, filename, path, test, template):
         """Write a guest config file or start script to the specified location
 
@@ -330,7 +329,6 @@ class SubjectPreparation():
         else:
             raise ValueError('Invalid test subject.')
         self.write_precondition(precondition)
-
 
     def gen_xen_host(self, options):
         """ Generate host part of a Xen precondition"""
@@ -436,10 +434,6 @@ class SubjectPreparation():
         and finally mark the guest tests as done in the database.
         """
         self.gen_guest_configs()
-
-        # query = '''select key, value from completions where vendor_id = ?'''
-        # self.cursor.execute(query, self.testrun.resources['lastvendor'])
-        # result = self.cursor.fetchone()
 
         options = {}
         subject = self.testrun.subject['name'].lower()
