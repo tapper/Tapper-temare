@@ -486,11 +486,6 @@ class SubjectPreparation():
             if test['runtime']:
                 guest_options['used_runtime'] = test['runtime']
 
-            if test['timeout']:
-                guest_options['used_timeout'] = test['timeout']
-            if test['runtime']:
-                guest_options['used_runtime'] = test['runtime']
-
             if test['ostype'].lower().startswith('windows'):
                 guest_options['arch'] = 'windows'
             elif test['bitness'] == 1:
