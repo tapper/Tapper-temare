@@ -19,7 +19,6 @@ import dbops
 from subprocess import Popen, PIPE, STDOUT
 from string import Template
 from os.path import basename
-from stat import S_IMODE, S_IXUSR, S_IXGRP, S_IXOTH
 from checks import chk_hostname, chk_subject
 from config import kvm, svm, formats, cfgscript, copyscript,        \
                    osimage, svmpath, nfshost, suiteimage,           \
@@ -264,9 +263,7 @@ class SubjectPreparation():
             if type(cfgfile) == file:
                 cfgfile.close()
         if filepath.endswith('.sh'):
-            oldmode = S_IMODE(os.stat(filepath).st_mode)
-            newmode = oldmode | S_IXUSR | S_IXGRP | S_IXOTH
-            os.chmod(filepath, newmode)
+            os.chmod(filepath, 0o755)
 
     def gen_guest_configs(self):
         """Write guest configuration files
