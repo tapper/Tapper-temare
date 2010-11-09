@@ -113,6 +113,7 @@ class TemareCommand:
         """
         pass
 
+
 class HelpCommand(TemareCommand):
     """Output help and descriptions for CLI commands
     """
@@ -613,8 +614,9 @@ class TestSubjectAddCommand(TemareCommand):
         """
         subjectops = dbops.TestSubjects()
         subjectops.add(args)
-        sys.stdout.write("Inserted subject but did not activate it. Use subjectstate to activate.\n")
-
+        sys.stdout.write(
+                'The subject was added, but not yet activated.\n'
+                'Use the subjectstate command to activate it.\n')
 
 
 class TestSubjectDelCommand(TemareCommand):
@@ -635,7 +637,6 @@ class TestSubjectDelCommand(TemareCommand):
         """
         subjectops = dbops.TestSubjects()
         subjectops.delete(args)
-
 
 
 class TestSubjectStateCommand(TemareCommand):
@@ -753,6 +754,7 @@ class VersionCommand(TemareCommand):
         chk_arg_count(args, 0)
         sys.stdout.write('temare %s\n' % (version.__version__, ))
 
+
 class CompletionAddCommand(TemareCommand):
     """Add a new operting system type
     """
@@ -811,6 +813,7 @@ class CompletionListCommand(TemareCommand):
         listing = compops.list()
         ordering = ['subject_name', 'key', 'value']
         do_list(listing, ordering)
+
 
 class CompletionGetCommand(TemareCommand):
     """Display a list of all completions for one subject
