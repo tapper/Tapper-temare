@@ -803,11 +803,14 @@ class Completions(DatabaseEntity):
                 SELECT key, value FROM completions
                 WHERE subject_name=? AND key=?''', (subjectname, key))
         if self.cursor.fetchone() != None:
-            sys.stderr.write('Key "%s" already exists for subject "%s". I will update it' % (key, subjectname))
             self.cursor.execute('''
                     UPDATE completions SET value=?
                     WHERE subject_name=? AND key=?''',
                     (value, subject_name, key))
+            sys.stderr.write(
+                    ('Key "%s" already existed for subject "%s".\n' +
+                    'The key got updated with the new value.\n') %
+                    (key, subjectname))
         else:
             self.cursor.execute('''
                     INSERT INTO completions(subject_name, key, value)
