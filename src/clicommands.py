@@ -343,12 +343,10 @@ class HostListCommand(TemareCommand):
         self.summary = 'Get a list of all hosts and their current state'
 
     def do_command(self, args):
-        """Validate the number of given arguments and
-           print a list of all hosts and their properties
+        """Print a list of all hosts and their properties
         """
-        chk_arg_count(args, 0)
         hostops = dbops.Hosts()
-        listing = hostops.list()
+        listing = hostops.list(args)
         ordering = ['host_name', 'host_memory', 'host_cores',
                 'is_64bit', 'is_enabled']
         do_list(listing, ordering)
@@ -428,12 +426,10 @@ class ImageListCommand(TemareCommand):
         self.summary = 'Get a list of all images and their current state'
 
     def do_command(self, args):
-        """Validate the number of given arguments and
-           print a list of all guest images and their current state
+        """Print a list of all guest images and their current state
         """
-        chk_arg_count(args, 0)
         imageops = dbops.Images()
-        listing = imageops.list()
+        listing = imageops.list(args)
         ordering = ['image_name', 'image_format', 'vendor_name', 'os_type_name',
                 'is_64bit', 'is_bigmem', 'is_smp', 'is_enabled']
         do_list(listing, ordering)
@@ -487,12 +483,10 @@ class OsListCommand(TemareCommand):
         self.summary = 'Get a list of all operating system types'
 
     def do_command(self, args):
-        """Validate the number of given arguments and
-           print a list of all operating system types
+        """Print a list of all operating system types
         """
-        chk_arg_count(args, 0)
         ostypeops = dbops.OsTypes()
-        listing = ostypeops.list()
+        listing = ostypeops.list(args)
         ordering = ['os_type_name']
         do_list(listing, ordering)
 
@@ -550,12 +544,10 @@ class TestListCommand(TemareCommand):
         self.summary = 'Get a list of all tests'
 
     def do_command(self, args):
-        """Validate the number of given arguments and
-           print a list of all test programs and their targeted OS
+        """Print a list of all test programs and their targeted OS
         """
-        chk_arg_count(args, 0)
         testops = dbops.Tests()
-        listing = testops.list()
+        listing = testops.list(args)
         ordering = ['test_name', 'os_type_name',
                 'test_command', 'runtime', 'timeout']
         do_list(listing, ordering)
@@ -670,12 +662,10 @@ class TestSubjectListCommand(TemareCommand):
                 'Get a list of all test subjects and their current state'
 
     def do_command(self, args):
-        """Validate the number of given arguments and
-           print a list of all test subjects and their current state
+        """Print a list of all test subjects and their current state
         """
-        chk_arg_count(args, 0)
         subjectops = dbops.TestSubjects()
-        listing = subjectops.list()
+        listing = subjectops.list(args)
         ordering = ['subject_name', 'is_64bit', 'is_enabled']
         do_list(listing, ordering)
 
@@ -728,12 +718,10 @@ class VendorListCommand(TemareCommand):
         self.summary = 'Get a list of all vendors'
 
     def do_command(self, args):
-        """Validate the number of given arguments and
-           print a list of all OS vendors
+        """Print a list of all OS vendors
         """
-        chk_arg_count(args, 0)
         vendorops = dbops.Vendors()
-        listing = vendorops.list()
+        listing = vendorops.list(args)
         ordering = ['vendor_name']
         do_list(listing, ordering)
 

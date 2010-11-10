@@ -131,7 +131,7 @@ class DatabaseEntity:
         """
         pass
 
-    def list(self):
+    def list(self, args):
         """Return a list of all items
         """
         raise NotImplementedError
@@ -264,12 +264,13 @@ class Hosts(DatabaseEntity):
                 WHERE host_id=?''', (bitness, hostid))
         self.connection.commit()
 
-    def list(self):
+    def list(self, args):
         """Return a list of all hosts and their properties.
 
         Returns:
             A tuple of dictionaries containing pairs of column name and value
         """
+        checks.chk_arg_count(args, 0)
         self.cursor.execute('''
                 SELECT host_name, host_memory, host_cores,
                        is_64bit, is_enabled
@@ -386,12 +387,13 @@ class Images(DatabaseEntity):
                 WHERE image_name=?''', (state, imagename))
         self.connection.commit()
 
-    def list(self):
+    def list(self, args):
         """Return a list of all guest images and their properties.
 
         Returns:
             A tuple of dictionaries containing pairs of column name and value
         """
+        checks.chk_arg_count(args, 0)
         self.cursor.execute('''
                 SELECT image_name, image_format, vendor_name, os_type_name,
                        is_64bit, is_bigmem, is_smp, is_enabled
@@ -460,12 +462,13 @@ class OsTypes(DatabaseEntity):
         self.cursor.execute('DELETE FROM os_type WHERE os_type_id=?', ostypeid)
         self.connection.commit()
 
-    def list(self):
+    def list(self, args):
         """Return a list of all operating system types.
 
         Returns:
             A tuple of dictionaries containing pairs of column name and value
         """
+        checks.chk_arg_count(args, 0)
         self.cursor.execute('''
                 SELECT os_type_name FROM os_type ORDER BY os_type_name''')
         return fetchassoc(self.cursor)
@@ -552,12 +555,13 @@ class Tests(DatabaseEntity):
         self.cursor.execute('DELETE FROM test WHERE test_id=?', testid)
         self.connection.commit()
 
-    def list(self):
+    def list(self, args):
         """Return a list of all test programs.
 
         Returns:
             A tuple of dictionaries containing pairs of column name and value
         """
+        checks.chk_arg_count(args, 0)
         self.cursor.execute('''
                 SELECT test_name, os_type_name, test_command, runtime, timeout
                 FROM test
@@ -649,12 +653,13 @@ class TestSubjects(DatabaseEntity):
                 (state, subject, bitness))
         self.connection.commit()
 
-    def list(self):
+    def list(self, args):
         """Return a list of all test subjects and their properties.
 
         Returns:
             A tuple of dictionaries containing pairs of column name and value
         """
+        checks.chk_arg_count(args, 0)
         self.cursor.execute('''
                 SELECT subject_name, is_64bit, is_enabled
                 FROM subject ORDER BY subject_name''')
@@ -718,12 +723,13 @@ class Vendors(DatabaseEntity):
         self.cursor.execute('DELETE FROM vendor WHERE vendor_id=?', vendorid)
         self.connection.commit()
 
-    def list(self):
+    def list(self, args):
         """Return a list of all vendors.
 
         Returns:
             A tuple of dictionaries containing pairs of column name and value
         """
+        checks.chk_arg_count(args, 0)
         self.cursor.execute('''
                 SELECT vendor_name FROM vendor ORDER BY vendor_name''')
         return fetchassoc(self.cursor)
