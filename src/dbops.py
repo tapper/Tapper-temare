@@ -69,9 +69,9 @@ def init_database():
                     is_done         INTEGER DEFAULT 0)''',
             # Autoinstall uses a template and a number of key-value pairs for
             # its primary precondition. This table contains the key-value pairs.
-            '''CREATE TABLE IF NOT EXISTS completions (
-                    completions_id  INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                    subject_name    INTEGER NOT NULL,
+            '''CREATE TABLE IF NOT EXISTS completion (
+                    completion_id  INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    subject_id      INTEGER NOT NULL,
                     key             TEXT,
                     value           TEXT)''']
     try:
@@ -621,6 +621,8 @@ class TestSubjects(DatabaseEntity):
         self.cursor.execute('''
                 DELETE FROM subject_schedule WHERE subject_id=?''', subjectid)
         self.cursor.execute('''
+                DELETE FROM completion WHERE subject_id=?''', subjectid)
+        self.cursor.execute('''
                 DELETE FROM subject WHERE subject_id=?''', subjectid)
         self.connection.commit()
 
@@ -735,84 +737,113 @@ class Completions(DatabaseEntity):
     """
 
     def add(self, args):
-        """Add a completion for given subjectname
+        """Add a completion for given subject.
 
         Arguments:
-            subjectname -- Name of the subject this entry applies to
+            subject     -- Name of the test subject this entry applies to
+            bitness     -- Bitness of the test subject (0 = 32-bit, 1 = 64-bit)
             key         -- String that is present in the template
-            timeout     -- Substitution for key
+            value       -- Substitution for key
         """
-        checks.chk_arg_count(args, 3)
-        subjectname, key, value = args
-        subjectname = checks.chk_subject(subjectname)
+        checks.chk_arg_count(args, 4)
+        subject, bitness, key, value = args
+        subject = checks.chk_subject(subject)
+        bitness = checks.chk_bitness(bitness)
         self.cursor.execute('''
                 SELECT subject_id FROM subject
-                WHERE subject_name=?''', (subjectname, ))
+                WHERE subject_name=? AND is_64bit=?''',
+                (subject, bitness))
         row = self.cursor.fetchone()
         if row == None:
-            raise ValueError('Subject "%s" not found .' % (subjectname, ))
+            raise ValueError('No such test subject.')
+        subjectid = row[0]
         self.cursor.execute('''
-                SELECT key, value FROM completions
-                WHERE subject_name=? AND key=?''', (subjectname, key))
+                SELECT key, value FROM completion
+                WHERE subject_id=? AND key=?''', (subjectid, key))
         if self.cursor.fetchone() != None:
             self.cursor.execute('''
-                    UPDATE completions SET value=?
-                    WHERE subject_name=? AND key=?''',
-                    (value, subjectname, key))
+                    UPDATE completion SET value=?
+                    WHERE subject_id=? AND key=?''',
+                    (value, subjectid, key))
             sys.stderr.write(
                     ('Key "%s" already existed for subject "%s".\n' +
                     'The key got updated with the new value.\n') %
-                    (key, subjectname))
+                    (key, subject))
         else:
             self.cursor.execute('''
-                    INSERT INTO completions(subject_name, key, value)
+                    INSERT INTO completion(subject_id, key, value)
                     VALUES (?,?,?)''',
-                    (subjectname, key, value))
+                    (subjectid, key, value))
         self.connection.commit()
 
     def delete(self, args):
-        """Remove a given key for a given subject
+        """Remove a given key for a given subject.
 
         Arguments:
-            subjectname -- Name of the subject this entry applies to
+            subject     -- Name of the subject this entry applies to
+            bitness     -- Bitness of the test subject (0 = 32-bit, 1 = 64-bit)
             key         -- Key to delete
         """
-        checks.chk_arg_count(args, 2)
-        subjectname, key = args
-        subjectname = checks.chk_subject(subjectname)
+        checks.chk_arg_count(args, 3)
+        subject, bitness, key = args
+        subject = checks.chk_subject(subject)
+        bitness = checks.chk_bitness(bitness)
         self.cursor.execute('''
-                SELECT completions_id FROM completions
-                WHERE subject_name=? AND key=?''',
-                (subjectname, key))
+                SELECT subject_id FROM subject
+                WHERE subject_name=? AND is_64bit=?''',
+                (subject, bitness))
+        row = self.cursor.fetchone()
+        if row == None:
+            raise ValueError('No such test subject.')
+        subjectid = row[0]
+        self.cursor.execute('''
+                SELECT completion_id FROM completion
+                WHERE subject_id=? AND key=?''',
+                (subjectid, key))
         result = self.cursor.fetchall()
         if result != None:
             self.cursor.execute('''
-                    DELETE FROM completions
-                    WHERE subject_name=? AND key=?''',
-                    (subjectname, key))
+                    DELETE FROM completion
+                    WHERE subject_id=? AND key=?''',
+                    (subjectid, key))
             self.connection.commit()
 
-    def get(self, subjectname):
-        """Get all key/values pairs for one subject
+    def get(self, args):
+        """Get all key/values pairs for one subject.
+
+        Arguments:
+            subject     -- Name of the subject this entry applies to
+            bitness     -- Bitness of the test subject (0 = 32-bit, 1 = 64-bit)
 
         Returns:
-            One string
+            A tuple of dictionaries containing pairs of column name and value
         """
-        subjectname = checks.chk_subject(subjectname)
+        checks.chk_arg_count(args, 2)
+        subject, bitness = args
+        subject = checks.chk_subject(subject)
+        bitness = checks.chk_bitness(bitness)
         self.cursor.execute('''
-                SELECT key, value FROM completions
-                WHERE subject_name=? ORDER BY key''',
-                (subjectname,))
+                SELECT subject_id FROM subject
+                WHERE subject_name=? AND is_64bit=?''',
+                (subject, bitness))
+        subjectid = self.cursor.fetchone()
+        if subjectid == None:
+            raise ValueError('No such test subject.')
+        self.cursor.execute('''
+                SELECT key, value FROM completion
+                WHERE subject_id=? ORDER BY key''',
+                subjectid)
         return fetchassoc(self.cursor)
 
     def list(self):
         """Return a list of all completions.
 
         Returns:
-            Tuples containing subjectname, key, value
+            A tuple of dictionaries containing pairs of column name and value
         """
         self.cursor.execute('''
-                SELECT subject_name, key, value FROM completions
+                SELECT subject_name, is_64bit, key, value FROM completion
+                LEFT JOIN subject ON subject.subject_id=completion.subject_id
                 ORDER BY subject_name''')
         return fetchassoc(self.cursor)
 

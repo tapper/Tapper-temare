@@ -163,5 +163,11 @@ cursor.execute('''INSERT INTO subject_schedule (subject_id, test_id, image_id)
                   LEFT JOIN image
                   LEFT JOIN test ON test.os_type_id=image.os_type_id''')
 
+cursor.execute('''CREATE TABLE completion(
+                    completion_id  INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    subject_id     INTEGER NOT NULL,
+                    key            TEXT,
+                    value          TEXT)''')
+
 connection.commit()
 cursor.close()

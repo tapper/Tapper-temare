@@ -444,7 +444,9 @@ class SubjectPreparation():
         # * Stubborn data structure returned from dbops.Completions().get()
         substitutions = {}
         compops = dbops.Completions()
-        for line in compops.get(self.testrun.subject['name']):
+        subject = self.testrun.subject['name']
+        bitness = ("32", "64")[self.testrun.subject['bitness']]
+        for line in compops.get((subject, bitness)):
             substitutions[line['key']] = line['value']
         options['template'] = options['template'].safe_substitute(substitutions)
         # FIXME end

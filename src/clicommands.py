@@ -135,7 +135,7 @@ class HelpCommand(TemareCommand):
         """
         summaries = []
         for name, cmd in self.base.commands.iteritems():
-            summaries.append('    %-12s  %s\n' % (name, cmd.get_summary()))
+            summaries.append('    %-14s  %s\n' % (name, cmd.get_summary()))
         summaries.sort()
         sys.stdout.write('Usage: %s COMMAND ARGUMENTS...\n\n' \
                 'Available commands:\n' % (self.base.scriptname, ))
@@ -762,12 +762,13 @@ class CompletionAddCommand(TemareCommand):
     def __init__(self, base):
         TemareCommand.__init__(self, base)
         self.names = ['completionadd']
-        self.usage = 'SUBJECTNAME KEY VALUE'
+        self.usage = 'SUBJECT BITNESS KEY VALUE'
         self.summary = 'Add a new completion entry'
         self.description = \
-            '    SUBJECTNAME  Name of the subject this entry applies to' \
-            '    KEY          Name of the variable as present in the template' \
-            '    VALUE        Subtitution for the key'
+            '    SUBJECT  Name of the test subject\n' \
+            '    BITNESS  Bitness of the test subject\n' \
+            '    KEY      Name of the variable\n' \
+            '    VALUE    Subtitution for the key'
 
     def do_command(self, args):
         """Add completion to the database
@@ -783,11 +784,12 @@ class CompletionDelCommand(TemareCommand):
     def __init__(self, base):
         TemareCommand.__init__(self, base)
         self.names = ['completiondel']
-        self.usage = 'SUBJECTNAME KEY'
+        self.usage = 'SUBJECT BITNESS KEY'
         self.summary = 'Delete an existing completion entry'
         self.description = \
-            '    SUBJECTNAME  Name of the subject this entry applies to' \
-            '    KEY          Name of the variable as present in the template'
+            '    SUBJECT  Name of the test subject\n' \
+            '    BITNESS  Bitness of the test subject\n' \
+            '    KEY      Name of the variable as present in the template'
 
     def do_command(self, args):
         """Remove an OS type from the database
@@ -811,7 +813,7 @@ class CompletionListCommand(TemareCommand):
         chk_arg_count(args, 0)
         compops = dbops.Completions()
         listing = compops.list()
-        ordering = ['subject_name', 'key', 'value']
+        ordering = ['subject_name', 'is_64bit', 'key', 'value']
         do_list(listing, ordering)
 
 
@@ -822,17 +824,17 @@ class CompletionGetCommand(TemareCommand):
     def __init__(self, base):
         TemareCommand.__init__(self, base)
         self.names = ['completionget']
-        self.usage = 'SUBJECTNAME'
+        self.usage = 'SUBJECT BITNESS'
         self.summary = 'Get all key/value pairs for one subject'
         self.description = \
-            '    SUBJECTNAME  Name of the subject this entry applies to' 
+            '    SUBJECT  Name of the test subject\n' \
+            '    BITNESS  Bitness of the test subject'
 
     def do_command(self, args):
         """Validate the number of given arguments and
            print a list of all operating system types
         """
-        chk_arg_count(args, 1)
         compops = dbops.Completions()
-        listing = compops.get(args[0])
+        listing = compops.get(args)
         ordering = ['key', 'value']
         do_list(listing, ordering)
