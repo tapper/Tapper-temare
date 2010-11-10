@@ -756,7 +756,7 @@ class VersionCommand(TemareCommand):
 
 
 class CompletionAddCommand(TemareCommand):
-    """Add a new operting system type
+    """Add a new completion entry
     """
 
     def __init__(self, base):
@@ -771,7 +771,7 @@ class CompletionAddCommand(TemareCommand):
             '    VALUE    Subtitution for the key'
 
     def do_command(self, args):
-        """Add completion to the database
+        """Add a completion entry to the database
         """
         compops = dbops.Completions()
         compops.add(args)
@@ -792,14 +792,14 @@ class CompletionDelCommand(TemareCommand):
             '    KEY      Name of the variable as present in the template'
 
     def do_command(self, args):
-        """Remove an OS type from the database
+        """Remove a completion entry from the database
         """
         compops = dbops.Completions()
         compops.delete(args)
 
 
 class CompletionListCommand(TemareCommand):
-    """Display a list of all operating system types
+    """Display a list of all completion entries
     """
 
     def __init__(self, base):
@@ -808,7 +808,8 @@ class CompletionListCommand(TemareCommand):
         self.summary = 'Get a list of all completions for all subjects'
 
     def do_command(self, args):
-        """Print a list of all completions for all subjects
+        """Validate the number of given arguments and
+           print a list of all completion entries for all subjects
         """
         chk_arg_count(args, 0)
         compops = dbops.Completions()
@@ -818,7 +819,7 @@ class CompletionListCommand(TemareCommand):
 
 
 class CompletionGetCommand(TemareCommand):
-    """Display a list of all completions for one subject
+    """Display a list of all completion entries for a specific subject
     """
 
     def __init__(self, base):
@@ -831,8 +832,7 @@ class CompletionGetCommand(TemareCommand):
             '    BITNESS  Bitness of the test subject'
 
     def do_command(self, args):
-        """Validate the number of given arguments and
-           print a list of all operating system types
+        """Print a list of all completion entries for a specific subject
         """
         compops = dbops.Completions()
         listing = compops.get(args)
