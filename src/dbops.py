@@ -808,43 +808,37 @@ class Completions(DatabaseEntity):
                     (subjectid, key))
             self.connection.commit()
 
-    def get(self, args):
-        """Get all key/values pairs for one subject.
+    def list(self, args):
+        """Return a list of all completions.
 
-        Arguments:
+        Arguments (optional):
             subject     -- Name of the subject this entry applies to
             bitness     -- Bitness of the test subject (0 = 32-bit, 1 = 64-bit)
 
         Returns:
             A tuple of dictionaries containing pairs of column name and value
         """
-        checks.chk_arg_count(args, 2)
-        subject, bitness = args
-        subject = checks.chk_subject(subject)
-        bitness = checks.chk_bitness(bitness)
-        self.cursor.execute('''
-                SELECT subject_id FROM subject
-                WHERE subject_name=? AND is_64bit=?''',
-                (subject, bitness))
-        subjectid = self.cursor.fetchone()
-        if subjectid == None:
-            raise ValueError('No such test subject.')
-        self.cursor.execute('''
-                SELECT key, value FROM completion
-                WHERE subject_id=? ORDER BY key''',
-                subjectid)
-        return fetchassoc(self.cursor)
-
-    def list(self):
-        """Return a list of all completions.
-
-        Returns:
-            A tuple of dictionaries containing pairs of column name and value
-        """
-        self.cursor.execute('''
+        query = '''
                 SELECT subject_name, is_64bit, key, value FROM completion
                 LEFT JOIN subject ON subject.subject_id=completion.subject_id
-                ORDER BY subject_name''')
+                %s'''
+        if len(args) == 0:
+            self.cursor.execute(query % ('ORDER BY subject_name', ))
+        elif len(args) == 2:
+            subject, bitness = args
+            subject = checks.chk_subject(subject)
+            bitness = checks.chk_bitness(bitness)
+            self.cursor.execute('''
+                    SELECT subject_id FROM subject
+                    WHERE subject_name=? AND is_64bit=?''',
+                    (subject, bitness))
+            subjectid = self.cursor.fetchone()
+            if subjectid == None:
+                raise ValueError('No such test subject.')
+            query = query % ('WHERE completion.subject_id=?', )
+            self.cursor.execute(query, subjectid)
+        else:
+            raise ValueError('Wrong number of arguments.')
         return fetchassoc(self.cursor)
 
 

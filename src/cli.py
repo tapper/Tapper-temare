@@ -43,7 +43,6 @@ class TemareCli:
         self.add_command(clicommands.CompletionAddCommand(self))
         self.add_command(clicommands.CompletionDelCommand(self))
         self.add_command(clicommands.CompletionListCommand(self))
-        self.add_command(clicommands.CompletionGetCommand(self))
         self.scriptname = basename(args[0])
         self.args = args[1:]
         self.run_command()

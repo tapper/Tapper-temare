@@ -805,36 +805,17 @@ class CompletionListCommand(TemareCommand):
     def __init__(self, base):
         TemareCommand.__init__(self, base)
         self.names = ['completionlist']
-        self.summary = 'Get a list of all completions for all subjects'
-
-    def do_command(self, args):
-        """Validate the number of given arguments and
-           print a list of all completion entries for all subjects
-        """
-        chk_arg_count(args, 0)
-        compops = dbops.Completions()
-        listing = compops.list()
-        ordering = ['subject_name', 'is_64bit', 'key', 'value']
-        do_list(listing, ordering)
-
-
-class CompletionGetCommand(TemareCommand):
-    """Display a list of all completion entries for a specific subject
-    """
-
-    def __init__(self, base):
-        TemareCommand.__init__(self, base)
-        self.names = ['completionget']
-        self.usage = 'SUBJECT BITNESS'
-        self.summary = 'Get all key/value pairs for one subject'
+        self.usage = '[SUBJECT BITNESS]'
+        self.summary = 'List completions for a specific or for all subjects'
         self.description = \
-            '    SUBJECT  Name of the test subject\n' \
-            '    BITNESS  Bitness of the test subject'
+            '    SUBJECT  Name of the test subject    (optional)\n' \
+            '    BITNESS  Bitness of the test subject (optional)\n'
 
     def do_command(self, args):
-        """Print a list of all completion entries for a specific subject
+        """Print a list of all completion entries for all subjects,
+           or optionally for one specific subject
         """
         compops = dbops.Completions()
-        listing = compops.get(args)
-        ordering = ['key', 'value']
+        listing = compops.list(args)
+        ordering = ['subject_name', 'is_64bit', 'key', 'value']
         do_list(listing, ordering)
