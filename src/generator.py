@@ -6,7 +6,7 @@ import sqlite3
 import checks
 import random
 from socket import gethostbyname
-from config import dbpath, grubvalues
+from config import dbpath
 
 
 class TestRunGenerator():
@@ -65,8 +65,9 @@ class TestRunGenerator():
     def __init__(self, hostname, auto=False, subject=False, bitness=False):
         self.host = {'id': None, 'name': None, 'ip': None}
         self.subject = {
-                'id': None, 'name': None, 'bitness': None,
-                'completion': grubvalues.copy()}
+                'id': None, 'name': None, 'bitness': None, 'completion': {}}
+        for key in checks.grubvalues.keys():
+            self.subject['completion'][key] = ''
         self.resources = {
                 'memory': 0, 'cores': 0, 'bitness': 0, 'lastvendor': 0}
         self.tests = []

@@ -3,7 +3,8 @@
 """Functions for doing basic sanity checks on input values.
 """
 import re
-from os.path import normpath
+import os.path
+import urlparse
 from config import minmem, maxmem, mincores, maxcores, formats
 
 
@@ -103,7 +104,7 @@ def chk_imagename(imagename):
         raise ValueError(
                 'Invalid guest image filename.\n'
                 'The length is limited to 255 characters.')
-    if normpath(imagename) != imagename:
+    if os.path.normpath(imagename) != imagename:
         raise ValueError('Invalid guest image filename.')
     return imagename
 
@@ -182,20 +183,29 @@ def chk_subject(subject):
     """Check input value for the test subject name
        Must match regexp ^[A-Za-z][A-Za-z0-9_\-\.]*$
        Length limited to 64 characters
+       Must start with xen, kvm, autoinstall-xen, or autoinstall-kvm
+       Must contain sles, rhel, opensuse, or fedora if it is autoinstall
        @return: test subject name as string
     """
     subject = str(subject)
-    subjects = ('xen', 'kvm', 'autoinstall')
-    if not re.match('^(%s)' % ('|'.join(subjects), ), subject):
-        raise ValueError(
-                'Invalid test subject name.\n'
-                'Possible subjects start with %s.' % (', '.join(subjects), ))
     if re.match('^[A-Za-z][A-Za-z0-9_\-\.]*$', subject) == None:
         raise ValueError('Invalid test subject name.')
     if len(subject) > 64:
         raise ValueError(
                 'Invalid test subject name.\n'
                 'The length is limited to 64 characters.')
+    subjects = ('xen', 'kvm', 'autoinstall-xen', 'autoinstall-kvm')
+    if not re.match('^(%s)' % ('|'.join(subjects), ), subject):
+        raise ValueError(
+                'Invalid test subject name.\n'
+                'Possible subjects start with %s.' % (', '.join(subjects), ))
+    if subject.startswith('autoinstall'):
+        subjects = ('sles', 'rhel', 'fedora', 'opensuse')
+        if not re.search('|'.join(subjects), subject):
+            raise ValueError(
+                    'Invalid test subject name.\n'
+                    'Autoinstall subjects must contain one of the following '
+                    'substrings:\n%s' % (', '.join(subjects), ))
     return subject
 
 
@@ -213,7 +223,7 @@ def chk_testcommand(testcommand):
         raise ValueError(
                 'Invalid test command filename "%s".\n'
                 'The length is limited to 255 characters.' % (testcommand, ))
-    if normpath(testcommand) != testcommand:
+    if os.path.normpath(testcommand) != testcommand:
         raise ValueError('Path to test command file is not normalized.')
     return testcommand
 
@@ -248,3 +258,69 @@ def chk_vendor(vendor):
                 'Invalid name for a vendor.\n'
                 'The length is limited to 32 characters.')
     return vendor
+
+
+def chk_grubkey(key):
+    """Check input value for a GRUB template key
+       Valid keys must be keys of the dictionary config.grubvalues
+       @return: GRUB template key as string
+    """
+    key = str(key)
+    if key not in grubvalues.keys():
+        raise ValueError('Unknown GRUB template key "%s".' % (key, ))
+    return key
+
+
+def chk_abspath(path):
+    """Basic validity check of a given path
+       Needs to be an absolute path and must not contain any whitespaces
+       @return: path as string
+    """
+    path = str(path).rstrip('/')
+    if not path or path != os.path.abspath(path) or re.search('\s', path):
+        raise ValueError(
+                'Invalid path "%s".\n'
+                'Only absolute paths without whitespaces are allowed.' %
+                (path, ))
+    return path
+
+
+def chk_url(url):
+    """Basic validity check of a given URL
+       @return: URL as string
+    """
+    url = str(url)
+    fragments = urlparse.urlparse(url)
+    if fragments.scheme not in ('ftp', 'http'):
+        raise ValueError(
+                'Invalid URL "%s".\n'
+                'Only ftp:// or http:// are allowed.' % (url, ))
+    try:
+        for domain in fragments.netloc.split('.'):
+            chk_hostname(domain)
+    except ValueError:
+        raise ValueError(
+                'Invalid URL "%s".\n'
+                'The hostname part contains invalid characters.' % (url, ))
+    try:
+        chk_abspath(fragments.path)
+    except ValueError:
+        print fragments.path
+        raise ValueError(
+                'Invalid URL "%s".\n'
+                'The path portion is not an absolute path or '
+                'contains whitespaces.' % (url, ))
+    if fragments.params or fragments.query or fragments.fragment:
+        raise ValueError(
+                'Invalid URL "%s".\n'
+                'The URL must not contain any parameters, queries, or other '
+                'supplemental fragments.' % (url, ))
+    return url
+
+
+# GRUB template substitution keys and their input check functions
+# This dictionary can't be put into the config module, because it
+# would create a circular dependency
+grubvalues = {
+        'kernel': chk_abspath, 'initrd': chk_abspath,
+        'ks_file': chk_url, 'install': chk_url}

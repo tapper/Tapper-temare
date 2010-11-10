@@ -749,6 +749,8 @@ class Completions(DatabaseEntity):
         subject, bitness, key, value = args
         subject = checks.chk_subject(subject)
         bitness = checks.chk_bitness(bitness)
+        key = checks.chk_grubkey(key)
+        value = checks.grubvalues[key](value)
         self.cursor.execute('''
                 SELECT subject_id FROM subject
                 WHERE subject_name=? AND is_64bit=?''',
@@ -788,6 +790,7 @@ class Completions(DatabaseEntity):
         subject, bitness, key = args
         subject = checks.chk_subject(subject)
         bitness = checks.chk_bitness(bitness)
+        key = checks.chk_grubkey(key)
         self.cursor.execute('''
                 SELECT subject_id FROM subject
                 WHERE subject_name=? AND is_64bit=?''',

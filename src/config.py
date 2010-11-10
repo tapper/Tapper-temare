@@ -147,12 +147,13 @@ builddir = '%s/packages/xen/builds/%%s/%%s' % (artemisrepo, )
 # Architecture portion of the build path (0 = 32-bit, 1 = 64-bit)
 buildarchs = {0: 'i686', 1: 'x86_64'}
 
-
 # Filename pattern for unpatched builds
 buildpattern = '^%s\.[0-9]{4}-[0-9]{2}-[0-9]{2}\.[0-9a-f_]+\.%s\.tgz$'
 
 # GRUB templates for automatic installation through Kickstart or AutoYAST
-grubvalues = {'kernel': '', 'initrd': '', 'ks_file': '', 'install': ''}
+#
+# Note:
+# New substitution keys need to be added to checks.grubvalues, too
 grubtemplates = {
         'redhat' : '''timeout 2
 
