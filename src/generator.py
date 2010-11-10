@@ -6,7 +6,7 @@ import sqlite3
 import checks
 import random
 from socket import gethostbyname
-from config import dbpath
+from config import dbpath, grubvalues
 
 
 class TestRunGenerator():
@@ -33,6 +33,8 @@ class TestRunGenerator():
         'id'            -- Database ID of the test subject   (integer)
         'name'          -- Name of the test subject          (string)
         'bitness'       -- Bitness of the test subject       (0|1)
+        'completion'    -- Set of substitions for the
+                           autoinstall GRUB template         (dictionary)
 
         TestRunGenerator.tests
                 List of dictionaries with the following items:
@@ -62,9 +64,11 @@ class TestRunGenerator():
 
     def __init__(self, hostname, auto=False, subject=False, bitness=False):
         self.host = {'id': None, 'name': None, 'ip': None}
-        self.subject = {'id': None, 'name': None, 'bitness': None}
-        self.resources = \
-                {'memory': 0, 'cores': 0, 'bitness': 0, 'lastvendor': 0}
+        self.subject = {
+                'id': None, 'name': None, 'bitness': None,
+                'completion': grubvalues.copy()}
+        self.resources = {
+                'memory': 0, 'cores': 0, 'bitness': 0, 'lastvendor': 0}
         self.tests = []
         self.connection = sqlite3.connect(dbpath)
         self.cursor = self.connection.cursor()
@@ -149,6 +153,12 @@ class TestRunGenerator():
                 self.resources['lastvendor'],   \
                 self.resources['bitness'] = result
         self.subject['bitness'] = self.resources['bitness']
+        self.cursor.execute('''
+                SELECT key, value FROM completion WHERE subject_id=?''',
+                (self.subject['id'], ))
+        result = self.cursor.fetchall()
+        for key, value in result:
+            self.subject['completion'][key] = value
 
     def get_vendor(self):
         """Find the next vendor with possible guest images from the schedule

@@ -15,15 +15,13 @@ import re
 import threading
 import generator
 import time
-import dbops
 from subprocess import Popen, PIPE, STDOUT
-from string import Template
 from os.path import basename
 from checks import chk_hostname, chk_subject
 from config import kvm, svm, formats, cfgscript, copyscript,        \
                    osimage, svmpath, nfshost, suiteimage,           \
                    builddir, buildarchs, buildpattern, imagepath,   \
-                   tstimeout, kvmexecpath, templates
+                   tstimeout, kvmexecpath, grubtemplates
 
 
 class BasePreparation(threading.Thread):
@@ -435,22 +433,13 @@ class SubjectPreparation():
         options = {}
         subject = self.testrun.subject['name'].lower()
         if re.search('sles|opensuse', subject):
-            options['template'] = Template(templates['suse'])
+            grubmenu = grubtemplates['suse']
         elif re.search('redhat|rhel|fedora', subject):
-            options['template'] = Template(templates['redhat'])
-
-        # FIXME:
-        # * String module deprecated, use built-in templating
-        # * Stubborn data structure returned from dbops.Completions().get()
-        substitutions = {}
-        compops = dbops.Completions()
-        subject = self.testrun.subject['name']
-        bitness = ("32", "64")[self.testrun.subject['bitness']]
-        for line in compops.get((subject, bitness)):
-            substitutions[line['key']] = line['value']
-        options['template'] = options['template'].safe_substitute(substitutions)
-        # FIXME end
-
+            grubmenu = grubtemplates['redhat']
+        else:
+            message = 'No GRUB template defined for subject "%s"'
+            raise ValueError(message % (self.testrun.subject['name'], ))
+        options['template'] = grubmenu % self.testrun.subject['completion']
         options['testprogram'] = '/opt/artemis/bin/metainfo'
 
         precondition = {

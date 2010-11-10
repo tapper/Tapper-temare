@@ -152,16 +152,20 @@ buildarchs = {0: 'i686', 1: 'x86_64'}
 buildpattern = '^%s\.[0-9]{4}-[0-9]{2}-[0-9]{2}\.[0-9a-f_]+\.%s\.tgz$'
 
 # GRUB templates for automatic installation through Kickstart or AutoYAST
-templates = {'redhat' : '''   timeout 2
+grubvalues = {'kernel': '', 'initrd': '', 'ks_file': '', 'install': ''}
+grubtemplates = {
+        'redhat' : '''timeout 2
 
-   title RedHat Testing
-   kernel $kernel  console=ttyS0,115200 ks=$ks_file ksdevice=link $ARTEMIS_OPTIONS
-   initrd $initrd''',
-             'suse'    : '''   timeout 2
+title RedHat Testing
+kernel %(kernel)s ks=%(ks_file)s ksdevice=link console=ttyS0,115200 $ARTEMIS_OPTIONS
+initrd %(initrd)s
+''',
+        'suse'   : '''timeout 2
 
-   title SUSE Testing
-   kernel $kernel  console=ttyS0,115200 install=$install autoyast=$ks_file textmode=1 $ARTEMIS_OPTIONS
-   initrd $initrd''',}
+title SUSE Testing
+kernel %(kernel)s autoyast=%(ks_file)s install=%(install)s textmode=1 console=ttyS0,115200 $ARTEMIS_OPTIONS
+initrd %(initrd)s
+'''}
 
 if debug == True:
     dbpath = 'test-schedule.db'
