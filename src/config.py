@@ -130,10 +130,10 @@ osimage = {0: 'suse/suse_sles10_sp2_32b_smp_raw.tar.gz',
 artemisrepo = '%s/repository' % (artemisdir, )
 
 # Directory to put the generated svm files into
-svmpath = '%s/configs/xen' % (artemisrepo, )
+xencfgstore = '%s/configs/xen' % (artemisrepo, )
 
 # Directory to put the generated KVM start scripts into
-kvmexecpath = '%s/configs/kvm' % (artemisrepo, )
+kvmcfgstore = '%s/configs/kvm' % (artemisrepo, )
 
 # NFS path to guest image files
 imagepath = 'osko:/export/image_files/official_testing'
@@ -171,13 +171,13 @@ initrd %(initrd)s
 if debug == True:
     dbpath = 'test-schedule.db'
     nfshost = gethostname()
-    svmpath = 'debug/configs'
-    kvmexecpath = 'debug/configs'
+    xencfgstore = 'debug/configs'
+    kvmcfgstore = 'debug/configs'
     builddir = 'debug/builds/%s/%s'
 
 if os.environ.has_key('HARNESS_ACTIVE'):
     dbpath = 't/test-schedule.db'
     nfshost = gethostname()
-    svmpath = '/tmp/'
-    kvmexecpath = '/tmp/'
+    xencfgstore = '/tmp/'
+    kvmcfgstore = '/tmp/'
     builddir = 't/misc_files/builds/%s/%s'

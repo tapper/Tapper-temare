@@ -19,9 +19,9 @@ from subprocess import Popen, PIPE, STDOUT
 from os.path import basename
 from checks import chk_hostname, chk_subject
 from config import kvm, svm, formats, cfgscript, copyscript,        \
-                   osimage, svmpath, nfshost, suiteimage,           \
+                   osimage, xencfgstore, nfshost, suiteimage,       \
                    builddir, buildarchs, buildpattern, imagepath,   \
-                   tstimeout, kvmexecpath, grubtemplates
+                   tstimeout, kvmcfgstore, grubtemplates
 
 
 class BasePreparation(threading.Thread):
@@ -111,8 +111,8 @@ class XenHostPreparation(BasePreparation):
             self.do_command(copyscript % tuple([test['image']] * 4))
         self.stage = 'Starting guests'
         for test in self.testrun.tests:
-            svmfile = '%(runid)03d.svm' % test
-            self.do_command('/usr/sbin/xm create /xen/images/%s' % (svmfile, ))
+            cfgfile = '%(runid)03d.svm' % test
+            self.do_command('/usr/sbin/xm create /xen/images/%s' % (cfgfile, ))
         numguests = len(self.testrun.tests)
         self.testrun.do_finalize()
         sys.stdout.write(
@@ -267,7 +267,7 @@ class SubjectPreparation():
         """Write guest configuration files
 
         Guest configuration files get written into a directory which is
-        specified through config.svmpath or config.kvmexecpath.
+        specified through config.xencfgstore or config.kvmcfgstore.
         Naming convention is
 
             [0-9]{3}-${hostname}-${date +%s}.(svm|sh)
@@ -281,13 +281,13 @@ class SubjectPreparation():
             test['format'] = formats[test['format']]
             test['imgbasename'] = basename(test['image'])
             if self.testrun.subject['name'].startswith('xen'):
-                test['svmfile'] = '%s.svm' % (prefix, )
-                self.__write_config(test['svmfile'], svmpath, test, svm)
+                test['cfgfile'] = '%s.svm' % (prefix, )
+                self.__write_config(test['cfgfile'], xencfgstore, test, svm)
             elif self.testrun.subject['name'].startswith('kvm') \
                     or self.testrun.subject['name'].startswith('autoinstall'):
                 test['datadir'] = '/kvm'
-                test['kvmexec'] = '%s.sh' % (prefix, )
-                self.__write_config(test['kvmexec'], kvmexecpath, test, kvm)
+                test['cfgfile'] = '%s.sh' % (prefix, )
+                self.__write_config(test['cfgfile'], kvmcfgstore, test, kvm)
             else:
                 raise ValueError('Invalid test subject.')
 
@@ -360,8 +360,8 @@ class SubjectPreparation():
         guest_options['subject']            = self.testrun.subject['name']
         guest_options['imagefile']          = '%s/%s' % (imagepath, test['image'])
         guest_options['mountfile']          = '/xen/images/%s' % (test['mntfile'], )
-        guest_options['guest_start_source'] = '%s:%s/%s' % (nfshost, svmpath, test['svmfile'])
-        guest_options['guest_start_dest']   = '%s/%s' % ('/xen/images/', test['svmfile'])
+        guest_options['guest_start_source'] = '%s:%s/%s' % (nfshost, xencfgstore, test['cfgfile'])
+        guest_options['guest_start_dest']   = '%s/%s' % ('/xen/images/', test['cfgfile'])
         guest_options['used_timeout']       = tstimeout
         guest_options['used_runtime']       = tstimeout / 3
         guest_options['testcommand']        = test['testcommand']
@@ -465,8 +465,8 @@ class SubjectPreparation():
             guest_options['subject']            = self.testrun.subject['name']
             guest_options['imagefile']          = '%s/%s' % (imagepath, test['image'])
             guest_options['mountfile']          = '/kvm/images/%s' % (test['mntfile'], )
-            guest_options['guest_start_source'] = '%s:%s/%s' % (nfshost, kvmexecpath, test['kvmexec'])
-            guest_options['guest_start_dest']   = '/kvm/images/%s' % (test['kvmexec'], )
+            guest_options['guest_start_source'] = '%s:%s/%s' % (nfshost, kvmcfgstore, test['cfgfile'])
+            guest_options['guest_start_dest']   = '/kvm/images/%s' % (test['cfgfile'], )
             guest_options['used_timeout']       = tstimeout
             guest_options['used_runtime']       = tstimeout / 3
             guest_options['testcommand']        = test['testcommand']
@@ -556,8 +556,8 @@ initrd /tftpboot/stable/fedora/14/x86_64/initrd.img
             guest_options['subject']            = self.testrun.subject['name']
             guest_options['imagefile']          = '%s/%s' % (imagepath, test['image'])
             guest_options['mountfile']          = '/kvm/images/%s' % (test['mntfile'], )
-            guest_options['guest_start_source'] = '%s:%s/%s' % (nfshost, kvmexecpath, test['kvmexec'])
-            guest_options['guest_start_dest']   = '/kvm/images/%s' % (test['kvmexec'], )
+            guest_options['guest_start_source'] = '%s:%s/%s' % (nfshost, kvmcfgstore, test['cfgfile'])
+            guest_options['guest_start_dest']   = '/kvm/images/%s' % (test['cfgfile'], )
             guest_options['used_timeout']       = tstimeout
             guest_options['used_runtime']       = tstimeout / 3
             guest_options['testcommand']        = test['testcommand']
