@@ -494,6 +494,10 @@ class Tests(DatabaseEntity):
         testname = checks.chk_testname(testname)
         ostype = checks.chk_ostype(ostype)
         testcommand = checks.chk_testcommand(testcommand)
+        runtime = checks.chk_runtime(runtime)
+        timeout = checks.chk_timeout(timeout)
+        if runtime > timeout:
+            raise ValueError('Test suite runtime is greater than the timeout.')
         self.cursor.execute('''
                 SELECT os_type_id FROM os_type
                 WHERE os_type_name=?''', (ostype, ))

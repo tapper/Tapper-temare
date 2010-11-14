@@ -5,7 +5,7 @@
 import re
 import os.path
 import urlparse
-from config import minmem, maxmem, mincores, maxcores, formats
+from config import minmem, maxmem, mincores, maxcores, formats, tstimeout
 
 
 def chk_arg_count(args, count):
@@ -149,6 +149,22 @@ def chk_ostype(ostype):
     return ostype
 
 
+def chk_runtime(runtime):
+    """Check input value for test suite runtime
+       Must be a positive integer value
+       @return: timeout as integer
+    """
+    runtime = str(runtime)
+    if not runtime.isdigit():
+        raise ValueError(
+                'Invalid value for the test suite runtime.\n'
+                'Only positive integer values are allowed.')
+    runtime = int(runtime)
+    if runtime == 0:
+        runtime = tstimeout / 3
+    return runtime
+
+
 def chk_smp(smp):
     """Check and translate input value for SMP capability
        @return: 0 for single processor
@@ -242,6 +258,22 @@ def chk_testname(testname):
                 'Invalid name for a test program.\n'
                 'The length is limited to 32 characters.')
     return testname
+
+
+def chk_timeout(timeout):
+    """Check input value for test suite runtime
+       Must be a positive integer value
+       @return: timeout as integer
+    """
+    timeout = str(timeout)
+    if not timeout.isdigit():
+        raise ValueError(
+                'Invalid value for the test suite timeout.\n'
+                'Only positive integer values are allowed.')
+    timeout = int(timeout)
+    if timeout == 0:
+        timeout = tstimeout
+    return timeout
 
 
 def chk_vendor(vendor):

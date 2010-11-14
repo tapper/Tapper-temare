@@ -54,8 +54,8 @@ kvm =                                                                         \
         '-usbdevice tablet '                                                  \
         '-m %(memory)d '                                                      \
         '-smp %(cores)d '                                                     \
-        '-hda %(datadir)s/images/%(imgbasename)s '                            \
-        '-hdb %(datadir)s/images/%(mntfile)s '                                \
+        '-hda %(datadir)s/%(imgbasename)s '                                   \
+        '-hdb %(datadir)s/%(mntfile)s '                                       \
         '-serial file:/tmp/guest%(runid)d.fifo '                              \
         '-net nic,macaddr=%(macaddr)s '                                       \
         '-net tap,ifname=tap%(vnc)d\n'
@@ -90,8 +90,8 @@ svm =                                                                        \
         'usb = 1\n'                                                          \
         'usbdevice = "tablet"\n'                                             \
         'name = "%(runid)03d-%(test)s"\n'                                    \
-        'disk = [ "%(format)s:/xen/images/%(imgbasename)s,hda,w",\n'         \
-        '         "file:/xen/images/%(mntfile)s,hdb,w" ]\n'                  \
+        'disk = [ "%(format)s:%(datadir)s/%(imgbasename)s,hda,w",\n'         \
+        '         "file:%(datadir)s/%(mntfile)s,hdb,w" ]\n'                  \
         'boot = "c"\n'                                                       \
         'acpi = 1\n'                                                         \
         'apic = 1\n'                                                         \
@@ -101,37 +101,29 @@ svm =                                                                        \
         'shadow_memory = %(shadowmem)d\n'                                    \
         'memory = %(memory)d\n'                                              \
         'vcpus = %(cores)d\n'                                                \
-        'hap = %(hap)d\n'                                                    \
-        'xminfo = Popen(["xm", "info"], stdout=PIPE).communicate()[0]\n'     \
-        'for line in xminfo.split("\\n"):\n'                                 \
-        '    if line.startswith("xen_major"):\n'                             \
-        '        xen_major = int(line.split(":", 1)[1].strip())\n'           \
-        '    elif line.startswith("xen_minor"):\n'                           \
-        '        xen_minor = int(line.split(":", 1)[1].strip())\n'           \
-        'if (xen_major == 3 and xen_minor > 4) or xen_major > 3:\n'          \
-        '    for idx in range(0, len(disk)):\n'                              \
-        '        disk[idx] = re.sub("^tap:", "tap:tapdisk:", disk[idx])\n'   \
+        'hap = %(hap)d\n'
 
 # Designation of the guest image formats as used in the guest configuration
-formats = {'raw': 'tap:aio', 'qcow': 'tap:qcow', 'qcow2': 'tap:qcow2'}
+formats = {'raw': 'tap:aio', 'qcow': 'tap:qcow',
+        'qcow2': 'tap:qcow2', 'file': 'file'}
 
 # Command to generate svm files on hosts for manual testing
-cfgscript = 'echo \'%%s\' >/xen/images/%(runid)03d.%(cfgext)s'
+cfgscript = 'echo \'%%s\' >%(cfgfile)s'
 
 # Command to copy guest image files onto hosts for manual testing
-copyscript =                                                                \
-        'test -d /xen/images || exit 1; '                                   \
-        'if [ -d /mnt/official_testing ]; then '                            \
-        '/bin/cp /mnt/official_testing/%s /xen/images/%s >/dev/null 2>&1; ' \
-        'else /usr/bin/scp -q -o PasswordAuthentication=no '                \
-        'osko:/export/image_files/official_testing/%s /xen/images/%s; fi'
+copyscript =                                                                  \
+        'test -d %(datadir)s || exit 1; '                                     \
+        'if [ -d /mnt/official_testing ]; then '                              \
+        '/bin/cp /mnt/official_testing/%%s %(datadir)s/%%s >/dev/null 2>&1; ' \
+        'else /usr/bin/scp -q -o PasswordAuthentication=no '                  \
+        'osko:/export/image_files/official_testing/%%s %(datadir)s/%%s; fi'
 
 # Harddisk image containing testsuites for manual testing
 suiteimage = 'testsuites_raw.img'
 
 # Full filename of the image to use for Dom0
-osimage = {0: 'suse/suse_sles10_sp2_32b_smp_raw.tar.gz',
-           1: 'suse/suse_sles10_sp2_64b_smp_raw.tar.gz'}
+osimage = {0: 'suse/sles11_sp1_i686_baseimage.tgz',
+           1: 'suse/sles11_sp1_x86-64_baseimage.tar.gz'}
 
 # Artemis repository path
 artemisrepo = '%s/repository' % (artemisdir, )
@@ -149,7 +141,7 @@ imagepath = 'osko:/export/image_files/official_testing'
 nfshost = 'bancroft'
 
 # Path to daily Xen builds
-builddir = '%s/packages/xen/builds/%%s/%%s' % (artemisrepo, )
+builddir = '%s/packages/xen/sles11/%%s/%%s' % (artemisrepo, )
 
 # Architecture portion of the build path (0 = 32-bit, 1 = 64-bit)
 buildarchs = {0: 'i686', 1: 'x86_64'}
@@ -157,9 +149,31 @@ buildarchs = {0: 'i686', 1: 'x86_64'}
 # Filename pattern for unpatched builds
 buildpattern = '^%s\.[0-9]{4}-[0-9]{2}-[0-9]{2}\.[0-9a-f_]+\.%s\.tgz$'
 
+# Data directory on the host containing image files and guest configurations
+virtdirman = '/xen/images'
+virtdirauto = '/virt'
+
+# GRUB templates for automatic installation through Kickstart or AutoYAST
+#
+# Note:
+# New substitution keys need to be added to checks.grubvalues, too
+grubtemplates = {
+        'redhat' : '''timeout 2
+
+title RedHat Testing
+kernel %(kernel)s ks=%(ks_file)s ksdevice=link console=ttyS0,115200 $ARTEMIS_OPTIONS
+initrd %(initrd)s
+''',
+        'suse'   : '''timeout 2
+
+title SUSE Testing
+kernel %(kernel)s autoyast=%(ks_file)s install=%(install)s textmode=1 console=ttyS0,115200 $ARTEMIS_OPTIONS
+initrd %(initrd)s
+'''}
+
 if debug == True:
     dbpath = 'test-schedule.db'
     nfshost = gethostname()
-    xencfgstore = 'debug/configs'
-    kvmcfgstore = 'debug/configs'
+    xencfgstore = 'debug/configs/xen'
+    kvmcfgstore = 'debug/configs/kvm'
     builddir = 'debug/builds/%s/%s'

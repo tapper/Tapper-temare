@@ -6,7 +6,7 @@ import sqlite3
 import checks
 import random
 from socket import gethostbyname
-from config import dbpath
+from config import dbpath, virtdirman, virtdirauto
 
 
 class TestRunGenerator():
@@ -392,6 +392,10 @@ class TestRunGenerator():
             elif test == None:
                 break
             test.update(self.get_test_config(test))
+            if self.schedule == 'host':
+                test['datadir'] = virtdirman
+            else:
+                test['datadir'] = virtdirauto
             test['vnc']         = count
             test['runid']       = count + 1
             test['macaddr']     = self.gen_macaddr(count + 1)
@@ -400,6 +404,8 @@ class TestRunGenerator():
             test['test']        = checks.chk_testname(test['test'])
             test['testcommand'] = checks.chk_testcommand(test['testcommand'])
             test['ostype']      = checks.chk_ostype(test['ostype'])
+            test['runtime']     = checks.chk_runtime(test['runtime'])
+            test['timeout']     = checks.chk_timeout(test['timeout'])
             self.tests.append(test)
             count += 1
 

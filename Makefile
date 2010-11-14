@@ -7,7 +7,7 @@ all:
 	@echo "    clean     --  Cleans up the environment for debugging"
 
 debug:
-	/bin/mkdir -p debug/configs
+	/bin/mkdir -p debug/configs/{xen,kvm}
 	/bin/mkdir -p debug/builds/{i386,x86_64}/xen-{3.3,3.2,3.1}-testing
 	/bin/mkdir -p debug/builds/{i386,x86_64}/xen-unstable
 	cs='12345_abcdef1234567890';					\
