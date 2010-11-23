@@ -120,6 +120,7 @@ for dataset in hosts:
 cursor.execute('''CREATE TABLE subject (
                     subject_id     INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                     subject_name   TEXT,
+                    subject_prio   INTEGER DEFAULT 100,
                     last_vendor_id INTEGER DEFAULT 0,
                     is_64bit       INTEGER DEFAULT 1,
                     is_enabled     INTEGER DEFAULT 1)''')

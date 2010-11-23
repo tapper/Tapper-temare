@@ -149,6 +149,18 @@ def chk_ostype(ostype):
     return ostype
 
 
+def chk_priority(priority):
+    """Check the input value for the Artemis queue bandwidth
+    Must be a positive integer value
+    """
+    priority = str(priority)
+    if not priority.isdigit():
+        raise ValueError(
+                'Invalid priority value.\n'
+                'Only positive integer values are allowed.')
+    return int(priority)
+
+
 def chk_runtime(runtime):
     """Check input value for test suite runtime
        Must be a positive integer value

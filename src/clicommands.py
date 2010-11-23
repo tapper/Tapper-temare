@@ -30,6 +30,7 @@ def do_list(listing, ordering):
             'image_format': 'Format',
             'os_type_name': 'OS Type',
             'subject_name': 'Test Subject',
+            'subject_prio': 'Priority',
             'test_name'   : 'Test Program',
             'test_command': 'Command',
             'timeout'     : 'Timeout',
@@ -595,11 +596,12 @@ class TestSubjectAddCommand(TemareCommand):
     def __init__(self, base):
         TemareCommand.__init__(self, base)
         self.names = ['subjectadd']
-        self.usage = 'SUBJECT BITNESS'
+        self.usage = 'SUBJECT BITNESS PRIORITY'
         self.summary = 'Add a new test subject to the schedule'
         self.description = \
-            '    SUBJECT  Descriptive name of the test subject\n' \
-            '    BITNESS  Bitness of the test subject'
+            '    SUBJECT   Descriptive name of the test subject\n' \
+            '    BITNESS   Bitness of the test subject\n' \
+            '    PRIORITY  Artemis queue priority for the test subject'
 
     def do_command(self, args):
         """Add a test subject to the database
@@ -638,10 +640,13 @@ class TestSubjectStateCommand(TemareCommand):
     def __init__(self, base):
         TemareCommand.__init__(self, base)
         self.names = ['subjectstate']
-        self.usage = 'SUBJECT BITNESS enable|disable'
+        self.usage = 'SUBJECT BITNESS enable|disable [PRIORITY]'
         self.summary = 'Disable or enable the scheduling of a test subject'
         self.description = \
-            '    SUBJECT  Descriptive name of the test subject'
+            '    SUBJECT   Descriptive name of the test subject\n' \
+            '    BITNESS   Bitness of the test subject\n' \
+            '    PRIORITY  Artemis queue priority for the test subject\n' \
+            '              (optional, only valid with enable command'
 
     def do_command(self, args):
         """Validate the number of given arguments and
@@ -666,7 +671,7 @@ class TestSubjectListCommand(TemareCommand):
         """
         subjectops = dbops.TestSubjects()
         listing = subjectops.list(args)
-        ordering = ['subject_name', 'is_64bit', 'is_enabled']
+        ordering = ['subject_name', 'is_64bit', 'is_enabled', 'subject_prio']
         do_list(listing, ordering)
 
 

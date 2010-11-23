@@ -6,6 +6,7 @@ import sqlite3
 import sys
 import checks
 from config import dbpath
+from queue import ArtemisQueue
 
 
 def init_database():
@@ -20,6 +21,7 @@ def init_database():
             '''CREATE TABLE IF NOT EXISTS subject (
                     subject_id      INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                     subject_name    TEXT,
+                    subject_prio    INTEGER DEFAULT 100,
                     last_vendor_id  INTEGER DEFAULT 0,
                     is_64bit        INTEGER DEFAULT 1,
                     is_enabled      INTEGER DEFAULT 1)''',
@@ -70,7 +72,7 @@ def init_database():
             # Autoinstall uses a template and a number of key-value pairs for
             # its primary precondition. This table contains the key-value pairs.
             '''CREATE TABLE IF NOT EXISTS completion (
-                    completion_id  INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    completion_id   INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                     subject_id      INTEGER NOT NULL,
                     key             TEXT,
                     value           TEXT)''']
@@ -581,14 +583,18 @@ class TestSubjects(DatabaseEntity):
     def add(self, args):
         """Add a new test subject to the database.
 
+        The state of the newly created test subject will be set to disabled.
+
         Arguments:
             subject  -- Name of the test subject
             bitness  -- Bitness of the test subject (0 = 32-bit, 1 = 64-bit)
+            priority -- Bandwidth setting of the Artemis queue (int)
         """
-        checks.chk_arg_count(args, 2)
-        subject, bitness = args
+        checks.chk_arg_count(args, 3)
+        subject, bitness, priority = args
         subject = checks.chk_subject(subject)
         bitness = checks.chk_bitness(bitness)
+        priority = checks.chk_priority(priority)
         self.cursor.execute('''
                 SELECT * FROM subject
                 WHERE subject_name=? AND is_64bit=?''', (subject, bitness))
@@ -596,9 +602,10 @@ class TestSubjects(DatabaseEntity):
             raise ValueError('Test subject already exists.')
         self.cursor.execute('''
                 INSERT INTO subject
-                (subject_name, last_vendor_id, is_64bit, is_enabled)
-                VALUES (?,?,?,?)''',
-                (subject, 0, bitness, 0)) # default to disabled
+                (subject_name, subject_prio, last_vendor_id,
+                is_64bit, is_enabled)
+                VALUES (?,?,?,?,?)''',
+                (subject, priority, 0, bitness, 0))
         self.cursor.execute('''
                 INSERT INTO subject_schedule (subject_id, test_id, image_id)
                 SELECT subject_id, test_id, image_id
@@ -626,12 +633,61 @@ class TestSubjects(DatabaseEntity):
         subjectid = self.cursor.fetchone()
         if subjectid == None:
             raise ValueError('No such test subject.')
+        queue = ArtemisQueue(subject, bitness)
+        queue.delete()
         self.cursor.execute('''
                 DELETE FROM subject_schedule WHERE subject_id=?''', subjectid)
         self.cursor.execute('''
                 DELETE FROM completion WHERE subject_id=?''', subjectid)
         self.cursor.execute('''
                 DELETE FROM subject WHERE subject_id=?''', subjectid)
+        self.connection.commit()
+
+    def __enable(self, subject, bitness, priority):
+        """Enable a test subject
+
+        Enables the test subject in the temare database and activates
+        the Artemis queue with the given priority.
+        Disables the test subject in the Temare database again if
+        activating the Artemis queue failed for some reason.
+
+        Arguments:
+            subject  -- Name of the test subject
+            bitness  -- Bitness of the test subject (0 = 32-bit, 1 = 64-bit)
+            priority -- Bandwidth setting of the Artemis queue (int)
+        """
+        self.cursor.execute('''
+                UPDATE subject SET is_enabled=1, subject_prio=?
+                WHERE subject_name=? AND is_64bit=?''',
+                (priority, subject, bitness))
+        self.connection.commit()
+        queue = ArtemisQueue(subject, bitness)
+        try:
+            queue.enable(priority)
+        except ValueError, err:
+            self.cursor.execute('''
+                    UPDATE subject SET is_enabled=0
+                    WHERE subject_name=? AND is_64bit=?''',
+                    (subject, bitness))
+            self.connection.commit()
+            raise err
+
+    def __disable(self, subject, bitness):
+        """Disable a test subject
+
+        Deactivates the Artemis queue for the test subject and disables
+        the test subject in the Temare database.
+
+        Arguments:
+            subject  -- Name of the test subject
+            bitness  -- Bitness of the test subject (0 = 32-bit, 1 = 64-bit)
+        """
+        queue = ArtemisQueue(subject, bitness)
+        queue.disable()
+        self.cursor.execute('''
+                UPDATE subject SET is_enabled=0
+                WHERE subject_name=? AND is_64bit=?''',
+                (subject, bitness))
         self.connection.commit()
 
     def state(self, args):
@@ -641,21 +697,32 @@ class TestSubjects(DatabaseEntity):
             * Name of the test subject
             * State of the test subject as specified in checks.chk_state()
         """
-        checks.chk_arg_count(args, 3)
-        subject, bitness, state = args
+        if len(args) == 3:
+            subject, bitness, state = args
+            priority = None
+        elif len(args) == 4:
+            subject, bitness, state, priority = args
+        else:
+            raise ValueError('Wrong number of arguments.')
         subject = checks.chk_subject(subject)
         bitness = checks.chk_bitness(bitness)
         state = checks.chk_state(state)
+        if state == 0 and priority != None:
+            raise ValueError('Priority can only be updated during enabling.')
         self.cursor.execute('''
-                SELECT * FROM subject WHERE subject_name=? AND is_64bit=?''',
-                (subject, bitness))
-        if self.cursor.fetchone() == None:
-            raise ValueError('No such test subject.')
-        self.cursor.execute('''
-                UPDATE subject SET is_enabled=?
+                SELECT subject_prio FROM subject
                 WHERE subject_name=? AND is_64bit=?''',
-                (state, subject, bitness))
-        self.connection.commit()
+                (subject, bitness))
+        dataset = self.cursor.fetchone()
+        if dataset == None:
+            raise ValueError('No such test subject.')
+        if state == 0:
+            self.__disable(subject, bitness)
+        else:
+            if priority == None:
+                priority, = dataset
+            priority = checks.chk_priority(priority)
+            self.__enable(subject, bitness, priority)
 
     def list(self, args):
         """Return a list of all test subjects and their properties.
@@ -665,7 +732,7 @@ class TestSubjects(DatabaseEntity):
         """
         checks.chk_arg_count(args, 0)
         self.cursor.execute('''
-                SELECT subject_name, is_64bit, is_enabled
+                SELECT subject_name, is_64bit, is_enabled, subject_prio
                 FROM subject ORDER BY subject_name''')
         return fetchassoc(self.cursor)
 
