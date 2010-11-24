@@ -5,7 +5,8 @@
 import re
 import os.path
 import urlparse
-from config import minmem, maxmem, mincores, maxcores, formats, tstimeout
+from config import minmem, maxmem, mincores, maxcores, \
+                   formats, tstimeout, grubtemplates
 
 
 def chk_arg_count(args, count):
@@ -60,6 +61,28 @@ def chk_cores(cores):
                 'Invalid value for the number of CPU cores.\n'
                 'The maximum number is limited to %s.' % (maxcores, ))
     return cores
+
+
+def chk_grub_template(subjectname, replacements):
+    """Check for completeness of the values needed to fill the GRUB template
+    """
+    subject = subjectname.lower()
+    if re.search('sles|opensuse', subject):
+        template = grubtemplates['suse']
+    elif re.search('redhat|rhel|fedora', subject):
+        template = grubtemplates['redhat']
+    elif re.search('^kvm', subject):
+        template = grubtemplates['redhat']
+    else:
+        message = 'No GRUB template defined for subject "%s"'
+        raise ValueError(message % (subjectname, ))
+    try:
+        template % replacements
+    except KeyError:
+        message = 'Values to fill the GRUB template are incomplete.\n' \
+                'Please use the completionadd command to define all\n' \
+                'required values (ks_file, kernel, initrd, install)'
+        raise ValueError(message)
 
 
 def chk_hostname(hostname):

@@ -656,6 +656,17 @@ class TestSubjects(DatabaseEntity):
             bitness  -- Bitness of the test subject (0 = 32-bit, 1 = 64-bit)
             priority -- Bandwidth setting of the Artemis queue (int)
         """
+        if subject.startswith('autoinstall'):
+            grubvalues = {}
+            self.cursor.execute('''
+                    SELECT key, value FROM completion
+                    LEFT JOIN subject ON
+                        completion.subject_id=subject.subject_id
+                    WHERE subject_name=? AND is_64bit=?''',
+                    (subject, bitness))
+            for key, value in self.cursor.fetchall():
+                grubvalues[key] = value
+            checks.chk_grub_template(subject, grubvalues)
         self.cursor.execute('''
                 UPDATE subject SET is_enabled=1, subject_prio=?
                 WHERE subject_name=? AND is_64bit=?''',
