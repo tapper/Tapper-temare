@@ -71,7 +71,7 @@ def chk_grub_template(subjectname, replacements):
         template = grubtemplates['suse']
     elif re.search('redhat|rhel|fedora', subject):
         template = grubtemplates['redhat']
-    elif re.search('^kvm', subject):
+    elif subject.endswith('kvm-upstream'):
         template = grubtemplates['redhat']
     else:
         message = 'No GRUB template defined for subject "%s"'
@@ -234,8 +234,9 @@ def chk_subject(subject):
     """Check input value for the test subject name
        Must match regexp ^[A-Za-z][A-Za-z0-9_\-\.]*$
        Length limited to 64 characters
-       Must start with xen, kvm, autoinstall-xen, or autoinstall-kvm
-       Must contain sles, rhel, opensuse, or fedora if it is autoinstall
+       Must start with xen, autoinstall-xen, or autoinstall-kvm
+       Must contain sles, rhel, opensuse, fedora, or kvm-upstream
+       if it is an autoinstall subject.
        @return: test subject name as string
     """
     subject = str(subject)
@@ -245,13 +246,13 @@ def chk_subject(subject):
         raise ValueError(
                 'Invalid test subject name.\n'
                 'The length is limited to 64 characters.')
-    subjects = ('xen', 'kvm', 'autoinstall-xen', 'autoinstall-kvm')
+    subjects = ('xen', 'autoinstall-xen', 'autoinstall-kvm')
     if not re.match('^(%s)' % ('|'.join(subjects), ), subject):
         raise ValueError(
                 'Invalid test subject name.\n'
                 'Possible subjects start with %s.' % (', '.join(subjects), ))
     if subject.startswith('autoinstall'):
-        subjects = ('sles', 'rhel', 'fedora', 'opensuse')
+        subjects = ('sles', 'rhel', 'fedora', 'opensuse', 'kvm-upstream')
         if not re.search('|'.join(subjects), subject):
             raise ValueError(
                     'Invalid test subject name.\n'

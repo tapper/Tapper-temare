@@ -344,7 +344,7 @@ class SubjectPreparation():
                 test['cfgfilesrc'] = '%s/%s' % (xencfgstore, test['cfgfile'])
                 test['cfgtype'] = 'svm'
                 configfile = svm % test
-            elif re.search('^kvm|autoinstall-kvm', subject):
+            elif re.search('^autoinstall-kvm', subject):
                 test['cfgfile'] = '%s.sh' % (prefix, )
                 test['cfgfilesrc'] = '%s/%s' % (kvmcfgstore, test['cfgfile'])
                 test['cfgtype'] = 'exec'
@@ -368,7 +368,7 @@ class SubjectPreparation():
             grubtext = grubtemplates['suse']
         elif re.search('redhat|rhel|fedora', subject):
             grubtext = grubtemplates['redhat']
-        elif re.search('^kvm', subject):
+        elif subject.endswith('kvm-upstream'):
             grubtext = grubtemplates['redhat']
         else:
             message = 'No GRUB template defined for subject "%s"'
@@ -384,12 +384,13 @@ class SubjectPreparation():
             'runtime':             1200,
             'timeout_testprogram': 1800,
         }
+        testprogramlist = [metainfo, ]
         if re.search('xen', subject):
             name = 'automatically generated Xen test'
-            testprogramlist = [metainfo, ]
         else:
             name = 'automatically generated KVM test'
-            testprogramlist = [metainfo, kvmunit, ]
+            if subject.endswith('kvm-upstream'):
+                testprogramlist = [metainfo, kvmunit, ]
         root = {
             'precondition_type' : 'autoinstall',
             'name'              : self.testrun.subject['name'],
@@ -407,25 +408,6 @@ class SubjectPreparation():
             'guests':            guests,
         }
         return precondition
-
-    def gen_precondition_kvm(self):
-        """
-        Generate an Artemis KVM precondition
-
-        Basically the same as autoinstall. Will be removed at some point.
-        Just sets the values for the GRUB template and generates an
-        autoinstall precondition.
-
-        @return: Artemis autoinstall precondition
-        @rtype : dict
-        """
-        self.testrun.subject['completion'] = {
-            'kernel':  '/tftpboot/stable/fedora/14/x86_64/vmlinuz',
-            'initrd':  '/tftpboot/stable/fedora/14/x86_64/initrd.img',
-            'ks_file': 'http://bancroft/autoinstall/stable/fedora/14/x86_64/kvm-upstream.ks',
-            'install': '',
-        }
-        return self.gen_precondition_autoinstall()
 
     def gen_precondition_xen(self):
         """
@@ -523,8 +505,6 @@ class SubjectPreparation():
         subject = self.testrun.subject['name']
         if subject.startswith('xen'):
             precondition = (self.gen_precondition_xen())
-        elif subject.startswith('kvm'):
-            precondition = (self.gen_precondition_kvm())
         elif subject.startswith('autoinstall'):
             precondition = self.gen_precondition_autoinstall()
         else:
