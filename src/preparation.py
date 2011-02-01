@@ -195,7 +195,7 @@ class KvmHostPreparation(BasePreparation):
 
 class SubjectPreparation():
     """
-    Class to generate Artemis virt preconditions
+    Class to generate Tapper virt preconditions
 
     Finds possible tests for the specified host, writes guest configuration
     files to a specific directory, and finally writes a data structure
@@ -220,7 +220,7 @@ class SubjectPreparation():
         """
         Find latest build of a test subject
 
-        @return: Path to the build package on the Artemis server
+        @return: Path to the build package on the Tapper server
         @rtype : str
         """
         builds = []
@@ -264,7 +264,7 @@ class SubjectPreparation():
     @staticmethod
     def __gen_precondition_guest(test):
         """
-        Generate the Artemis precondition for a single guest
+        Generate the Tapper precondition for a single guest
 
         @return: Guest precondition
         @rtype : dict
@@ -324,7 +324,7 @@ class SubjectPreparation():
             cfgfile     -- Basename of the guest config file  (string)
             cfgtype     -- Type of the guest config file      (exec|svm)
             cfgfilesrc  -- Location of the guest config file  (string)
-                           on the Artemis server
+                           on the Tapper server
 
         Finally, the precondition for each guest is generated.
 
@@ -357,9 +357,9 @@ class SubjectPreparation():
 
     def gen_precondition_autoinstall(self):
         """
-        Generate an Artemis autoinstall precondition
+        Generate an Tapper autoinstall precondition
 
-        @return: Artemis autoinstall precondition
+        @return: Tapper autoinstall precondition
         @rtype : dict
         """
         guests = self.gen_guest_configs()
@@ -375,12 +375,12 @@ class SubjectPreparation():
             raise ValueError(message % (self.testrun.subject['name'], ))
         grubtext = grubtext % self.testrun.subject['completion']
         metainfo = {
-            'execname':            '/opt/artemis/bin/metainfo',
+            'execname':            '/opt/tapper/bin/metainfo',
             'timeout_testprogram': 300,
             'runtime':             50,
         }
         kvmunit = {
-            'execname':            '/opt/artemis/bin/py_kvm_unit',
+            'execname':            '/opt/tapper/bin/py_kvm_unit',
             'runtime':             1200,
             'timeout_testprogram': 1800,
         }
@@ -411,9 +411,9 @@ class SubjectPreparation():
 
     def gen_precondition_xen(self):
         """
-        Generate an Artemis Xen precondition
+        Generate an Tapper Xen precondition
 
-        @return: Artemis autoinstall precondition
+        @return: Tapper autoinstall precondition
         @rtype : dict
         """
         xenbuild = self.get_latest_build()
@@ -424,11 +424,11 @@ class SubjectPreparation():
         }
         dom0pkg = {
             'precondition_type': 'package',
-            'filename':          'artemisutils/sles10/linux-xen.tgz',
+            'filename':          'tapperutils/sles10/linux-xen.tgz',
         }
         instpkg = {
             'precondition_type': 'package',
-            'filename': 'artemisutils/sles10/xen_installer_suse.tar.gz',
+            'filename': 'tapperutils/sles10/xen_installer_suse.tar.gz',
         }
         inst = {
             'precondition_type': 'exec',
@@ -437,7 +437,7 @@ class SubjectPreparation():
         }
         drvpkg = {
             'precondition_type': 'package',
-            'filename':          'artemisutils/sles10/netxtreme2.tgz',
+            'filename':          'tapperutils/sles10/netxtreme2.tgz',
         }
         drvinst = {
             'precondition_type': 'exec',
@@ -445,7 +445,7 @@ class SubjectPreparation():
         }
         preconditions = [xenpkg, dom0pkg, instpkg, inst, drvpkg, drvinst]
         testprogram = {
-            'execname':            '/opt/artemis/bin/metainfo',
+            'execname':            '/opt/tapper/bin/metainfo',
             'timeout_testprogram': 300,
             'runtime':             50,
         }
@@ -478,13 +478,13 @@ class SubjectPreparation():
         Write the test subject description to a file
 
         Write a dictionary with the test subject name in YAML format to
-        a file specified in the environment variable $ARTEMIS_TEMARE.
+        a file specified in the environment variable $TAPPER_TEMARE.
         The file is not written when the variable is not set.
         """
         data = {'subject': self.testrun.subject['name']}
         try:
-            if os.environ.has_key('ARTEMIS_TEMARE'):
-                infofile = open(os.environ['ARTEMIS_TEMARE'], 'w')
+            if os.environ.has_key('TAPPER_TEMARE'):
+                infofile = open(os.environ['TAPPER_TEMARE'], 'w')
                 infofile.write(yaml.safe_dump(data, default_flow_style=False))
                 infofile.close()
         except IOError:
@@ -492,7 +492,7 @@ class SubjectPreparation():
 
     def gen_precondition(self):
         """
-        Generate and output an Artemis virt precondition
+        Generate and output an Tapper virt precondition
 
         Calls the appropriate method for the test subject, which was
         determined by calling the test run generator, and writes the

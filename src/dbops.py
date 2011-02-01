@@ -6,7 +6,7 @@ import sqlite3
 import sys
 import checks
 from config import dbpath
-from queue import ArtemisQueue
+from queue import TapperQueue
 
 
 def init_database():
@@ -588,7 +588,7 @@ class TestSubjects(DatabaseEntity):
         Arguments:
             subject  -- Name of the test subject
             bitness  -- Bitness of the test subject (0 = 32-bit, 1 = 64-bit)
-            priority -- Bandwidth setting of the Artemis queue (int)
+            priority -- Bandwidth setting of the Tapper queue (int)
         """
         checks.chk_arg_count(args, 3)
         subject, bitness, priority = args
@@ -633,7 +633,7 @@ class TestSubjects(DatabaseEntity):
         subjectid = self.cursor.fetchone()
         if subjectid == None:
             raise ValueError('No such test subject.')
-        queue = ArtemisQueue(subject, bitness)
+        queue = TapperQueue(subject, bitness)
         queue.delete()
         self.cursor.execute('''
                 DELETE FROM subject_schedule WHERE subject_id=?''', subjectid)
@@ -647,14 +647,14 @@ class TestSubjects(DatabaseEntity):
         """Enable a test subject
 
         Enables the test subject in the temare database and activates
-        the Artemis queue with the given priority.
+        the Tapper queue with the given priority.
         Disables the test subject in the Temare database again if
-        activating the Artemis queue failed for some reason.
+        activating the Tapper queue failed for some reason.
 
         Arguments:
             subject  -- Name of the test subject
             bitness  -- Bitness of the test subject (0 = 32-bit, 1 = 64-bit)
-            priority -- Bandwidth setting of the Artemis queue (int)
+            priority -- Bandwidth setting of the Tapper queue (int)
         """
         if subject.startswith('autoinstall'):
             grubvalues = {}
@@ -672,7 +672,7 @@ class TestSubjects(DatabaseEntity):
                 WHERE subject_name=? AND is_64bit=?''',
                 (priority, subject, bitness))
         self.connection.commit()
-        queue = ArtemisQueue(subject, bitness)
+        queue = TapperQueue(subject, bitness)
         try:
             queue.enable(priority)
         except ValueError, err:
@@ -686,14 +686,14 @@ class TestSubjects(DatabaseEntity):
     def __disable(self, subject, bitness):
         """Disable a test subject
 
-        Deactivates the Artemis queue for the test subject and disables
+        Deactivates the Tapper queue for the test subject and disables
         the test subject in the Temare database.
 
         Arguments:
             subject  -- Name of the test subject
             bitness  -- Bitness of the test subject (0 = 32-bit, 1 = 64-bit)
         """
-        queue = ArtemisQueue(subject, bitness)
+        queue = TapperQueue(subject, bitness)
         queue.disable()
         self.cursor.execute('''
                 UPDATE subject SET is_enabled=0

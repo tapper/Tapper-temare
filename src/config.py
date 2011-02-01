@@ -10,11 +10,11 @@ from socket import gethostname
 # Please set debug to False on live installs
 debug = False
 
-# Artemis data directory
-artemisdir = '/data/bancroft/artemis/live'
+# Tapper data directory
+tapperdir = '/data/bancroft/tapper/live'
 
 # Path to the sqlite database
-dbpath = '%s/configs/temare/test-schedule.db' % (artemisdir, )
+dbpath = '%s/configs/temare/test-schedule.db' % (tapperdir, )
 
 # Amount of memory available on a host
 minmem = 1024
@@ -126,14 +126,14 @@ suiteimage = 'testsuites_raw.img'
 osimage = {0: 'suse/sles11_sp1_i686_baseimage.tgz',
            1: 'suse/sles11_sp1_x86-64_baseimage.tar.gz'}
 
-# Artemis repository path
-artemisrepo = '%s/repository' % (artemisdir, )
+# Tapper repository path
+tapperrepo = '%s/repository' % (tapperdir, )
 
 # Directory to put the generated svm files into
-xencfgstore = '%s/configs/xen' % (artemisrepo, )
+xencfgstore = '%s/configs/xen' % (tapperrepo, )
 
 # Directory to put the generated KVM start scripts into
-kvmcfgstore = '%s/configs/kvm' % (artemisrepo, )
+kvmcfgstore = '%s/configs/kvm' % (tapperrepo, )
 
 # NFS path to guest image files
 imagepath = 'osko:/export/image_files/official_testing'
@@ -142,7 +142,7 @@ imagepath = 'osko:/export/image_files/official_testing'
 nfshost = 'bancroft'
 
 # Path to daily Xen builds
-builddir = '%s/packages/xen/sles11/%%s/%%s' % (artemisrepo, )
+builddir = '%s/packages/xen/sles11/%%s/%%s' % (tapperrepo, )
 
 # Architecture portion of the build path (0 = 32-bit, 1 = 64-bit)
 buildarchs = {0: 'i686', 1: 'x86_64'}
@@ -162,13 +162,13 @@ grubtemplates = {
         'redhat' : '''timeout 2
 
 title RedHat Testing
-kernel %(kernel)s ks=%(ks_file)s ksdevice=link console=ttyS0,115200 $ARTEMIS_OPTIONS
+kernel %(kernel)s ks=%(ks_file)s ksdevice=link console=ttyS0,115200 $TAPPER_OPTIONS
 initrd %(initrd)s
 ''',
         'suse'   : '''timeout 2
 
 title SUSE Testing
-kernel %(kernel)s autoyast=%(ks_file)s install=%(install)s textmode=1 console=ttyS0,115200 $ARTEMIS_OPTIONS
+kernel %(kernel)s autoyast=%(ks_file)s install=%(install)s textmode=1 console=ttyS0,115200 $TAPPER_OPTIONS
 initrd %(initrd)s
 '''}
 

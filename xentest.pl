@@ -6,13 +6,13 @@ use File::Stat qw(:all);
 use File::Basename;
 use YAML::Syck;
 
-my $kernel_path = "/data/bancroft/artemis/live/repository/packages/kernel/";
+my $kernel_path = "/data/bancroft/tapper/live/repository/packages/kernel/";
 
 
-our $temarepath="/home/artemis/temare";
+our $temarepath="/home/tapper/temare";
 $ENV{PYTHONPATH}=$ENV{PYTHONPATH} ? $ENV{PYTHONPATH}.":$temarepath/src" : "$temarepath/src";
-our $artemispath="/home/artemis/perl510/";
-our $execpath="$artemispath/bin";
+our $tapperpath="/home/tapper/perl510/";
+our $execpath="$tapperpath/bin";
 our $grub_precondition=14;
 our %hostliste = ("athene" => 1,
                   "kobold" => 1,
@@ -25,7 +25,7 @@ my $precondition_file = "/tmp/temare_precondition.yml";
 sub gen_xen
 {
         my ($host)           = @_;
-        $ENV{ARTEMIS_TEMARE} = $filename;
+        $ENV{TAPPER_TEMARE} = $filename;
         my $precondition     = qx($temarepath/temare subjectprep $host);
         return if $?;
         my $config           = LoadFile($filename);
@@ -35,7 +35,7 @@ sub gen_xen
                 open (FH,">","$precondition_file") or die "Can't open $precondition_file:$!";
                 print FH $precondition;
                 close FH or die "Can't write $filename:$!";
-                open(FH, "$execpath/artemis-testrun newprecondition --condition_file=$precondition_file|") or die "Can't open pipe:$!";
+                open(FH, "$execpath/tapper-testrun newprecondition --condition_file=$precondition_file|") or die "Can't open pipe:$!";
                 $precond_id = <FH>;
                 chomp $precond_id;
         }
@@ -43,11 +43,11 @@ sub gen_xen
         my $subject = $config->{subject};
         my $testrun;
         if ($config->{subject} =~ /kvm/i) {
-                $testrun    = qx($execpath/artemis-testrun new --topic=$subject --precondition=$precond_id --host=$host);
+                $testrun    = qx($execpath/tapper-testrun new --topic=$subject --precondition=$precond_id --host=$host);
                 die "Can't create kvm test" if $?;
                 print "KVM on $host with precondition $precond_id: $testrun";
         } else {
-                $testrun    = qx($execpath/artemis-testrun new --topic=$subject --precondition=$grub_precondition --precondition=$precond_id --host=$host);
+                $testrun    = qx($execpath/tapper-testrun new --topic=$subject --precondition=$grub_precondition --precondition=$precond_id --host=$host);
                 die "Can't create xen test" if $?;
                 print "Xen on $host with preconditions $grub_precondition, $precond_id: $testrun";
         }
@@ -76,7 +76,7 @@ sub gen_kernel
                         last TARFILES ;
                 }
         }
-        my $id = qx($execpath/artemis-testrun new --macroprecond=/data/bancroft/artemis/live/repository/macropreconditions/kernel/kernel_boot.mpc --hostname=$host -Dkernel_version=$kernel_version -Dkernelpkg=$kernelbuild --owner=mhentsc3 --topic=Kernel);
+        my $id = qx($execpath/tapper-testrun new --macroprecond=/data/bancroft/tapper/live/repository/macropreconditions/kernel/kernel_boot.mpc --hostname=$host -Dkernel_version=$kernel_version -Dkernelpkg=$kernelbuild --owner=mhentsc3 --topic=Kernel);
         print "Kernel testrun on $host: $id";
 }
 

@@ -47,7 +47,7 @@ class TestPreparation(unittest.TestCase):
         self.assertTrue(precondition['guests'][0]['root']['mountfile'].startswith('/kvm/images/001-bullock-'))
         self.assertTrue(precondition['guests'][0]['root']['mountpartition'] == 'p1')
         self.assertTrue(precondition['host']['testprogram']['execname'] == \
-                            '/opt/artemis/bin/metainfo')
+                            '/opt/tapper/bin/metainfo')
         self.assertTrue(precondition['guests'][0]['config'].has_key('exec'))
         self.assertTrue(precondition['guests'][0]['config']['exec'].startswith('/kvm/images/001-bullock-'))
 

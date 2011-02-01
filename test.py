@@ -27,7 +27,7 @@ class TestPreparation(unittest.TestCase):
         self.assertTrue(precondition['host']['root']['image'] == \
                             'suse/suse_sles10_sp2_64b_smp_raw.tar.gz')
         self.assertTrue(precondition['host']['testprogram']['execname'] == \
-                            '/opt/artemis/bin/metainfo')
+                            '/opt/tapper/bin/metainfo')
 
 
     def test_kvmhostpreparation(self):
@@ -43,7 +43,7 @@ class TestPreparation(unittest.TestCase):
         # pp.pprint(precondition)
         self.assertTrue(precondition['guests'][0]['root']['arch'] == 'linux32')
         self.assertTrue(precondition['host']['testprogram']['execname'] == \
-                            '/opt/artemis/bin/metainfo')
+                            '/opt/tapper/bin/metainfo')
         self.assertTrue(precondition['guests'][0]['config'].has_key('exec'))
         self.assertTrue(precondition['guests'][0]['config']['exec'].startswith('/kvm/images/001-bullock-'))
 
@@ -57,7 +57,7 @@ class TestPreparation(unittest.TestCase):
         prep = preparation.SubjectPreparation('bullock', 'autoinstall-rhel6-kvm', 1)
         precondition = prep.gen_precondition_autoinstall()
         self.assertTrue(precondition['host']['root']['grub_text'] == \
-                            '   timeout 2\n\n   title RedHat Testing\n   kernel /tftpboot/stable/kernel/vmlinuz  console=ttyS0,115200 ks=/path/to/ks_file.ks ksdevice=eth0 noapic $ARTEMIS_OPTIONS\n   initrd /tftpboot/stable/initrd/initrd')
+                            '   timeout 2\n\n   title RedHat Testing\n   kernel /tftpboot/stable/kernel/vmlinuz  console=ttyS0,115200 ks=/path/to/ks_file.ks ksdevice=eth0 noapic $TAPPER_OPTIONS\n   initrd /tftpboot/stable/initrd/initrd')
         self.assertTrue(re.match('/kvm/images/001-bullock-\d+.sh',precondition['guests'][0]['config']['exec']))
 
 

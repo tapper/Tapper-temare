@@ -1,5 +1,5 @@
 """
-Interface to handle Artemis Queues for test subjects
+Interface to handle Tapper Queues for test subjects
 """
 try:
     import yaml
@@ -15,9 +15,9 @@ from tempfile import mkstemp
 from config import debug
 
 
-class ArtemisQueue:
+class TapperQueue:
     """
-    Interface to handle Artemis Queues for test subjects
+    Interface to handle Tapper Queues for test subjects
     """
 
     def __init__(self, subject, bitness):
@@ -85,7 +85,7 @@ class ArtemisQueue:
 
     def __create_testrun(self):
         """
-        Schedule a producer testrun for the Artemis queue
+        Schedule a producer testrun for the Tapper queue
 
         Writes the precondition in YAML format to a temporary file, creates
         the testrun with the auto_rerun option, and removes the temporary
@@ -109,62 +109,62 @@ class ArtemisQueue:
             if filename and os.path.exists(filename):
                 os.unlink(filename)
             raise ValueError('Failed to write testrun precondition.')
-        cmd = ('artemis-testrun new --queue="%s" '
+        cmd = ('tapper-testrun new --queue="%s" '
                 '--auto_rerun --macroprecond="%s"') % (self.queue, filename)
         rcode, stdout, stderr = self.__exec_command(cmd)
         os.unlink(filename)
         if rcode != 0:
-            msg = 'Failed to create a testrun for the Artemis queue.'
+            msg = 'Failed to create a testrun for the Tapper queue.'
             self.__error_handler(msg, cmd, rcode, stdout, stderr)
 
     def list(self):
         """
-        List the Artemis queue associated with the test subject
+        List the Tapper queue associated with the test subject
 
-        @return: Artemis information about the queue, or empty string
+        @return: Tapper information about the queue, or empty string
         @rtype : str
         @raise : ValueError
         """
-        cmd = 'artemis-testrun listqueue --name="%s"'
+        cmd = 'tapper-testrun listqueue --name="%s"'
         rcode, stdout, stderr = self.__exec_command(cmd % (self.queue, ))
         if rcode != 0:
-            msg = 'Failed to check for the Artemis queue.'
+            msg = 'Failed to check for the Tapper queue.'
             self.__error_handler(msg, cmd, rcode, stdout, stderr)
         return stdout
 
     def create(self, priority):
         """
-        Create an Artemis queue associated with the test subject
+        Create an Tapper queue associated with the test subject
 
         Creates the queue and schedules a producer testrun with the
         auto_rerun option.
 
-        @param priority: Artemis bandwidth for the test subject
+        @param priority: Tapper bandwidth for the test subject
         @type  priority: int
         @raise         : ValueError
         """
-        cmd = 'artemis-testrun newqueue --name="%s" --active --priority="%s"'
+        cmd = 'tapper-testrun newqueue --name="%s" --active --priority="%s"'
         cmd = cmd % (self.queue, priority)
         rcode, stdout, stderr = self.__exec_command(cmd)
         if rcode != 0:
-            msg = 'Failed to create the Artemis queue.'
+            msg = 'Failed to create the Tapper queue.'
             self.__error_handler(msg, cmd, rcode, stdout, stderr)
         self.__create_testrun()
 
     def update(self, state, priority=0):
         """
-        Update the Artemis queue associated with the test subject
+        Update the Tapper queue associated with the test subject
 
-        Update the state and optionally the priority (Artemis bandwidth)
-        of the Artemis queue associated with the test subject.
+        Update the state and optionally the priority (Tapper bandwidth)
+        of the Tapper queue associated with the test subject.
 
         @param state   : Status of the queue (active or not active)
         @type  state   : bool
-        @param priority: Artemis bandwidth for the test subject (optional)
+        @param priority: Tapper bandwidth for the test subject (optional)
         @type  priority: int
         @raise         : ValueError
         """
-        cmd = 'artemis-testrun updatequeue --name="%s"' % (self.queue, )
+        cmd = 'tapper-testrun updatequeue --name="%s"' % (self.queue, )
         if state:
             cmd = ' '.join([cmd, '--active'])
         else:
@@ -173,34 +173,34 @@ class ArtemisQueue:
             cmd = ' '.join([cmd, '--priority="%s"' % (priority, )])
         rcode, stdout, stderr = self.__exec_command(cmd)
         if rcode != 0:
-            msg = 'Failed to update the Artemis queue.'
+            msg = 'Failed to update the Tapper queue.'
             self.__error_handler(msg, cmd, rcode, stdout, stderr)
 
     def delete(self):
         """
-        Remove the Artemis queue associated with the test subject
+        Remove the Tapper queue associated with the test subject
 
         The operation is skipped silently if no such queue exists.
 
         @raise : ValueError
         """
         if self.list():
-            cmd = 'artemis-testrun deletequeue --name="%s" --really'
+            cmd = 'tapper-testrun deletequeue --name="%s" --really'
             rcode, stdout, stderr = self.__exec_command(cmd % (self.queue, ))
             if rcode != 0:
-                msg = 'Failed to remove the Artemis queue.'
+                msg = 'Failed to remove the Tapper queue.'
                 self.__error_handler(msg, cmd, rcode, stdout, stderr)
 
     def enable(self, priority):
         """
-        Enable the Artemis queue for the test subject
+        Enable the Tapper queue for the test subject
 
-        If an Artemis queue already exists, its status and its priority
-        settings are updated. Otherwise, a new Artemis queue with the
+        If an Tapper queue already exists, its status and its priority
+        settings are updated. Otherwise, a new Tapper queue with the
         appropriate settings is getting created and a producer testrun
         is scheduled for that queue.
 
-        @param priority: Artemis bandwidth for the test subject
+        @param priority: Tapper bandwidth for the test subject
         @type  priority: int
         @raise         : ValueError
         """
@@ -211,9 +211,9 @@ class ArtemisQueue:
 
     def disable(self):
         """
-        Disable the Artemis queue for the test subject
+        Disable the Tapper queue for the test subject
 
-        If an Artemis queue already exists, its status is set to "noactive".
+        If an Tapper queue already exists, its status is set to "noactive".
 
         @raise: ValueError
         """

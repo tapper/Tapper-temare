@@ -12,7 +12,7 @@ $ENV{PATH} = "$ENV{PATH}:."; # temare calls look nicer
 
 my @distros = ('sles-10.3','sles-11.1');
 
-my $autoinstall_path = '/data/bancroft/artemis/live/configs/autoinstall';
+my $autoinstall_path = '/data/bancroft/tapper/live/configs/autoinstall';
 my $state = 'testing';
 
 DISTRO:
@@ -70,6 +70,6 @@ foreach my $distro ( @distros ) {
         }
 }
 
-print "Use these lines to add create Artemis testruns. Adapt the awk regex accordingly:\n\n";
-print q(for queue in $(./temare subjectlist | awk '/opensuse|sles/ {print $2}'); do artemis-testrun newqueue --name $queue --priority 300 --active ; done),"\n";
-print q(./temare subjectlist |awk '/opensuse|sles/ {printf "artemis-testrun new --queue=%s --macroprecond=/tmp/autoinstall.yml -Dsubject=%s -Dbitness=%s\n",$2,$2,$4}' | bash),"\n";
+print "Use these lines to add create Tapper testruns. Adapt the awk regex accordingly:\n\n";
+print q(for queue in $(./temare subjectlist | awk '/opensuse|sles/ {print $2}'); do tapper-testrun newqueue --name $queue --priority 300 --active ; done),"\n";
+print q(./temare subjectlist |awk '/opensuse|sles/ {printf "tapper-testrun new --queue=%s --macroprecond=/tmp/autoinstall.yml -Dsubject=%s -Dbitness=%s\n",$2,$2,$4}' | bash),"\n";

@@ -556,7 +556,7 @@ class TestListCommand(TemareCommand):
 
 class TestSubjectPrepCommand(TemareCommand):
     """Write guest configurations and output YAML precondition
-    for a new test run on a given host to be performed through Artemis
+    for a new test run on a given host to be performed through Tapper
     """
 
     def __init__(self, base):
@@ -601,7 +601,7 @@ class TestSubjectAddCommand(TemareCommand):
         self.description = \
             '    SUBJECT   Descriptive name of the test subject\n' \
             '    BITNESS   Bitness of the test subject\n' \
-            '    PRIORITY  Artemis queue priority for the test subject'
+            '    PRIORITY  Tapper queue priority for the test subject'
 
     def do_command(self, args):
         """Add a test subject to the database
@@ -645,7 +645,7 @@ class TestSubjectStateCommand(TemareCommand):
         self.description = \
             '    SUBJECT   Descriptive name of the test subject\n' \
             '    BITNESS   Bitness of the test subject\n' \
-            '    PRIORITY  Artemis queue priority for the test subject\n' \
+            '    PRIORITY  Tapper queue priority for the test subject\n' \
             '              (optional, only valid with enable command'
 
     def do_command(self, args):

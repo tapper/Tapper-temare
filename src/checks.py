@@ -173,7 +173,7 @@ def chk_ostype(ostype):
 
 
 def chk_priority(priority):
-    """Check the input value for the Artemis queue bandwidth
+    """Check the input value for the Tapper queue bandwidth
     Must be a positive integer value
     """
     priority = str(priority)
