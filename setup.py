@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 from decimal import Decimal
 import os
 import sys
@@ -8,14 +8,15 @@ sys.path.insert(0, './src')
 from version import __version__
 
 setup(
-    name = "temare",
-    version = str(__version__),
-    author = "OSRC Sysint team",
+    name         = "temare",
+    version      = str(__version__),
+    description  = 'Test run generator',
+    author       = "OSRC Sysint team",
     author_email = "osrc-sysint@elbe.amd.com",
-    packages         = ['src','t'],
-
-    url = "http://osrc/",
-    scripts = [ "temare" ],
+    packages     = ['src','t'],
+    license      = 'freebsd',
+    url          = "http://osrc/",
+    scripts      = [ "temare" ],
 )
 
 import tarfile
