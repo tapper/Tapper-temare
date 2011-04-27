@@ -11,7 +11,7 @@ from socket import gethostname
 debug = False
 
 # Tapper data directory
-tapperdir = '/data/bancroft/tapper/live'
+tapperdir = '/data/tapper/live'
 
 # Path to the sqlite database
 dbpath = '%s/configs/temare/test-schedule.db' % (tapperdir, )
@@ -139,7 +139,7 @@ kvmcfgstore = '%s/configs/kvm' % (tapperrepo, )
 imagepath = 'osko:/export/image_files/official_testing'
 
 # Prefix for guest config file location written into the precondition
-nfshost = 'bancroft'
+nfshost = 'tapper'
 
 # Path to daily Xen builds
 builddir = '%s/packages/xen/sles11/%%s/%%s' % (tapperrepo, )
