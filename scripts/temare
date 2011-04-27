@@ -3,16 +3,5 @@
 """Script to invoke the temare command line interface
 """
 import sys
-
-
-sys.path.insert(0, './src')
-try:
-    import cli
-    temare = cli.TemareCli(sys.argv)
-except ImportError:
-    sys.stderr.write('Failed to find temare cli module.\n'
-            'Please adjust the install path in this file.\n')
-    sys.exit(1)
-except ValueError, err:
-    sys.stderr.write('%s\n' % err[0])
-    sys.exit(1)
+import temare.cli
+temare.cli.TemareCli(sys.argv)

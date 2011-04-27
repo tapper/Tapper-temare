@@ -80,4 +80,5 @@ class TemareCli:
 
 
 if __name__ == '__main__':
-    test = TemareCli(sys.argv)
+    pass
+    #test = TemareCli(sys.argv)

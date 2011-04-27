@@ -2,7 +2,7 @@ import unittest
 import os
 os.environ['HARNESS_ACTIVE'] = '1'
 os.system('cp t/orig-db t/test-schedule.db')
-from src import preparation
+from temare import preparation
 import pprint
 import random
 import re

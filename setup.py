@@ -3,9 +3,7 @@ from decimal import Decimal
 import os
 import sys
 
-sys.path.insert(0, './src')
-
-from version import __version__
+from temare.version import __version__
 
 setup(
     name         = "temare",
@@ -13,10 +11,10 @@ setup(
     description  = 'Test run generator',
     author       = "OSRC Sysint team",
     author_email = "osrc-sysint@elbe.amd.com",
-    packages     = ['src','t'],
+    packages     = ['temare','t'],
     license      = 'freebsd',
     url          = "http://osrc/",
-    scripts      = [ "temare" ],
+    scripts      = [ "scripts/temare" ],
 )
 
 import tarfile
