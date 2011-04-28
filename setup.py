@@ -6,15 +6,15 @@ import sys
 from temare.version import __version__
 
 setup(
-    name         = "temare",
-    version      = str(__version__),
-    description  = 'Test run generator',
-    author       = "OSRC Sysint team",
-    author_email = "osrc-sysint@elbe.amd.com",
-    packages     = ['temare','t'],
-    license      = 'freebsd',
-    url          = "http://osrc/",
-    scripts      = [ "scripts/temare" ],
+    name             = "temare",
+    version          = str(__version__),
+    description      = 'Test run generator',
+    author           = "OSRC Sysint team",
+    author_email     = "osrc-sysint@elbe.amd.com",
+    packages         = ['temare','t'],
+    license          = 'freebsd',
+    url              = "http://osrc/",
+    scripts          = [ "scripts/temare" ],
 )
 
 import tarfile
