@@ -15,6 +15,7 @@ setup(
     license          = 'freebsd',
     url              = "http://osrc/",
     scripts          = [ "scripts/temare" ],
+    install_requires = [ 'pysqlite', 'pyyaml'        ],
 )
 
 import tarfile
