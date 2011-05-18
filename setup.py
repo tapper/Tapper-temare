@@ -28,7 +28,7 @@ def write_version(version):
     fh.write("__version__ = %s\n" % (version,))
     fh.close()
 
-if "sdist" in sys.argv or "bdist" in sys.argv:
+if "sdist" in sys.argv or "bdist" in sys.argv or "bdist_egg" in sys.argv:
     if os.environ.has_key("INCREMENT_VERSION") and \
        os.environ["INCREMENT_VERSION"] == "1":
         __version__ = increment_version()
