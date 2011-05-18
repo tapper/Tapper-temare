@@ -10,10 +10,10 @@ from socket import gethostname
 debug = False
 
 # Tapper data directory
-tapperdir = '/data/bancroft/tapper/live'
+tapperdir = '/data/tapper/live'
 
 # Path to the sqlite database
-dbpath = '/data/bancroft/tapper/development/tools/temare/test-schedule.db'
+dbpath = '/data/tapper/development/tools/temare/test-schedule.db'
 
 # Amount of memory available on a host
 minmem = 1024

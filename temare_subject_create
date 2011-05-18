@@ -12,7 +12,7 @@ $ENV{PATH} = "$ENV{PATH}:."; # temare calls look nicer
 
 my @distros = ('sles-10.3','sles-11.1');
 
-my $autoinstall_path = '/data/bancroft/tapper/live/configs/autoinstall';
+my $autoinstall_path = '/data/tapper/live/configs/autoinstall';
 my $state = 'testing';
 
 DISTRO:
