@@ -384,9 +384,16 @@ class SubjectPreparation():
             'runtime':             1200,
             'timeout_testprogram': 1800,
         }
+        xen_core_pair = {
+            'execname':            '/data/tapper/autoreport/xen-core-pair-check.sh',
+            'timeout_testprogram': 200,
+            'runtime':             50,
+        }
+
         testprogramlist = [metainfo, ]
         if re.search('xen', subject):
             name = 'automatically generated Xen test'
+            testprogramlist = [metainfo, xen_core_pair,]
         else:
             name = 'automatically generated KVM test'
             if subject.endswith('kvm-upstream'):
@@ -443,12 +450,18 @@ class SubjectPreparation():
             'precondition_type': 'exec',
             'filename':          '/bin/build_netxtreme2',
         }
-        preconditions = [xenpkg, dom0pkg, instpkg, inst, drvpkg, drvinst]
-        testprogram = {
+        metainfo = {
             'execname':            '/opt/tapper/bin/metainfo',
             'timeout_testprogram': 300,
             'runtime':             50,
         }
+        xen_core_pair = {
+            'execname':            '/data/tapper/autoreport/xen-core-pair-check.sh',
+            'timeout_testprogram': 200,
+            'runtime':             50,
+        }
+        preconditions = [xenpkg, dom0pkg, instpkg, inst, drvpkg, drvinst]
+        testprogramlist = [metainfo, xen_core_pair,]
         root = {
             'precondition_type': 'image',
             'mount':             '/',
@@ -462,7 +475,7 @@ class SubjectPreparation():
             root['image'] = osimage[0]
         host = {
             'root'         : root,
-            'testprogram'  : testprogram,
+            'testprogram'  : testprogramlist,
             'preconditions': preconditions,
         }
         precondition = {
