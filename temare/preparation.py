@@ -475,7 +475,7 @@ class SubjectPreparation():
             root['image'] = osimage[0]
         host = {
             'root'         : root,
-            'testprogram'  : testprogramlist,
+            'testprogram_list'  : testprogramlist,
             'preconditions': preconditions,
         }
         precondition = {
