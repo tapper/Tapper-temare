@@ -481,7 +481,13 @@ class SubjectPreparation():
         a file specified in the environment variable $TAPPER_TEMARE.
         The file is not written when the variable is not set.
         """
-        data = {'subject': self.testrun.subject['name']}
+        subject_name = self.testrun.subject['name']    
+        if self.test['bitness'] == 1:
+            subject_name = subject_name + '-64'
+        else:
+            subject_name = subject_name + '-32'
+        data = {'subject': subject_name}
+        
         try:
             if os.environ.has_key('TAPPER_TEMARE'):
                 infofile = open(os.environ['TAPPER_TEMARE'], 'w')
