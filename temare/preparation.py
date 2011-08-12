@@ -495,7 +495,7 @@ class SubjectPreparation():
         The file is not written when the variable is not set.
         """
         subject_name = self.testrun.subject['name']    
-        if self.test['bitness'] == 1:
+        if self.testrun.subject['bitness'] == 1:
             subject_name = subject_name + '-64'
         else:
             subject_name = subject_name + '-32'
