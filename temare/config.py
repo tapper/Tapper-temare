@@ -17,7 +17,7 @@ tapperdir = '/data/tapper/live'
 dbpath = '%s/configs/temare/test-schedule.db' % (tapperdir, )
 
 # Amount of memory available on a host
-minmem = 1024
+minmem = 1536
 maxmem = 98304
 
 # timeout for test suites in second - means the are killed after this time

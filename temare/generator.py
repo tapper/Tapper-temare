@@ -6,7 +6,7 @@ import sqlite3
 import checks
 import random
 from socket import gethostbyname
-from config import dbpath, virtdirman, virtdirauto
+from config import dbpath, virtdirman, virtdirauto, minmem
 
 
 class TestRunGenerator():
@@ -102,7 +102,7 @@ class TestRunGenerator():
         self.host['id'], self.resources['memory'], self.resources['cores'], \
                 self.resources['lastvendor'], self.resources['lastsubject'], \
                 self.resources['bitness'], state = result
-        self.resources['memory'] -= 1024
+        self.resources['memory'] -= minmem
         self.resources['cores'] += 1
         if state != 1:
             raise ValueError('The chosen host is currently disabled.')
@@ -363,7 +363,7 @@ class TestRunGenerator():
             hap = 0
         shadowmem = int(round(memory * 10 / 1024))
         self.resources['cores'] -= cores
-        self.resources['memory'] -= memory
+        self.resources['memory'] -= (memory + shadowmem)
         return {'cores': cores, 'memory': memory,
                 'shadowmem': shadowmem, 'hap': hap }
 
@@ -385,7 +385,7 @@ class TestRunGenerator():
         """Generate a single test and its configuration
         """
         count = 0
-        while self.resources['memory'] >= 1024 and self.resources['cores'] > 0:
+        while self.resources['memory'] >= 1024  and self.resources['cores'] > 0:
             test = self.get_test()
             if test   == None and len(self.tests) == 0:
                 raise ValueError('Nothing to do.')
