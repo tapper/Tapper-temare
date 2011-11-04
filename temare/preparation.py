@@ -289,6 +289,12 @@ class SubjectPreparation():
             'mounttype':         'raw',
             'dest':              test['datadir'],
         }
+        parselogs = {
+            'execname':            '/opt/tapper/bin/py_parselog',
+            'timeout_testprogram': 200,
+            'runtime':             50,
+        }
+        testprogramlist = [testprogram, parselogs]
         if test['ostype'].lower().startswith('windows'):
             root['arch'] = 'windows'
             root['mounttype'] = 'windows'
@@ -300,7 +306,7 @@ class SubjectPreparation():
         precondition = {
             'root':        root,
             'config':      config,
-            'testprogram': testprogram,
+            'testprogram_list': testprogramlist,
         }
         return precondition
 
@@ -494,13 +500,13 @@ class SubjectPreparation():
         a file specified in the environment variable $TAPPER_TEMARE.
         The file is not written when the variable is not set.
         """
-        subject_name = self.testrun.subject['name']    
+        subject_name = self.testrun.subject['name']
         if self.testrun.subject['bitness'] == 1:
             subject_name = subject_name + '-64'
         else:
             subject_name = subject_name + '-32'
         data = {'subject': subject_name}
-        
+
         try:
             if os.environ.has_key('TAPPER_TEMARE'):
                 infofile = open(os.environ['TAPPER_TEMARE'], 'w')
