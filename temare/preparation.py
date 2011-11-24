@@ -261,8 +261,7 @@ class SubjectPreparation():
         if filename.endswith('.sh'):
             os.chmod(filename, 0755)
 
-    @staticmethod
-    def __gen_precondition_guest(test):
+    def __gen_precondition_guest(self, test):
         """
         Generate the Tapper precondition for a single guest
 
@@ -294,7 +293,15 @@ class SubjectPreparation():
             'timeout_testprogram': 200,
             'runtime':             50,
         }
+        osvwtest = {
+            'execname':            '/data/tapper/autoreport/xen-osvw.sh',
+            'timeout_testprogram': 200,
+            'runtime':             120,
+        }
         testprogramlist = [testprogram, parselogs]
+        subject = self.testrun.subject['name'].lower()
+        if re.search('osvw', subject):
+            testprogramlist.append(osvwtest)
         if test['ostype'].lower().startswith('windows'):
             root['arch'] = 'windows'
             root['mounttype'] = 'windows'
