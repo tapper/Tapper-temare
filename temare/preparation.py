@@ -295,6 +295,7 @@ class SubjectPreparation():
         }
         osvwtest = {
             'execname':            '/data/tapper/autoreport/xen-osvw.sh',
+            'chdir':               'AUTO',
             'timeout_testprogram': 200,
             'runtime':             120,
         }
