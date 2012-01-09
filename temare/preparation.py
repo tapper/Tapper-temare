@@ -307,6 +307,7 @@ class SubjectPreparation():
             root['arch'] = 'windows'
             root['mounttype'] = 'windows'
             root['mountpartition'] = 'p1'
+            testprogramlist = [testprogram]
         elif test['bitness'] == 1:
             root['arch'] = 'linux64'
         else:
