@@ -102,9 +102,10 @@ class TestRunGenerator():
         self.host['id'], self.resources['memory'], self.resources['cores'], \
                 self.resources['lastvendor'], self.resources['lastsubject'], \
                 self.resources['bitness'], state = result
-        if (self.resources["memory"] * 0.1) > minmem:
-            minmem = "%d" % (self.resources['memory'] * 0.1)
-        self.resources['memory'] -= minmem
+        if int(self.resources["memory"] * 0.1) > minmem:
+            self.resources['memory'] -= int(self.resources["memory"] * 0.1)
+        else:
+            self.resources['memory'] -= minmem
         self.resources['cores'] += 1
         if state != 1:
             raise ValueError('The chosen host is currently disabled.')
