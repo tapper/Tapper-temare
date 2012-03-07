@@ -479,7 +479,7 @@ class SubjectPreparation():
             'timeout_testprogram': 200,
             'runtime':             50,
         }
-        preconditions = [xenpkg, dom0pkg, instpkg, inst, firmware, ]
+        preconditions = [xenpkg, instpkg, inst, firmware, ]
         testprogramlist = [metainfo, xen_core_pair,]
         root = {
             'precondition_type': 'image',
