@@ -457,6 +457,10 @@ class SubjectPreparation():
             'filename':          '/bin/xen_install.sh',
             'options':           [self.testrun.subject['name'], ],
         }
+        firmware = {
+            'precondition_type': 'package',
+            'filename':          'kernel/linux-firmware/firmware.tgz',
+        }
         drvpkg = {
             'precondition_type': 'package',
             'filename':          'tapperutils/sles10/netxtreme2.tgz',
@@ -475,7 +479,7 @@ class SubjectPreparation():
             'timeout_testprogram': 200,
             'runtime':             50,
         }
-        preconditions = [xenpkg, dom0pkg, instpkg, inst, drvpkg, drvinst]
+        preconditions = [xenpkg, dom0pkg, instpkg, inst, firmware, ]
         testprogramlist = [metainfo, xen_core_pair,]
         root = {
             'precondition_type': 'image',
