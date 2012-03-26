@@ -400,6 +400,7 @@ class SubjectPreparation():
             'timeout_testprogram': 1800,
         }
         xen_core_pair = {
+            'chdir':               'AUTO',
             'execname':            '/data/tapper/autoreport/xen-core-pair-check.sh',
             'timeout_testprogram': 200,
             'runtime':             50,
