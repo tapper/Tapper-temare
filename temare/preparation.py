@@ -294,7 +294,7 @@ class SubjectPreparation():
             'runtime':             50,
         }
         osvwtest = {
-            'execname':            '/data/tapper/autoreport/xen-osvw.sh',
+            'execname':            '/data/tapper/autoreport/xen-osvw.t',
             'chdir':               'AUTO',
             'timeout_testprogram': 200,
             'runtime':             120,
@@ -401,7 +401,7 @@ class SubjectPreparation():
         }
         xen_core_pair = {
             'chdir':               'AUTO',
-            'execname':            '/data/tapper/autoreport/xen-core-pair-check.sh',
+            'execname':            '/data/tapper/autoreport/xen-core-pair-check.t',
             'timeout_testprogram': 200,
             'runtime':             50,
         }
@@ -476,7 +476,7 @@ class SubjectPreparation():
             'runtime':             50,
         }
         xen_core_pair = {
-            'execname':            '/data/tapper/autoreport/xen-core-pair-check.sh',
+            'execname':            '/data/tapper/autoreport/xen-core-pair-check.t',
             'timeout_testprogram': 200,
             'runtime':             50,
         }
