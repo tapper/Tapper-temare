@@ -281,9 +281,8 @@ class SubjectPreparation():
             'runtime':             test['runtime'],
         }
         root = {
-            'precondition_type': 'copyfile',
-            'protocol':          'nfs',
-            'name':              '%s/%s' % (imagepath, test['image']),
+            'precondition_type': 'package',
+            'url':               '%s/%s.tgz' % (imagepath, os.path.splitext(test['image'])[0]),
             'mountfile':         '%(datadir)s/%(mntfile)s' % test,
             'mounttype':         'raw',
             'dest':              test['datadir'],

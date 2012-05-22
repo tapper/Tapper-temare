@@ -136,7 +136,7 @@ xencfgstore = '%s/configs/xen' % (tapperrepo, )
 kvmcfgstore = '%s/configs/kvm' % (tapperrepo, )
 
 # NFS path to guest image files
-imagepath = 'osko:/export/image_files/official_testing'
+imagepath = 'nfs://osko:/export/image_files/official_testing/tared_testimages'
 
 # Prefix for guest config file location written into the precondition
 nfshost = 'tapper'
