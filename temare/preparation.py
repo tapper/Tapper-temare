@@ -285,7 +285,7 @@ class SubjectPreparation():
             'url':               '%s/%s.tgz' % (imagepath, os.path.splitext(test['image'])[0]),
             'mountfile':         '%(datadir)s/%(mntfile)s' % test,
             'mounttype':         'raw',
-            'dest':              test['datadir'],
+            'target_directory':  test['datadir'],
         }
         parselogs = {
             'execname':            '/opt/tapper/bin/py_parselog',
