@@ -18,7 +18,7 @@ import time
 from subprocess import Popen, PIPE, STDOUT
 from os.path import basename
 from checks import chk_hostname, chk_subject
-from config import kvm, svm, formats, cfgscript, copyscript,        \
+from config import kvm, svm, xlsh, formats, cfgscript, copyscript,  \
                    osimage, xencfgstore, nfshost, suiteimage,       \
                    builddir, buildarchs, buildpattern, imagepath,   \
                    kvmcfgstore, grubtemplates, virtdirman
@@ -353,7 +353,13 @@ class SubjectPreparation():
             test['mntfile'] = '%s.img' % (prefix, )
             test['format'] = formats[test['format']]
             test['imgbasename'] = basename(test['image'])
-            if re.search('^xen|autoinstall-xen', subject):
+            if re.search("^xen-unstable", subject):
+                test['format'] = "raw"
+                test['cfgfile'] = '%s.sh' % (prefix, )
+                test['cfgfilesrc'] = '%s/%s' % (xencfgstore, test['cfgfile'])
+                test['cfgtype'] = 'exec'
+                configfile = xlsh % test
+            elif re.search('^xen|autoinstall-xen', subject):
                 test['cfgfile'] = '%s.svm' % (prefix, )
                 test['cfgfilesrc'] = '%s/%s' % (xencfgstore, test['cfgfile'])
                 test['cfgtype'] = 'svm'

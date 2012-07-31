@@ -104,6 +104,42 @@ svm =                                                                        \
         'vcpus = %(cores)d\n'                                                \
         'hap = %(hap)d\n'
 
+# Xen xl guest start script template
+xlsh =                                                                        \
+        '#!/bin/bash\n'                                                       \
+        'export PATH=/usr/local/bin:/usr/bin:$PATH\n'                         \
+        'xenexec=$((which xl) 2>/dev/null)\n'                                 \
+        'if [ -z "$xenexec" ]; then\n'                                        \
+        '   echo "No XEN executable found. Exiting." >/dev/stderr\n'          \
+        '   exit 2\n'                                                         \
+        'fi\n'                                                                \
+        '/etc/init.d/xend stop && sleep 4\n'                                  \
+        'tmp_conf=`mktemp`\n'                                                 \
+        'cat > $tmp_conf << EOF\n'                                            \
+        'builder=\"hvm\"\n'                                                   \
+        'vif=[\"mac=%(macaddr)s,bridge=xenbr0\"]\n'                           \
+        'vnc=1\n'                                                             \
+        'vnclisten=\"0.0.0.0\"\n'                                             \
+        'vncpasswd=\"\"\n'                                                    \
+        'serial=\"file:/tmp/guest%(runid)d.fifo\"\n'                          \
+        'monitor=1\n'                                                         \
+        'usb=1\n'                                                             \
+        'usbdevice=\"tablet\"\n'                                              \
+        'name=\"%(runid)03d-%(test)s\"\n'                                     \
+        'disk=[\"%(datadir)s/%(imgbasename)s,%(format)s,hda,w\",'             \
+        '       \"%(datadir)s/%(mntfile)s,raw,hdb,w\"]\n'                     \
+        'boot=\"c\"\n'                                                        \
+        'acpi=1\n'                                                            \
+        'apic=1\n'                                                            \
+        'pae=1\n'                                                             \
+        'hpet=0\n'                                                            \
+        'memory=%(memory)d\n'                                                 \
+        'vcpus=%(cores)d\n'                                                   \
+        'hap=%(hap)d\n'                                                       \
+        'EOF\n'                                                               \
+        '$xenexec create $tmp_conf\n'                                         \
+        'rm -f $tmp_conf\n'
+
 # Designation of the guest image formats as used in the guest configuration
 formats = {'raw': 'tap:aio', 'qcow': 'tap:qcow',
         'qcow2': 'tap:qcow2', 'file': 'file'}
