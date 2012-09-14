@@ -353,7 +353,7 @@ class SubjectPreparation():
             test['mntfile'] = '%s.img' % (prefix, )
             test['format'] = formats[test['format']]
             test['imgbasename'] = basename(test['image'])
-            if re.search("^xen-unstable", subject):
+            if re.search("^xen-unstable|xen-4.2", subject):
                 test['format'] = "raw"
                 test['cfgfile'] = '%s.sh' % (prefix, )
                 test['cfgfilesrc'] = '%s/%s' % (xencfgstore, test['cfgfile'])
