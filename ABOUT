@@ -1,4 +1,4 @@
-First thoughts about a test matrix replacement
+A test matrix replacement
 
 Why?
   Current approach is to manually pick some tests out of a matrix. This is
